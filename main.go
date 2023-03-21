@@ -1,16 +1,40 @@
 package main
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 )
+
+type Config struct {
+	Port string `json:"port"`
+}
+
+func ParseConfig() Config {
+	var config Config
+
+	jsonFile, err := os.Open("dev_config.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer jsonFile.Close()
+	byteValue, err := ioutil.ReadAll(jsonFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	json.Unmarshal(byteValue, &config)
+	return config
+}
 
 func main() {
 
-	log.Println("Ctrl + Click on the link: https://localhost:8080")
-	log.Println("To stop the server press `Ctrl + C`")
-	log.Fatal(http.ListenAndServeTLS(":8080", "cert.pem", "key.pem", nil))
+	config := ParseConfig()
 
+	log.Println("Ctrl + Click on the link: https://localhost:" + config.Port)
+	log.Println("To stop the server press `Ctrl + C`")
+	log.Fatal(http.ListenAndServeTLS(":"+config.Port, "cert.pem", "key.pem", nil))
 	/*
 		This is a proposed endpoint design that groups actions by the data type they operate on
 		because real-time-forum and social-network projects are going to be API based
