@@ -1,6 +1,16 @@
 package main
 
+import (
+	"log"
+	"net/http"
+)
+
 func main() {
+
+	log.Println("Ctrl + Click on the link: https://localhost:8080")
+	log.Println("To stop the server press `Ctrl + C`")
+	log.Fatal(http.ListenAndServeTLS(":8080", "cert.pem", "key.pem", nil))
+
 	/*
 		This is a proposed endpoint design that groups actions by the data type they operate on
 		because real-time-forum and social-network projects are going to be API based
