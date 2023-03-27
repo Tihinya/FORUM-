@@ -9,26 +9,30 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-func login(w http.ResponseWriter, r *http.Request) {
-	userId := 18
+var saveSession = make(map[int]string)
 
-	saveSession := make(map[int]string)
+func LoginHandler(w http.ResponseWriter, r *http.Request) {
+	login(w, 12)
+	fmt.Fprintf(w, "skdfj")
+}
+
+func login(w http.ResponseWriter, userId int) {
+
 	//Create token
 	UUIDtoken, err := uuid.NewV4()
 	if err != nil {
 		log.Fatalf("failed to generate UUID: %v", err)
 	}
 	sessionToken := UUIDtoken.String()
-
+	//set up cookies for web
 	cookie := &http.Cookie{
 		Name:    "session-Id",
 		Value:   sessionToken,
 		Expires: time.Now().Add(5 * time.Minute),
 	}
+	//save session to map
 	saveSession[userId] = sessionToken
-
+	// git cookies to user
 	http.SetCookie(w, cookie)
-
-	fmt.Println(saveSession)
 
 }

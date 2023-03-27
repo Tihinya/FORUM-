@@ -1,13 +1,14 @@
 package main
 
 import (
+	"forum/login"
 	"log"
 	"net/http"
 )
 
 func main() {
 
-	http.HandleFunc("/", Login)
+	http.HandleFunc("/", login.LoginHandler)
 
 	log.Println("Ctrl + Click on the link: http://localhost:8080")
 	log.Println("To stop the server press `Ctrl + C`")
