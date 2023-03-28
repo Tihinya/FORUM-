@@ -11,7 +11,7 @@ import (
 
 var saveSession = make(map[int]string)
 
-func LoginHandler(w http.ResponseWriter, r *http.Request) {
+func Login(w http.ResponseWriter, r *http.Request) {
 	login(w, 12)
 	fmt.Fprintf(w, "skdfj")
 }
@@ -34,5 +34,8 @@ func login(w http.ResponseWriter, userId int) {
 	saveSession[userId] = sessionToken
 	// git cookies to user
 	http.SetCookie(w, cookie)
+
+}
+func Registration(w http.ResponseWriter, r *http.Request) {
 
 }

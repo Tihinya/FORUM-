@@ -8,7 +8,7 @@ import (
 
 func main() {
 
-	http.HandleFunc("/", login.LoginHandler)
+	http.HandleFunc("/", login.Login)
 
 	log.Println("Ctrl + Click on the link: http://localhost:8080")
 	log.Println("To stop the server press `Ctrl + C`")
