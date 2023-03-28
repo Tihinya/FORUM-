@@ -2,6 +2,9 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
+	ct "forum/controllers"
+	"forum/router"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -11,8 +14,6 @@ import (
 type Config struct {
 	Port string `json:"port"`
 }
-
-//df
 
 func ParseConfig() Config {
 	var config Config
@@ -30,50 +31,58 @@ func ParseConfig() Config {
 	return config
 }
 
-func main() {
+func ExampleMiddleware() router.Middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Your middleware logic here
+			fmt.Println("Example middleware executed 1")
 
+			// Call the next middleware/handler in the chain
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
+func main() {
 	config := ParseConfig()
+
+	r := router.NewRouter()
+
+	// middleware usage example
+	r.AddGlobalMiddleware(ExampleMiddleware())
+
+	// User
+	r.NewRoute("POST", `/user/(?P<id>\d+)`, ct.CreateUser)
+	r.NewRoute("GET", `/user/(?P<id>\d+)`, ct.ReadUser)
+	r.NewRoute("PATCH", `/user/(?P<id>\d+)`, ct.UpdateUser)
+	r.NewRoute("DELETE", `/user/(?P<id>\d+)`, ct.DeleteUser)
+
+	// Post
+	r.NewRoute("POST", `/post/(?P<id>\d+)`, ct.CreatePost)
+	r.NewRoute("GET", `/post/(?P<id>\d+)`, ct.ReadPost)
+	r.NewRoute("PATCH", `/post/(?P<id>\d+)`, ct.UpdatePost)
+	r.NewRoute("DELETE", `/post/(?P<id>\d+)`, ct.DeletePost)
+
+	// Comment
+	r.NewRoute("POST", `/post/(?P<id>\d+)`, ct.CreatePost)
+	r.NewRoute("GET", `/post/(?P<id>\d+)`, ct.ReadPost)
+	r.NewRoute("PATCH", `/post/(?P<id>\d+)`, ct.UpdatePost)
+	r.NewRoute("DELETE", `/post/(?P<id>\d+)`, ct.DeletePost)
+
+	// Login
+	r.NewRoute("GET", `/login/(?P<id>\d+)`, ct.Login)
+	r.NewRoute("GET", `/logout/(?P<id>\d+)`, ct.LogOut)
+
+	// Pages
+	r.NewRoute("GET", `/`, ct.MainPage)
+	r.NewRoute("GET", `/registration`, ct.LoginRegistrationPage)
+	r.NewRoute("GET", `/profile/(?P<id>\d+)`, ct.ProfilePage)
+	r.NewRoute("GET", `/error`, ct.ErrorPage)
+	r.NewRoute("GET", `/limit`, ct.PerformancePage)
+
+	http.HandleFunc("/", r.Serve)
 
 	log.Println("Ctrl + Click on the link: https://localhost:" + config.Port)
 	log.Println("To stop the server press `Ctrl + C`")
 	log.Fatal(http.ListenAndServeTLS(":"+config.Port, "cert.pem", "key.pem", nil))
-	/*
-		This is a proposed endpoint design that groups actions by the data type they operate on
-		because real-time-forum and social-network projects are going to be API based
-		It's important to note that this is just a design and the actual implementation may vary.
-
-		Logging, Notification, Access Level, Status, Security, Performance will be implemented as middleware on top
-		of the enpoints.
-	*/
-
-	// Post:
-	// --Create
-	// --Read
-	// --Update
-	// --Delete
-
-	// User:
-	// --Create
-	// --Read
-	// --Update
-	// --Delete
-	// --Change permissions
-
-	// Login:
-	// --Login
-	// --Logout
-	// ( register is User:Create )
-
-	// Comment:
-	// --Create
-	// --Read
-	// --Update
-	// --Delete
-
-	// Pages:
-	// --Main
-	// --Loggin/registration
-	// --Profile
-	// --Error page
-	// --Performance limit page
 }
