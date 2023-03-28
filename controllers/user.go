@@ -1,0 +1,8 @@
+package controllers
+
+import "net/http"
+
+func CreateUser(w http.ResponseWriter, r *http.Request) {}
+func ReadUser(w http.ResponseWriter, r *http.Request)   {}
+func UpdateUser(w http.ResponseWriter, r *http.Request) {}
+func DeleteUser(w http.ResponseWriter, r *http.Request) {}

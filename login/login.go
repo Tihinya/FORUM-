@@ -1,7 +1,6 @@
 package login
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -11,12 +10,7 @@ import (
 
 var saveSession = make(map[int]string)
 
-func Login(w http.ResponseWriter, r *http.Request) {
-	login(w, 12)
-	fmt.Fprintf(w, "skdfj")
-}
-
-func login(w http.ResponseWriter, userId int) {
+func Loginadd(w http.ResponseWriter, userId int) {
 
 	//Create token
 	UUIDtoken, err := uuid.NewV4()
