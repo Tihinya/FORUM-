@@ -64,10 +64,10 @@ func main() {
 	r.NewRoute("DELETE", `/post/(?P<id>\d+)`, ct.DeletePost)
 
 	// Comment
-	r.NewRoute("POST", `/post/(?P<id>\d+)`, ct.CreatePost)
-	r.NewRoute("GET", `/post/(?P<id>\d+)`, ct.ReadPost)
-	r.NewRoute("PATCH", `/post/(?P<id>\d+)`, ct.UpdatePost)
-	r.NewRoute("DELETE", `/post/(?P<id>\d+)`, ct.DeletePost)
+	r.NewRoute("POST", `/comment/(?P<id>\d+)`, ct.CreatePost)
+	r.NewRoute("GET", `/comment/(?P<id>\d+)`, ct.ReadPost)
+	r.NewRoute("PATCH", `/comment/(?P<id>\d+)`, ct.UpdatePost)
+	r.NewRoute("DELETE", `/comment/(?P<id>\d+)`, ct.DeletePost)
 
 	// Login
 	r.NewRoute("GET", `/login/(?P<id>\d+)`, ct.Login)
