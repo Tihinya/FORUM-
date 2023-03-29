@@ -70,7 +70,7 @@ func main() {
 	r.NewRoute("DELETE", `/comment/(?P<id>\d+)`, ct.DeleteComment)
 
 	// Login
-	r.NewRoute("GET", `/login/(?P<id>\d+)`, ct.Login)
+	r.NewRoute("GET", `/login`, ct.Login)
 	r.NewRoute("GET", `/logout/(?P<id>\d+)`, ct.LogOut)
 
 	// Pages

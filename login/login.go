@@ -1,7 +1,6 @@
 package login
 
 import (
-	"log"
 	"net/http"
 	"time"
 
@@ -10,25 +9,25 @@ import (
 
 var saveSession = make(map[int]string)
 
-func Loginadd(w http.ResponseWriter, userId int) {
-
+func AddLogin(w http.ResponseWriter, userId int) error {
 	//Create token
 	UUIDtoken, err := uuid.NewV4()
 	if err != nil {
-		log.Fatalf("failed to generate UUID: %v", err)
+		return err
 	}
 	sessionToken := UUIDtoken.String()
 	//set up cookies for web
 	cookie := &http.Cookie{
 		Name:    "session-Id",
 		Value:   sessionToken,
-		Expires: time.Now().Add(5 * time.Minute),
+		Expires: time.Now().Add(time.Hour * 8760), // 1 year
 	}
 	//save session to map
 	saveSession[userId] = sessionToken
 	// git cookies to user
 	http.SetCookie(w, cookie)
 
+	return nil
 }
 func Registration(w http.ResponseWriter, r *http.Request) {
 
