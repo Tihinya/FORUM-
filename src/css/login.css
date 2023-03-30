@@ -1,0 +1,35 @@
+:root {
+    --background__color: #ECF0F3;
+
+    --button__color: #7796F4;
+    --button__color__hover: #3C61D3; 
+
+
+    --text__color__black: black;
+    --text__color__white: white;
+    --text__black__oppacity: #00000080;
+
+}
+
+
+body {
+    padding: 0;
+    margin: 0;
+    
+    background-color: var(--background__color);
+
+    
+    
+};
+
+.main__container {
+    display: flex;
+
+    width: 40%;
+    height: 40%;
+
+    background-color: black;
+}
+
+
+
