@@ -17,10 +17,11 @@ func AddLogin(w http.ResponseWriter, userId int) error {
 	}
 	sessionToken := UUIDtoken.String()
 	//set up cookies for web
+	oneYear := time.Now().Add(time.Hour * 8760)
 	cookie := &http.Cookie{
 		Name:    "session-Id",
 		Value:   sessionToken,
-		Expires: time.Now().Add(time.Hour * 8760), // 1 year
+		Expires: oneYear,
 	}
 	//save session to map
 	saveSession[userId] = sessionToken

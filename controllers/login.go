@@ -7,7 +7,8 @@ import (
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {
-	err := login.AddLogin(w, 228)
+	userId := 228 // test user id
+	err := login.AddLogin(w, userId)
 	if err != nil {
 		log.Printf("failed to generate UUID: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
