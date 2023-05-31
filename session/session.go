@@ -40,10 +40,11 @@ func (s *Storage) CreateSession(userId int, w http.ResponseWriter) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:    "session_token",
-		Value:   sessionToken,
-		Expires: time.Now().Add(cookieLifeTime),
-		Path:    "/",
+		Name:     "session_token",
+		Value:    sessionToken,
+		Expires:  time.Now().Add(cookieLifeTime),
+		SameSite: http.SameSiteStrictMode,
+		Path:     "/",
 	})
 }
 
