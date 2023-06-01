@@ -59,7 +59,7 @@ body {
   display: flex;
 
   font-size: 18px;
-  width: 60%;
+  width: 50%;
   height: 40px;
 
   padding: 0px 15px;
@@ -156,7 +156,7 @@ body {
   flex-direction: column;
   padding: 0px 20px;
   gap: 20px;
-  width: 50%;
+  width: 62%;
 }
 
 .post__box {
