@@ -3,64 +3,110 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
+	"forum/router"
 	"net/http"
 	"time"
 )
 
+type Post struct {
+	PostId       int       `json:"postId"`
+	Title        string    `json:"title"`
+	Text         string    `json:"text"`
+	UserInfo     UserInfo  `json:"userInfo"`
+	CreationDate time.Time `json:"creationDate"`
+	Likes        int       `json:"likes"`
+	Dislikes     int       `json:"dislikes"`
+	Categories   []string  `json:"categories"`
+}
+
+type UserInfo struct {
+	Avatar   string `json:"avatar"`
+	Username string `json:"username"`
+}
+
+var tempDB = make(map[int]Post)
+
 func CreatePost(w http.ResponseWriter, r *http.Request) {
 
-	// Get post data via formvalue(current) or pure json?
-	postTitle := r.FormValue("post__title")
-	postContent := r.FormValue("post__content")
-	postCategories := r.FormValue("post__tags")
-	postCreator := r.FormValue("username")
-	postCreationDate := time.Now().String()
+	var post Post
 
-	// Parse data to json
-	data := map[string]string{
-		"title":        postTitle,
-		"content":      postContent,
-		"categories":   postCategories,
-		"creator":      postCreator,
-		"creationDate": postCreationDate,
+	postID, err := router.GetFieldInt(r, "id")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
-	jsonData, _ := json.Marshal(data)
-	fmt.Println(string(jsonData))
+
+	err2 := json.NewDecoder(r.Body).Decode(&post)
+	if err2 != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	post.CreationDate = time.Now()
+	post.Likes = 0
+	post.Dislikes = 0
+	post.PostId = postID
 
 	// Send data to database
-	// db.CreatePost(jsonData)
+	tempDB[postID] = post
+
+	fmt.Println("TEMPDB:\n", tempDB)
 
 }
-func ReadPost(w http.ResponseWriter, r *http.Request) {} // Is this even necessary?
+func ReadPost(w http.ResponseWriter, r *http.Request) {
+	postID, err := router.GetFieldInt(r, "id")
+	if err != nil {
+		http.Error(w, "Invalid post ID", http.StatusBadRequest)
+	}
+	post, exist := tempDB[postID]
+
+	if !exist {
+		http.Error(w, "Post does not exist, failed to GET", http.StatusBadRequest)
+	} else {
+		json.NewEncoder(w).Encode(post)
+	}
+}
 
 func UpdatePost(w http.ResponseWriter, r *http.Request) {
-	postTitle := r.FormValue("post__title")
-	postContent := r.FormValue("post__content")
-	postCategories := r.FormValue("post__tags")
-	postCreator := r.FormValue("username")
-	postCreationDate := time.Now().String()
-	postId := r.FormValue("post__id")
+	var post Post
 
-	// Parse data to json
-	data := map[string]string{
-		"title":        postTitle,
-		"content":      postContent,
-		"categories":   postCategories,
-		"creator":      postCreator,
-		"creationDate": postCreationDate,
-		"postId":       postId,
+	postID, err := router.GetFieldInt(r, "id")
+	if err != nil {
+		http.Error(w, "Invalid post ID", http.StatusBadRequest)
 	}
-	jsonData, _ := json.Marshal(data)
-	fmt.Println(string(jsonData))
 
-	// Send data to database
-	// db.EditPost(jsonData)
+	err2 := json.NewDecoder(r.Body).Decode(&post)
+	if err2 != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	_, exist := tempDB[postID]
+
+	if !exist {
+		http.Error(w, "Post does not exist, failed to update", http.StatusBadRequest)
+	} else {
+		post.PostId = postID
+		tempDB[postID] = post
+
+		json.NewEncoder(w).Encode("Post successfully updated")
+	}
+
 }
 func DeletePost(w http.ResponseWriter, r *http.Request) {
-	postId := r.FormValue("post__id")
-	fmt.Println(postId)
-	// Delete from database
-	// db.DeletePost(postId)
+	postID, err := router.GetFieldInt(r, "id")
+	if err != nil {
+		http.Error(w, "Invalid post ID", http.StatusBadRequest)
+	}
+
+	_, exist := tempDB[postID]
+
+	if !exist {
+		http.Error(w, "Post does not exist, failed to delete", http.StatusBadRequest)
+	} else {
+		delete(tempDB, postID)
+
+		json.NewEncoder(w).Encode("Post successfully deleted")
+	}
 }
 
 /* Test curl:
@@ -75,6 +121,24 @@ curl -X POST -H "Content-Type: application/json" -d '{
   "likes": 0,
   "dislikes": 0,
   "categories": ["technology", "programming"]
+}' -k https://localhost:8080/post/1
+
+curl -X POST -H "Content-Type: application/json" -d '{
+  "title": "2222222222",
+  "text": "2 This is the content of my post 2",
+  "userInfo": {
+    "avatar": "https://example.com/avatar.png",
+    "username": "john_doe"
+  },
+  "categories": ["technology", "programming"]
+}' -k https://localhost:8080/post/2
+
+curl -X GET -k https://localhost:8080/post/1
+
+curl -X PATCH -H "Content-Type: application/json" -d '{
+  "title": "UPDATED UPDATED UPDATED",
+  "content": "Updated Updated Updated?",
+  "categories": ["updated", "the whats?"]
 }' -k https://localhost:8080/post/1
 
 */
