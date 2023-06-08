@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"forum/router"
 	"net/http"
 	"time"
@@ -41,15 +40,22 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	post.CreationDate = time.Now()
-	post.Likes = 0
-	post.Dislikes = 0
-	post.PostId = postID
 
-	// Send data to database
-	tempDB[postID] = post
+	_, exist := tempDB[postID]
 
-	fmt.Println("TEMPDB:\n", tempDB)
+	if !exist {
+		post.CreationDate = time.Now()
+		post.Likes = 0
+		post.Dislikes = 0
+		post.PostId = postID
+
+		// Send data to database
+		tempDB[postID] = post
+
+		json.NewEncoder(w).Encode("Post successfully created")
+	} else {
+		json.NewEncoder(w).Encode("Post creation failed, a post on that ID already exists")
+	}
 
 }
 func ReadPost(w http.ResponseWriter, r *http.Request) {
@@ -80,11 +86,14 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, exist := tempDB[postID]
+	oldPost, exist := tempDB[postID]
 
 	if !exist {
 		http.Error(w, "Post does not exist, failed to update", http.StatusBadRequest)
 	} else {
+		post.CreationDate = oldPost.CreationDate
+		post.Likes = oldPost.Likes
+		post.Dislikes = oldPost.Dislikes
 		post.PostId = postID
 		tempDB[postID] = post
 
@@ -140,5 +149,7 @@ curl -X PATCH -H "Content-Type: application/json" -d '{
   "content": "Updated Updated Updated?",
   "categories": ["updated", "the whats?"]
 }' -k https://localhost:8080/post/1
+
+curl -X DELETE -k https://localhost:8080/post/1
 
 */
