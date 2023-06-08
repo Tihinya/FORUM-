@@ -49,12 +49,17 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		post.Dislikes = 0
 		post.PostId = postID
 
+		if len(post.Text) == 0 || len(post.Title) == 0 {
+			http.Error(w, "Post creation failed, the post content can not be empty", http.StatusBadRequest)
+			return
+		}
+
 		// Send data to database
 		tempDB[postID] = post
 
 		json.NewEncoder(w).Encode("Post successfully created")
 	} else {
-		json.NewEncoder(w).Encode("Post creation failed, a post on that ID already exists")
+		http.Error(w, "Post creation failed, a post on that ID already exists", http.StatusBadRequest)
 	}
 
 }
