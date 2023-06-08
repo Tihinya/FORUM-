@@ -387,7 +387,7 @@ body {
 }
 
 .left__content p {
-  font-size: 36px;
+  font-size: 2vw;
   font-family: "Roboto";
   font-weight: 400;
   letter-spacing: 0.1em;
@@ -398,7 +398,7 @@ body {
 }
 
 .left-part h6 {
-  font-size: 16px;
+  font-size: 1.1vw;
   font-family: "Roboto";
   font-weight: 400;
   text-align: center;
@@ -428,7 +428,7 @@ body {
 }
 
 .right_content h3 {
-  font-size: 16px;
+  font-size: 1.1vw;
   font-family: "Roboto";
   font-weight: 400;
   text-align: center;
@@ -438,6 +438,7 @@ body {
 }
 
 .right_content p {
+  font-size: 2vw;
   font-family: "Roboto";
   font-weight: 300;
   font-size: 50px;
@@ -464,7 +465,7 @@ body {
   flex-direction: column;
   gap: 20px;
 
-  width: 160%;
+  width: 130%;
 }
 
 .input-design {
@@ -499,7 +500,7 @@ body {
   }
 
   .left__content p {
-    font-size: 24px;
+    font-size: 16px;
   }
 
   .auth {
