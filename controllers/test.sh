@@ -35,7 +35,7 @@ echo
 read -p "Press enter to use PATCH method for updating post id 1"
 curl -X PATCH -H "Content-Type: application/json" -d '{
   "title": "UPDATED UPDATED UPDATED",
-  "content": "Updated Updated Updated?",
+  "text": "Updated Updated Updated?",
   "categories": ["updated", "the whats?"]
 }' -k https://localhost:8080/post/1
 echo

@@ -25,6 +25,7 @@ type UserInfo struct {
 
 var tempDB = make(map[int]Post)
 
+// POST method
 func CreatePost(w http.ResponseWriter, r *http.Request) {
 
 	var post Post
@@ -63,6 +64,8 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
+// GET Method
 func ReadPost(w http.ResponseWriter, r *http.Request) {
 	postID, err := router.GetFieldInt(r, "id")
 	if err != nil {
@@ -77,6 +80,7 @@ func ReadPost(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// PATCH Method
 func UpdatePost(w http.ResponseWriter, r *http.Request) {
 	var post Post
 
@@ -91,6 +95,11 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(post.Text) == 0 || len(post.Title) == 0 {
+		http.Error(w, "Post updating failed, the post content can not be empty", http.StatusBadRequest)
+		return
+	}
+
 	oldPost, exist := tempDB[postID]
 
 	if !exist {
@@ -100,12 +109,16 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 		post.Likes = oldPost.Likes
 		post.Dislikes = oldPost.Dislikes
 		post.PostId = postID
+		post.UserInfo.Avatar = oldPost.UserInfo.Avatar
+		post.UserInfo.Username = oldPost.UserInfo.Username
 		tempDB[postID] = post
 
 		json.NewEncoder(w).Encode("Post successfully updated")
 	}
 
 }
+
+// DELETE Method
 func DeletePost(w http.ResponseWriter, r *http.Request) {
 	postID, err := router.GetFieldInt(r, "id")
 	if err != nil {
@@ -151,7 +164,7 @@ curl -X GET -k https://localhost:8080/post/1
 
 curl -X PATCH -H "Content-Type: application/json" -d '{
   "title": "UPDATED UPDATED UPDATED",
-  "content": "Updated Updated Updated?",
+  "text": "Updated Updated Updated?",
   "categories": ["updated", "the whats?"]
 }' -k https://localhost:8080/post/1
 
