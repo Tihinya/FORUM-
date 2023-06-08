@@ -15,8 +15,6 @@ type Session struct {
 	LifeTime   time.Duration
 }
 
-// var sessionStorage = map[string]Session{}
-
 type Storage struct {
 	storage map[string]Session
 	lock    sync.Mutex
@@ -25,9 +23,9 @@ type Storage struct {
 var SessionStorage Storage
 
 const cookieLifeTime = time.Hour * 24 * 365 // 1 year
-const sessionLifeTime = time.Second * 300
+const sessionLifeTime = time.Second * 300   // 5 minute
 
-func (s *Storage) CreateSession(userId int, w http.ResponseWriter) {
+func (s *Storage) CreateSession(userId int) string {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
@@ -38,13 +36,24 @@ func (s *Storage) CreateSession(userId int, w http.ResponseWriter) {
 		ExpireTime: time.Now(),
 		LifeTime:   sessionLifeTime,
 	}
+	return sessionToken
 }
 
-func DeleteCookie(w http.ResponseWriter) {
+func (s *Storage) DeleteCookie(w http.ResponseWriter) {
 	http.SetCookie(w, &http.Cookie{
-		Name:   "session-Id",
+		Name:   "session_token",
 		MaxAge: -1,
 		Path:   "/",
+	})
+}
+
+func (s *Storage) SetCookie(sessionToken string, w http.ResponseWriter) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session_token",
+		Value:    sessionToken,
+		Expires:  time.Now().Add(cookieLifeTime),
+		SameSite: http.SameSiteStrictMode,
+		Path:     "/",
 	})
 }
 
@@ -58,34 +67,23 @@ func ValidateToken(r *http.Request) (string, error) {
 	return sessionId, nil
 }
 
-func (s *Storage) GetSession(token string) *Session {
+func (s *Storage) GetSession(token string, r *http.Request) Session {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
-	session, exists := s.storage[token]
-	if exists {
-		if session.ExpireTime.Before(time.Now()) {
-			delete(s.storage, token)
-			return nil
-		}
-		session.ExpireTime = time.Now().Add(session.LifeTime)
-		s.storage[token] = session
-		return &session
+	session, ok := s.storage[token]
+	if !ok {
+		return Session{}
 	}
 
-	return nil
+	if session.ExpireTime.Before(time.Now()) {
+		delete(s.storage, token)
+		return Session{}
+	}
+
+	return session
 }
 
-func (s *Storage) SetCookie(sessionToken string, w http.ResponseWriter) {
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     "session_token",
-		Value:    sessionToken,
-		Expires:  time.Now().Add(cookieLifeTime),
-		SameSite: http.SameSiteStrictMode,
-		Path:     "/",
-	})
-}
 func (s *Session) RemoveSession() {
 	SessionStorage.lock.Lock()
 	defer SessionStorage.lock.Unlock()
@@ -93,7 +91,7 @@ func (s *Session) RemoveSession() {
 	delete(SessionStorage.storage, s.Token)
 }
 
-func (m *Storage) checkSession() {
+func (s *Storage) checkSession() {
 	for {
 		time.Sleep(time.Second * 60)
 
@@ -105,7 +103,7 @@ func (m *Storage) checkSession() {
 	}
 }
 
-// func (m *Storage) Middleware(next http.Handler) http.Handler {
+// func (s *Storage) Middleware(next http.Handler) http.Handler {
 // 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 // 		cookie, err := r.Cookie("sessionID")
 // 		if err != nil || cookie.Value == "" {
@@ -114,7 +112,7 @@ func (m *Storage) checkSession() {
 // 		}
 
 // 		sessionID := cookie.Value
-// 		session := m.GetSession(sessionID)
+// 		session := s.GetSession(sessionID)
 // 		if session == nil {
 // 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 // 			return

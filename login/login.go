@@ -5,11 +5,11 @@ import (
 	"net/http"
 )
 
-var saveSession = make(map[int]string)
-
 func AddLogin(w http.ResponseWriter, userId int) {
-	session.SessionStorage.CreateSession(userId, w)
+	token := session.SessionStorage.CreateSession(userId)
+	session.SessionStorage.SetCookie(token, w)
 }
+
 func Registration(w http.ResponseWriter, r *http.Request) {
 
 }
