@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	ct "forum/controllers"
+	"forum/database"
 	"forum/router"
 	"io"
 	"log"
@@ -47,6 +48,8 @@ func main() {
 	config := ParseConfig()
 
 	r := router.NewRouter()
+
+	database.CreateTables()
 
 	// middleware usage example
 	r.AddGlobalMiddleware(ExampleMiddleware())
