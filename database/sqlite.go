@@ -72,7 +72,7 @@ func CreatePost(post Post) {
 			Categories
 		) VALUES (?, ?, ?, ?, ?, ?)
 	`)
-	stmt.Exec(post.Title, post.Text, post.UserInfo.Avatar, post.UserInfo.Username, post.CreationDate, string(categoriesJSON))
+	stmt.Exec(post.Title, post.Text, post.UserInfo.Avatar, post.UserInfo.Username, post.CreationDate, categoriesJSON)
 
 	fmt.Println("Post successfully created")
 }
@@ -84,9 +84,10 @@ func SelectPost(id string) []byte {
 
 	for rows.Next() {
 		var post Post
-
-		rows.Scan(&post.Id, &post.Title, &post.Text, &post.UserInfo.Avatar, &post.UserInfo.Username, &post.CreationDate, &post.Likes, &post.Dislikes, &post.Categories)
-
+		var categoriesString string
+		rows.Scan(&post.Id, &post.Title, &post.Text, &post.UserInfo.Avatar, &post.UserInfo.Username, &post.CreationDate, &post.Likes, &post.Dislikes, &categoriesString)
+		err = json.Unmarshal([]byte(categoriesString), &post.Categories)
+		checkErr(err)
 		posts = append(posts, post)
 	}
 
@@ -108,8 +109,10 @@ func SelectAllPosts() []byte {
 
 	for rows.Next() {
 		var post Post
-		rows.Scan(&post.Id, &post.Title, &post.Text, &post.UserInfo.Avatar, &post.UserInfo.Username, &post.CreationDate, &post.Likes, &post.Dislikes, &post.Categories)
-		fmt.Println(post.Categories)
+		var categoriesString string
+		rows.Scan(&post.Id, &post.Title, &post.Text, &post.UserInfo.Avatar, &post.UserInfo.Username, &post.CreationDate, &post.Likes, &post.Dislikes, &categoriesString)
+		err = json.Unmarshal([]byte(categoriesString), &post.Categories)
+		checkErr(err)
 		posts = append(posts, post)
 	}
 
