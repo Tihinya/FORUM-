@@ -59,58 +59,35 @@ func ReadPosts(w http.ResponseWriter, r *http.Request) {
 
 // PATCH method
 func UpdatePost(w http.ResponseWriter, r *http.Request) {
-	/*var post database.Post
+	var post database.Post
 
 	postID, err := router.GetFieldInt(r, "id")
 	if err != nil {
 		http.Error(w, "Invalid post ID", http.StatusBadRequest)
 	}
 
-	err2 := json.NewDecoder(r.Body).Decode(&post)
-	if err2 != nil {
+	err = json.NewDecoder(r.Body).Decode(&post)
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if len(post.Text) == 0 || len(post.Title) == 0 {
-		http.Error(w, "Post updating failed, the post content can not be empty", http.StatusBadRequest)
-		return
-	}
+	database.UpdatePost(post, postID)
 
-	oldPost, exist := tempDB[postID]
-
-	if !exist {
-		http.Error(w, "Post does not exist, failed to update", http.StatusBadRequest)
-	} else {
-		post.CreationDate = oldPost.CreationDate
-		post.Likes = oldPost.Likes
-		post.Dislikes = oldPost.Dislikes
-		post.Id = postID
-		post.UserInfo.Avatar = oldPost.UserInfo.Avatar
-		post.UserInfo.Username = oldPost.UserInfo.Username
-		tempDB[postID] = post
-
-		json.NewEncoder(w).Encode("Post successfully updated")
-	}
-	*/
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprint(w, "Post successfully updated")
 }
 
-// DELETE Method
+// DELETE method
 func DeletePost(w http.ResponseWriter, r *http.Request) {
-	/*
-		postID, err := router.GetFieldInt(r, "id")
-		if err != nil {
-			http.Error(w, "Invalid post ID", http.StatusBadRequest)
-		}
 
-		_, exist := tempDB[postID]
+	postID, err := router.GetFieldInt(r, "id")
+	if err != nil {
+		http.Error(w, "Invalid post ID", http.StatusBadRequest)
+	}
 
-		if !exist {
-			http.Error(w, "Post does not exist, failed to delete", http.StatusBadRequest)
-		} else {
-			delete(tempDB, postID)
+	database.DeletePost(postID)
 
-			json.NewEncoder(w).Encode("Post successfully deleted")
-		}
-	*/
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprint(w, "Post successfully deleted")
 }

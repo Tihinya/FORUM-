@@ -19,6 +19,7 @@ type Post struct {
 	Likes        int       `json:"likes"`
 	Dislikes     int       `json:"dislikes"`
 	Categories   []string  `json:"categories"`
+	LastEdited   time.Time `json:"lastEdited"`
 }
 
 type UserInfo struct {
@@ -45,7 +46,8 @@ func CreateTables() {
 			CreationDate DATETIME,
 			Likes INTEGER DEFAULT 0,
 			Dislikes INTEGER DEFAULT 0,
-			Categories TEXT
+			Categories TEXT,
+			LastEdited DATETIME NULL
 		);
 	`)
 	checkErr(err)
@@ -60,7 +62,6 @@ func CreateTables() {
 func CreatePost(post Post) {
 	categoriesJSON, err := json.Marshal(post.Categories)
 	checkErr(err)
-	fmt.Println(string(categoriesJSON))
 
 	stmt, _ := db.Prepare(`
 		INSERT INTO posts (
@@ -85,7 +86,7 @@ func SelectPost(id string) []byte {
 	for rows.Next() {
 		var post Post
 		var categoriesString string
-		rows.Scan(&post.Id, &post.Title, &post.Text, &post.UserInfo.Avatar, &post.UserInfo.Username, &post.CreationDate, &post.Likes, &post.Dislikes, &categoriesString)
+		rows.Scan(&post.Id, &post.Title, &post.Text, &post.UserInfo.Avatar, &post.UserInfo.Username, &post.CreationDate, &post.Likes, &post.Dislikes, &categoriesString, &post.LastEdited)
 		err = json.Unmarshal([]byte(categoriesString), &post.Categories)
 		checkErr(err)
 		posts = append(posts, post)
@@ -110,7 +111,7 @@ func SelectAllPosts() []byte {
 	for rows.Next() {
 		var post Post
 		var categoriesString string
-		rows.Scan(&post.Id, &post.Title, &post.Text, &post.UserInfo.Avatar, &post.UserInfo.Username, &post.CreationDate, &post.Likes, &post.Dislikes, &categoriesString)
+		rows.Scan(&post.Id, &post.Title, &post.Text, &post.UserInfo.Avatar, &post.UserInfo.Username, &post.CreationDate, &post.Likes, &post.Dislikes, &categoriesString, &post.LastEdited)
 		err = json.Unmarshal([]byte(categoriesString), &post.Categories)
 		checkErr(err)
 		posts = append(posts, post)
@@ -123,6 +124,35 @@ func SelectAllPosts() []byte {
 		log.Fatal(err, "ERRORORRORO")
 	}
 	return jsonPosts
+}
+
+func UpdatePost(post Post, postID int) {
+	stmt, _ := db.Prepare(`
+		UPDATE posts SET
+			title = ?,
+			text = ?,
+			categories = ?,
+			lastEdited = ?
+		WHERE id = ?
+	`)
+
+	if post.Id != 0 {
+		postID = post.Id
+	}
+
+	categoriesJSON, _ := json.Marshal(post.Categories)
+
+	stmt.Exec(post.Title, post.Text, string(categoriesJSON), time.Now(), postID)
+
+	fmt.Println("Post successfully updated")
+}
+
+func DeletePost(postID int) {
+	stmt, _ := db.Prepare(`
+		DELETE FROM posts WHERE ID = ?
+	`)
+
+	stmt.Exec(postID)
 }
 
 func checkErr(err error) {
