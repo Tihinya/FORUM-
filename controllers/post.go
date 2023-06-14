@@ -30,6 +30,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	post.CreationDate = time.Now()
 
 	database.CreatePost(post)
+	fmt.Fprint(w, "Post successfully created")
 }
 
 // GET method
