@@ -22,7 +22,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if len(post.Title) == 0 || len(post.Text) == 0 {
+	if len(post.Title) == 0 || len(post.Content) == 0 {
 		http.Error(w, "Post creation failed, the post content can not be empty", http.StatusBadRequest)
 		return
 	}
