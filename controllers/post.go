@@ -22,8 +22,8 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if len(post.Title) == 0 || len(post.Text) == 0 {
-		http.Error(w, "Post creation failed, the post content can not be empty", http.StatusBadRequest)
+	if len(post.Title) == 0 || len(post.Content) == 0 {
+		http.Error(w, "Post creation failed, the post content or title can not be empty", http.StatusBadRequest)
 		return
 	}
 
@@ -70,6 +70,11 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 	err = json.NewDecoder(r.Body).Decode(&post)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if len(post.Content) == 0 {
+		http.Error(w, "Post updating failed, the post content cannot be empty", http.StatusBadRequest)
 		return
 	}
 
