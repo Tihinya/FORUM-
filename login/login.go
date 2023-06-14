@@ -120,7 +120,7 @@ func validateEmail(email string) bool {
 }
 
 /*
-curl -X POST -H "Content-Type: application/json" -d '{
+curl -X GET -H "Content-Type: application/json" -d '{
   "username": "john_doe",
   "email": "john@example.com",
   "password": "password123",
@@ -129,7 +129,7 @@ curl -X POST -H "Content-Type: application/json" -d '{
 
 ------------------------------
 
-curl -X POST -H "Content-Type: application/json" -d '{
+curl -X GET -H "Content-Type: application/json" -d '{
   "username": "john_doe",z
   "password": "password123",
   "password_confirmation": "password123"
@@ -137,7 +137,7 @@ curl -X POST -H "Content-Type: application/json" -d '{
 
 ------------------------------
 
-curl -X POST -H "Content-Type: application/json" -d '{
+curl -X GET -H "Content-Type: application/json" -d '{
   "username": "john_doe",
   "email": "johnexample.com",
   "password": "password123",
@@ -146,14 +146,14 @@ curl -X POST -H "Content-Type: application/json" -d '{
 
 ------------------------------
 
-curl -X POST -H "Content-Type: application/json" -d '{
+curl -X GET -H "Content-Type: application/json" -d '{
   "username": "jane_doe",
   "email": "john@example.com",
   "password": "password123",
   "password_confirmation": "password123"
 }' -k https://localhost:8080/registration
 
-curl -X POST -H "Content-Type: application/json" -d '{
+curl -X GET -H "Content-Type: application/json" -d '{
   "username": "john_doe",
   "email": "jane@example.com",
   "password": "password123",
