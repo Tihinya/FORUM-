@@ -4,7 +4,16 @@ import (
 	"encoding/json"
 	"forum/session"
 	"net/http"
+	"regexp"
+
+	"golang.org/x/crypto/bcrypt"
 )
+
+type User struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
 
 type RegistrationRequest struct {
 	Username             string `json:"username"`
@@ -18,13 +27,15 @@ type RegistrationResponse struct {
 	Message string `json:"message,omitempty"`
 }
 
+// Simulating a database
+var users []User
+
 func AddLogin(w http.ResponseWriter, userId int) {
 	token := session.SessionStorage.CreateSession(userId)
 	session.SessionStorage.SetCookie(token, w)
 }
 
 func Registration(w http.ResponseWriter, r *http.Request) {
-
 	// Parse the request body
 	var req RegistrationRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
@@ -46,11 +57,17 @@ func Registration(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-
-	// Check if email or username is already taken (perform your checks here)
-	emailTaken := false
-	usernameTaken := false
-	if emailTaken || usernameTaken {
+	// Check email format
+	if !validateEmail(req.Email) {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(RegistrationResponse{
+			Status:  "error",
+			Message: "Invalid email format",
+		})
+		return
+	}
+	// Check if email is already taken
+	if emailTaken(req.Email) {
 		w.WriteHeader(http.StatusConflict)
 		json.NewEncoder(w).Encode(RegistrationResponse{
 			Status:  "error",
@@ -58,9 +75,25 @@ func Registration(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	// Encrypt the password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(RegistrationResponse{
+			Status:  "error",
+			Message: "Failed to encrypt password",
+		})
+		return
+	}
+	// Create a new user
+	newUser := User{
+		Username: req.Username,
+		Email:    req.Email,
+		Password: string(hashedPassword),
+	}
 
-	// Perform registration logic (create user in the database, etc.)
-	// ...
+	// Save the new user to the database
+	users = append(users, newUser)
 
 	// Return success response
 	w.WriteHeader(http.StatusOK)
@@ -69,3 +102,62 @@ func Registration(w http.ResponseWriter, r *http.Request) {
 		Message: "Registration successful",
 	})
 }
+
+// Check if the email is already taken
+func emailTaken(email string) bool {
+	for _, user := range users {
+		if user.Email == email {
+			return true
+		}
+	}
+	return false
+}
+
+func validateEmail(email string) bool {
+	regex := `^[A-Za-z0-9~\x60!#$%^&*()_\-+={\[}\]|\\:;"'<,>.?/]{1,64}@[a-z]{1,255}\.[a-z]{1,63}$`
+	match, _ := regexp.MatchString(regex, email)
+	return len(email) > 0 && match
+}
+
+/*
+curl -X POST -H "Content-Type: application/json" -d '{
+  "username": "john_doe",
+  "email": "john@example.com",
+  "password": "password123",
+  "password_confirmation": "password123"
+}' -k https://localhost:8080/registration
+
+------------------------------
+
+curl -X POST -H "Content-Type: application/json" -d '{
+  "username": "john_doe",z
+  "password": "password123",
+  "password_confirmation": "password123"
+}' -k https://localhost:8080/registration
+
+------------------------------
+
+curl -X POST -H "Content-Type: application/json" -d '{
+  "username": "john_doe",
+  "email": "johnexample.com",
+  "password": "password123",
+  "password_confirmation": "password123"
+}' -k https://localhost:8080/registration
+
+------------------------------
+
+curl -X POST -H "Content-Type: application/json" -d '{
+  "username": "jane_doe",
+  "email": "john@example.com",
+  "password": "password123",
+  "password_confirmation": "password123"
+}' -k https://localhost:8080/registration
+
+curl -X POST -H "Content-Type: application/json" -d '{
+  "username": "john_doe",
+  "email": "jane@example.com",
+  "password": "password123",
+  "password_confirmation": "password123"
+}' -k https://localhost:8080/registration
+
+*/
