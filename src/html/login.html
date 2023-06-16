@@ -3,8 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Main Page</title>
-    <link rel="stylesheet" type="text/css" href="../css/login.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta />
+    <title>Sign Up</title>
+    <link rel="stylesheet" type="text/css" href="../css/index.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -13,126 +15,40 @@
     />
   </head>
   <body>
-    <div class="header">
-      <p class="header__logo">Cartel Forum</p>
-      <input class="search__bar" placeholder="...Search" />
-      <a class="sign__button" href="/src/html/sign-up.html">Sign Up</a>
-      <div class="sign__button">Sign In</div>
-    </div>
-    <div class="main__container">
-      <div class="nav__menu">
-        <div class="menu__logo">Menu</div>
-        <div class="nav__options">
-          <p>UX/UI</p>
-          <p>JavaScript</p>
-          <p>Golang</p>
-          <p>Wisdom</p>
-        </div>
-      </div>
-      <div class="post__container">
-        <div class="post__box">
-          <div class="post__header">
-            <div class="user__info">
-              <div class="user__info_picture">
-                <img src="/src/img/avatarka.jpeg" />
-              </div>
-              <div class="user__info_name">
-                <p class="name">HungryStepan</p>
-                <p class="date">1 year ago</p>
-              </div>
+    <div class="main__block">
+      <div class="sign-up__block">
+        <div class="big_part">
+          <div class="big_part_content">
+            <p>Sign In</p>
+            <div class="auth">
+              <img src="/src/img/git.svg" />
+              <img src="/src/img/goggle.svg" />
             </div>
-          </div>
-          <div class="post__content">
-            <h3>Dog of wisdom</h3>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Consequat
-              aliquet maecenas ut sit nullaLorem ipsum dolor sit amet,
-              consectetur adipiscing elit. Consequat aliquet consectetur
-              adipiscing elit. consectetur adipisci <p class="read-more">...Read More</p>
-            </p>
-          </div>
-          <div class="post__info">
-            <div class="post__tags">
-              <p class="tag">cybersecurity</p>
-              <p class="tag">golang</p>
-              <p class="tag">js</p>
+            <h3>Or you can login with your email</h3>
+            <div class="input-fields">
+              <input class="input-design" placeholder="Email" />
+              <input
+                class="input-design"
+                placeholder="Password"
+                type="password"
+              />
+
+              <h3 class="forgot_pass">Forgot your password?</h3>
             </div>
-            <div class="post__likes">
-                <img src="/src/img/message-square.svg"/><p>15</p>
-                <img src="/src/img/thumbs-up.svg"/><p>12</p>
-                <img src="/src/img/thumbs-down.svg"/><p>3</p> 
-            </div>
+            <a class="sign__button" href="/src/html/login.html">Sign In</a>
           </div>
         </div>
-        <div class="post__box">
-            <div class="post__header">
-              <div class="user__info">
-                <div class="user__info_picture">
-                  <img src="/src/img/avatarka.jpeg" />
-                </div>
-                <div class="user__info_name">
-                  <p class="name">HungryStepan</p>
-                  <p class="date">1 year ago</p>
-                </div>
-              </div>
-            </div>
-            <div class="post__content">
-              <h3>Dog of wisdom</h3>
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Consequat
-                aliquet maecenas ut sit nullaLorem ipsum dolor sit amet,
-                consectetur adipiscing elit. Consequat aliquet consectetur
-                adipiscing elit. consectetur adipisci <p class="read-more">...Read More</p>
-              </p>
-            </div>
-            <div class="post__info">
-              <div class="post__tags">
-                <p class="tag">cybersecurity</p>
-                <p class="tag">golang</p>
-                <p class="tag">js</p>
-              </div>
-              <div class="post__likes">
-                  <img src="/src/img/message-square.svg"/><p>15</p>
-                  <img src="/src/img/thumbs-up.svg"/><p>12</p>
-                  <img src="/src/img/thumbs-down.svg"/><p>3</p> 
-              </div>
-            </div>
+        <div class="small_part-login">
+          <div class="small_part_content">
+            <p>Hello Friend!</p>
+            <h6>Join our family and start your journey with us!</h6>
+            <a class="sign__button" href="/src/html/sign-up.html">Sign Up</a>
+            <h6>Or return to</h6>
+            <a class="sign__button" href="/src/html/main-page.html"
+              >Main Page</a
+            >
           </div>
-          <div class="post__box">
-            <div class="post__header">
-              <div class="user__info">
-                <div class="user__info_picture">
-                  <img src="/src/img/avatarka.jpeg" />
-                </div>
-                <div class="user__info_name">
-                  <p class="name">HungryStepan</p>
-                  <p class="date">1 year ago</p>
-                </div>
-              </div>
-            </div>
-            <div class="post__content">
-              <h3>Dog of wisdom</h3>
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Consequat
-                aliquet maecenas ut sit nullaLorem ipsum dolor sit amet,
-                consectetur adipiscing elit. Consequat aliquet consectetur
-                adipiscing elit. consectetur adipisci <p class="read-more">...Read More</p>
-              </p>
-            </div>
-            <div class="post__info">
-              <div class="post__tags">
-                <p class="tag">cybersecurity</p>
-                <p class="tag">golang</p>
-                <p class="tag">js</p>
-              </div>
-              <div class="post__likes">
-                  <img src="/src/img/message-square.svg"/><p>15</p>
-                  <img src="/src/img/thumbs-up.svg"/><p>12</p>
-                  <img src="/src/img/thumbs-down.svg"/><p>3</p> 
-              </div>
-            </div>
-          </div>
-        
+        </div>
       </div>
     </div>
   </body>
