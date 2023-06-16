@@ -83,7 +83,7 @@ body {
 
   padding: 12px;
 
-  width: 55%;
+  width: 10%;
   border-radius: 15px;
   box-shadow: inset -2px -2px 2px rgba(165, 187, 255, 0.5),
     inset 2px 2px 2px rgba(0, 0, 0, 0.25);
@@ -394,6 +394,11 @@ body {
   width: 100%;
 }
 
+.small_part_content .sign__button {
+  width: 55%;
+  padding: 12px;
+}
+
 .small_part_content p {
   font-size: 2vw;
   font-family: "Roboto";
@@ -433,6 +438,11 @@ body {
   gap: 40px;
 
   height: fit-content;
+}
+
+.big_part_content .sign__button {
+  width: 55%;
+  padding: 12px;
 }
 
 .big_part_content h3 {
