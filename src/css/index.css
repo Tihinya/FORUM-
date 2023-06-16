@@ -25,6 +25,8 @@
 body {
   padding: 0;
   margin: 0;
+  height: 100%;
+  justify-content: center;
 
   background-color: var(--background-color);
 }
@@ -81,8 +83,9 @@ body {
   font-family: "Roboto", sans-serif;
   font-size: 18px;
 
+  padding: 12px;
+
   width: 10%;
-  height: 50%;
   border-radius: 15px;
   box-shadow: inset -2px -2px 2px rgba(165, 187, 255, 0.5),
     inset 2px 2px 2px rgba(0, 0, 0, 0.25);
@@ -358,7 +361,19 @@ body {
   border-radius: 10px;
 }
 
-.small_part {
+.small_part-login {
+  display: flex;
+  box-sizing: border-box;
+  align-items: center;
+  padding: 0px 30px;
+
+  height: 100%;
+  width: 35%;
+
+  border-left: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+.small_part-sign-up {
   display: flex;
   box-sizing: border-box;
   align-items: center;
@@ -496,8 +511,12 @@ body {
 }
 
 @media (max-width: 900px) {
-  .small_part {
-    width: 45%;
+  .small_part-sign-up {
+    width: 40%;
+  }
+
+  .small_part-login {
+    width: 50%;
   }
 
   .input-fields {
@@ -525,4 +544,44 @@ body {
   .auth {
     gap: 15%;
   }
+}
+
+.forgot_pass {
+  cursor: pointer;
+}
+
+.error__page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5%;
+}
+
+.error__message {
+  display: flex;
+  font-family: "Roboto";
+  font-weight: 300;
+  font-size: 25vw;
+  letter-spacing: 0.05em;
+
+  color: var(--background-color);
+
+  text-shadow: -2px -2px 4px rgba(255, 255, 255, 0.8),
+    2px 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+.potato {
+  width: 25%;
+  height: auto;
+}
+
+.message {
+  font-family: "Roboto";
+  font-weight: 300;
+  font-size: 4vw;
+  text-align: center;
+  letter-spacing: 0.5em;
+
+  color: rgba(0, 0, 0, 0.5);
 }
