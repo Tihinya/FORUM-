@@ -3,7 +3,7 @@ package database
 import (
 	"encoding/json"
 	"fmt"
-	"log"
+	"strconv"
 	"time"
 )
 
@@ -22,8 +22,6 @@ func CreatePost(post Post) {
 		) VALUES (?, ?, ?, ?, ?, ?)
 	`)
 	stmt.Exec(post.Title, post.Content, post.UserInfo.Avatar, post.UserInfo.Username, post.CreationDate, categoriesJSON)
-
-	fmt.Println("Post successfully created")
 }
 
 func SelectPost(id string) []byte {
@@ -34,18 +32,18 @@ func SelectPost(id string) []byte {
 	for rows.Next() {
 		var post Post
 		var categoriesString string
+
 		rows.Scan(&post.Id, &post.Title, &post.Content, &post.UserInfo.Avatar, &post.UserInfo.Username, &post.CreationDate, &post.Likes, &post.Dislikes, &categoriesString, &post.LastEdited)
+
 		err = json.Unmarshal([]byte(categoriesString), &post.Categories)
 		checkErr(err)
+
 		posts = append(posts, post)
 	}
 
 	// Convert posts to json
 	jsonPosts, err := json.Marshal(posts)
-
-	if err != nil {
-		log.Fatal(err)
-	}
+	checkErr(err)
 
 	return jsonPosts
 }
@@ -59,27 +57,28 @@ func SelectAllPosts() []byte {
 	for rows.Next() {
 		var post Post
 		var categoriesString string
+
 		rows.Scan(&post.Id, &post.Title, &post.Content, &post.UserInfo.Avatar, &post.UserInfo.Username, &post.CreationDate, &post.Likes, &post.Dislikes, &categoriesString, &post.LastEdited)
+
 		err = json.Unmarshal([]byte(categoriesString), &post.Categories)
 		checkErr(err)
+
 		posts = append(posts, post)
 	}
 
 	// Convert posts to json
 	jsonPosts, err := json.Marshal(posts)
+	checkErr(err)
 
-	if err != nil {
-		log.Fatal(err, "ERRORORRORO")
-	}
 	return jsonPosts
 }
 
-func UpdatePost(post Post, postID int) {
+func UpdatePost(post Post, postID int) bool {
 	stmt, _ := db.Prepare(`
 		UPDATE post SET
 			Title = ?,
-			Text = ?,
-			Tategories = ?,
+			Content = ?,
+			Categories = ?,
 			LastEdited = ?
 		WHERE id = ?
 	`)
@@ -88,17 +87,38 @@ func UpdatePost(post Post, postID int) {
 		postID = post.Id
 	}
 
+	// Checks if post with given ID exists in DB
+	if !checkIfExist(postID) {
+		return false
+	}
+
 	categoriesJSON, _ := json.Marshal(post.Categories)
 
 	stmt.Exec(post.Title, post.Content, string(categoriesJSON), time.Now(), postID)
 
-	fmt.Println("Post successfully updated")
+	return true
 }
 
-func DeletePost(postID int) {
+func DeletePost(postID int) bool {
+	if !checkIfExist(postID) {
+		return false
+	}
+
 	stmt, _ := db.Prepare(`
 		DELETE FROM post WHERE ID = ?
 	`)
-
 	stmt.Exec(postID)
+
+	return true
+}
+
+func checkIfExist(postID int) bool {
+	fmt.Println(postID)
+	err = db.QueryRow("SELECT 1 FROM post WHERE id='" + (strconv.Itoa(postID) + "'")).Scan(&postID)
+
+	if err != nil {
+		return false
+	}
+
+	return true
 }

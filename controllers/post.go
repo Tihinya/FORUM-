@@ -61,6 +61,7 @@ func ReadPosts(w http.ResponseWriter, r *http.Request) {
 // PATCH method
 func UpdatePost(w http.ResponseWriter, r *http.Request) {
 	var post database.Post
+	var exists bool
 
 	postID, err := router.GetFieldInt(r, "id")
 	if err != nil {
@@ -78,7 +79,12 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	database.UpdatePost(post, postID)
+	exists = database.UpdatePost(post, postID)
+
+	if !exists {
+		http.Error(w, "Post updating failed, the post with that ID does not exist", http.StatusBadRequest)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, "Post successfully updated")
@@ -86,13 +92,19 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 
 // DELETE method
 func DeletePost(w http.ResponseWriter, r *http.Request) {
+	var exists bool
 
 	postID, err := router.GetFieldInt(r, "id")
 	if err != nil {
 		http.Error(w, "Invalid post ID", http.StatusBadRequest)
 	}
 
-	database.DeletePost(postID)
+	exists = database.DeletePost(postID)
+
+	if !exists {
+		http.Error(w, "Post deletion failed, the post with that ID does not exist", http.StatusBadRequest)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, "Post successfully deleted")
