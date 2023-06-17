@@ -5,7 +5,7 @@ import (
 	"fmt"
 	ct "forum/controllers"
 	"forum/router"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -23,7 +23,7 @@ func ParseConfig() Config {
 		log.Fatal(err)
 	}
 	defer jsonFile.Close()
-	byteValue, err := ioutil.ReadAll(jsonFile)
+	byteValue, err := io.ReadAll(jsonFile)
 	if err != nil {
 		log.Fatal(err)
 	}
