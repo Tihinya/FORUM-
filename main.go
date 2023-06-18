@@ -55,10 +55,11 @@ func main() {
 	r.AddGlobalMiddleware(ExampleMiddleware())
 
 	// User
-	r.NewRoute("POST", `/user/(?P<id>\d+)`, ct.CreateUser)
-	r.NewRoute("GET", `/user/(?P<id>\d+)`, ct.ReadUser)
-	r.NewRoute("PATCH", `/user/(?P<id>\d+)`, ct.UpdateUser)
-	r.NewRoute("DELETE", `/user/(?P<id>\d+)`, ct.DeleteUser)
+	r.NewRoute("POST", `/user/create`, ct.CreateUser)
+	r.NewRoute("GET", `/user/(?P<id>\d+)/get`, ct.ReadUser)
+	r.NewRoute("GET", `/users/get`, ct.ReadUsers)
+	r.NewRoute("PATCH", `/user/(?P<id>\d+)/update`, ct.UpdateUser)
+	r.NewRoute("DELETE", `/user/(?P<id>\d+)/delete`, ct.DeleteUser)
 
 	// Post
 	r.NewRoute("POST", `/post/(?P<id>\d+)`, ct.CreatePost)
@@ -76,13 +77,6 @@ func main() {
 	// Login
 	r.NewRoute("GET", `/login`, ct.Login)
 	r.NewRoute("GET", `/logout/(?P<id>\d+)`, ct.LogOut)
-
-	// Pages
-	r.NewRoute("GET", `/`, ct.MainPage)
-	r.NewRoute("GET", `/registration`, ct.LoginRegistrationPage)
-	r.NewRoute("GET", `/profile/(?P<id>\d+)`, ct.ProfilePage)
-	r.NewRoute("GET", `/error`, ct.ErrorPage)
-	r.NewRoute("GET", `/limit`, ct.PerformancePage)
 
 	http.HandleFunc("/", r.Serve)
 

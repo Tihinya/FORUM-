@@ -76,6 +76,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  text-align: center;
 
   font-family: "Roboto", sans-serif;
   font-size: 18px;
@@ -86,9 +87,11 @@ body {
   box-shadow: inset -2px -2px 2px rgba(165, 187, 255, 0.5),
     inset 2px 2px 2px rgba(0, 0, 0, 0.25);
 
-  color: var(--text-color-white);
   background-color: var(--button-color);
   transition: 0.3s;
+
+  color: var(--text-color-white);
+  text-decoration: none;
 }
 
 .sign__button:hover {
@@ -329,4 +332,197 @@ body {
   color: #808080;
 
   cursor: pointer;
+}
+
+/*------SIGN UP CSS------ */
+
+.main__block {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.sign-up__block {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  height: 700px;
+  width: 50%;
+
+  background: #ecf0f3;
+  box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.35),
+    -10px -10px 5px rgba(255, 255, 255, 0.35);
+  border-radius: 10px;
+}
+
+.small_part {
+  display: flex;
+  box-sizing: border-box;
+  align-items: center;
+  padding: 0px 30px;
+
+  height: 100%;
+  width: 35%;
+
+  border-right: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+.small_part_content {
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  height: fit-content;
+  width: 100%;
+}
+
+.small_part_content .sign__button {
+  width: 55%;
+  padding: 12px;
+}
+
+.small_part_content p {
+  font-size: 2vw;
+  font-family: "Roboto";
+  font-weight: 400;
+  letter-spacing: 0.1em;
+
+  margin: 0;
+
+  text-align: center;
+}
+
+.small_part_content h6 {
+  font-size: 1.1vw;
+  font-family: "Roboto";
+  font-weight: 400;
+  text-align: center;
+  letter-spacing: 0.1em;
+
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.big_part {
+  display: flex;
+  box-sizing: border-box;
+  justify-content: center;
+  align-items: center;
+
+  width: 65%;
+}
+
+.big_part_content {
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+
+  height: fit-content;
+}
+
+.big_part_content .sign__button {
+  width: 55%;
+  padding: 12px;
+}
+
+.big_part_content h3 {
+  font-size: 1.1vw;
+  font-family: "Roboto";
+  font-weight: 400;
+  text-align: center;
+  letter-spacing: 0.1em;
+
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.big_part_content p {
+  font-size: 2vw;
+  font-family: "Roboto";
+  font-weight: 300;
+  font-size: 50px;
+  margin: 0;
+
+  text-align: center;
+  letter-spacing: 0.1em;
+}
+
+.auth {
+  display: flex;
+  justify-content: center;
+  gap: 40%;
+
+  width: 100%;
+}
+
+.auth img {
+  cursor: pointer;
+}
+
+.input-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  width: 130%;
+}
+
+.input-design {
+  display: flex;
+  padding: 12px 16px;
+
+  border: none;
+  background: #ecf0f3;
+  box-shadow: inset 2px 2px 2px 0px rgba(0, 0, 0, 0.25),
+    inset -3px -3px 2px 0px rgba(255, 255, 255, 0.8);
+  border-radius: 15px;
+}
+
+.big_part_content .sign__button {
+  width: 50%;
+  padding: 10px 0px;
+}
+
+@media (max-width: 1200px) {
+  .input-fields {
+    width: 100%;
+  }
+}
+
+@media (max-width: 900px) {
+  .small_part {
+    width: 45%;
+  }
+
+  .input-fields {
+    width: 50%;
+  }
+  .big_part_content p {
+    font-size: 24px;
+  }
+
+  .big_part_content h3 {
+    font-size: 3vw;
+  }
+
+  .small_part_content .sign__button {
+    width: 100%;
+  }
+
+  .small_part_content p {
+    font-size: 16px;
+  }
+
+  .small_part_content h6 {
+    font-size: 2.5vw;
+  }
+  .auth {
+    gap: 15%;
+  }
 }
