@@ -28,13 +28,3 @@ type UserInfo struct {
 	Avatar   string `json:"avatar"`
 	Username string `json:"username"`
 }
-
-/*
-id INTEGER PRIMARY KEY AUTOINCREMENT,
-Content TEXT NOT NULL
-Avatar TEXT,
-Username TEXT,
-CreationDate DATETIME,
-Likes INTEGER DEFAULT 0,
-Dislikes INTEGER DEFAULT 0,
-LastEdited DATETIME NULL*/

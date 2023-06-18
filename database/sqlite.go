@@ -18,8 +18,8 @@ func CreateTables() {
 	// Post database table
 	stmt, err := db.Prepare(`
 		CREATE TABLE IF NOT EXISTS post (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			title TEXT NOT NULL,
+			Id INTEGER PRIMARY KEY AUTOINCREMENT,
+			Title TEXT NOT NULL,
 			Content TEXT NOT NULL,
 			Avatar TEXT,
 			Username TEXT,
@@ -29,25 +29,6 @@ func CreateTables() {
 			Categories TEXT,
 			LastEdited DATETIME NULL
 		);
-	`)
-	checkErr(err)
-
-	_, err = stmt.Exec()
-	checkErr(err)
-
-	stmt, err = db.Prepare(`
-		CREATE TABLE IF NOT EXISTS comment (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			postId INTEGER NOT NULL,
-			Content TEXT NOT NULL,
-			Avatar TEXT,
-			Username TEXT,
-			CreationDate DATETIME,
-			Likes INTEGER DEFAULT 0,
-			Dislikes INTEGER DEFAULT 0,
-			LastEdited DATETIME NULL
-			FOREIGN KEY (postId) REFERENCES post(id)
-		)
 	`)
 	checkErr(err)
 
