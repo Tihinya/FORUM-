@@ -10,6 +10,7 @@ import (
 )
 
 type User struct {
+	ID       int    `json:"id"`
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -28,7 +29,7 @@ type RegistrationResponse struct {
 }
 
 // Simulating a database
-var users []User
+var Users []User
 
 func AddLogin(w http.ResponseWriter, userId int) {
 	token := session.SessionStorage.CreateSession(userId)
@@ -87,13 +88,14 @@ func Registration(w http.ResponseWriter, r *http.Request) {
 	}
 	// Create a new user
 	newUser := User{
+		ID:       len(Users) + 1,
 		Username: req.Username,
 		Email:    req.Email,
 		Password: string(hashedPassword),
 	}
 
 	// Save the new user to the database
-	users = append(users, newUser)
+	Users = append(Users, newUser)
 
 	// Return success response
 	w.WriteHeader(http.StatusOK)
@@ -105,7 +107,7 @@ func Registration(w http.ResponseWriter, r *http.Request) {
 
 // Check if the email is already taken
 func emailTaken(email string) bool {
-	for _, user := range users {
+	for _, user := range Users {
 		if user.Email == email {
 			return true
 		}
