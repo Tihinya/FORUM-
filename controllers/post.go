@@ -2,172 +2,110 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
+	"forum/database"
 	"forum/router"
 	"net/http"
 	"time"
 )
 
-type Post struct {
-	PostId       int       `json:"postId"`
-	Title        string    `json:"title"`
-	Text         string    `json:"text"`
-	UserInfo     UserInfo  `json:"userInfo"`
-	CreationDate time.Time `json:"creationDate"`
-	Likes        int       `json:"likes"`
-	Dislikes     int       `json:"dislikes"`
-	Categories   []string  `json:"categories"`
-}
-
-type UserInfo struct {
-	Avatar   string `json:"avatar"`
-	Username string `json:"username"`
-}
-
-var tempDB = make(map[int]Post)
+// Posts are readable on https://localhost:8080/posts
 
 // POST method
 func CreatePost(w http.ResponseWriter, r *http.Request) {
 
-	var post Post
+	var post database.Post
 
-	postID, err := router.GetFieldInt(r, "id")
+	err := json.NewDecoder(r.Body).Decode(&post)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err2 := json.NewDecoder(r.Body).Decode(&post)
-	if err2 != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	if len(post.Title) == 0 || len(post.Content) == 0 {
+		http.Error(w, "Post creation failed, the post content or title can not be empty", http.StatusBadRequest)
 		return
 	}
 
-	_, exist := tempDB[postID]
+	post.CreationDate = time.Now()
 
-	if !exist {
-		post.CreationDate = time.Now()
-		post.Likes = 0
-		post.Dislikes = 0
-		post.PostId = postID
-
-		if len(post.Text) == 0 || len(post.Title) == 0 {
-			http.Error(w, "Post creation failed, the post content can not be empty", http.StatusBadRequest)
-			return
-		}
-
-		// Send data to database
-		tempDB[postID] = post
-
-		json.NewEncoder(w).Encode("Post successfully created")
-	} else {
-		http.Error(w, "Post creation failed, a post on that ID already exists", http.StatusBadRequest)
-	}
-
+	database.CreatePost(post)
+	fmt.Fprint(w, "Post successfully created")
 }
 
-// GET Method
+// GET method
 func ReadPost(w http.ResponseWriter, r *http.Request) {
-	postID, err := router.GetFieldInt(r, "id")
+	w.Header().Set("Content-Type", "application/json")
+
+	postID, err := router.GetFieldString(r, "id")
 	if err != nil {
 		http.Error(w, "Invalid post ID", http.StatusBadRequest)
 	}
-	post, exist := tempDB[postID]
 
-	if !exist {
-		http.Error(w, "Post does not exist, failed to GET", http.StatusBadRequest)
-	} else {
-		json.NewEncoder(w).Encode(post)
-	}
+	post := database.SelectPost(postID)
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "%s", post)
 }
 
-// PATCH Method
+// GET method for all posts
+func ReadPosts(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	posts := database.SelectAllPosts()
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "%s", posts)
+}
+
+// PATCH method
 func UpdatePost(w http.ResponseWriter, r *http.Request) {
-	var post Post
+	var post database.Post
+	var exists bool
 
 	postID, err := router.GetFieldInt(r, "id")
 	if err != nil {
 		http.Error(w, "Invalid post ID", http.StatusBadRequest)
 	}
 
-	err2 := json.NewDecoder(r.Body).Decode(&post)
-	if err2 != nil {
+	err = json.NewDecoder(r.Body).Decode(&post)
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if len(post.Text) == 0 || len(post.Title) == 0 {
-		http.Error(w, "Post updating failed, the post content can not be empty", http.StatusBadRequest)
+	if len(post.Content) == 0 {
+		http.Error(w, "Post updating failed, the post content cannot be empty", http.StatusBadRequest)
 		return
 	}
 
-	oldPost, exist := tempDB[postID]
+	exists = database.UpdatePost(post, postID)
 
-	if !exist {
-		http.Error(w, "Post does not exist, failed to update", http.StatusBadRequest)
-	} else {
-		post.CreationDate = oldPost.CreationDate
-		post.Likes = oldPost.Likes
-		post.Dislikes = oldPost.Dislikes
-		post.PostId = postID
-		post.UserInfo.Avatar = oldPost.UserInfo.Avatar
-		post.UserInfo.Username = oldPost.UserInfo.Username
-		tempDB[postID] = post
-
-		json.NewEncoder(w).Encode("Post successfully updated")
+	if !exists {
+		http.Error(w, "Post updating failed, the post with that ID does not exist", http.StatusBadRequest)
+		return
 	}
 
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprint(w, "Post successfully updated")
 }
 
-// DELETE Method
+// DELETE method
 func DeletePost(w http.ResponseWriter, r *http.Request) {
+	var exists bool
+
 	postID, err := router.GetFieldInt(r, "id")
 	if err != nil {
 		http.Error(w, "Invalid post ID", http.StatusBadRequest)
 	}
 
-	_, exist := tempDB[postID]
+	exists = database.DeletePost(postID)
 
-	if !exist {
-		http.Error(w, "Post does not exist, failed to delete", http.StatusBadRequest)
-	} else {
-		delete(tempDB, postID)
-
-		json.NewEncoder(w).Encode("Post successfully deleted")
+	if !exists {
+		http.Error(w, "Post deletion failed, the post with that ID does not exist", http.StatusBadRequest)
+		return
 	}
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprint(w, "Post successfully deleted")
 }
-
-/* Test curl:
-
-curl -X POST -H "Content-Type: application/json" -d '{
-  "title": "Test post",
-  "text": "This is the content of my post",
-  "userInfo": {
-    "avatar": "https://example.com/avatar.png",
-    "username": "john_doe"
-  },
-  "likes": 0,
-  "dislikes": 0,
-  "categories": ["technology", "programming"]
-}' -k https://localhost:8080/post/1
-
-curl -X POST -H "Content-Type: application/json" -d '{
-  "title": "2222222222",
-  "text": "2 This is the content of my post 2",
-  "userInfo": {
-    "avatar": "https://example.com/avatar.png",
-    "username": "john_doe"
-  },
-  "categories": ["technology", "programming"]
-}' -k https://localhost:8080/post/2
-
-curl -X GET -k https://localhost:8080/post/1
-
-curl -X PATCH -H "Content-Type: application/json" -d '{
-  "title": "UPDATED UPDATED UPDATED",
-  "text": "Updated Updated Updated?",
-  "categories": ["updated", "the whats?"]
-}' -k https://localhost:8080/post/1
-
-curl -X DELETE -k https://localhost:8080/post/1
-
-*/

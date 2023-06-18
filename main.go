@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	ct "forum/controllers"
+	"forum/database"
 	"forum/router"
 	"io"
 	"log"
@@ -48,6 +49,8 @@ func main() {
 
 	r := router.NewRouter()
 
+	database.CreateTables()
+
 	// middleware usage example
 	r.AddGlobalMiddleware(ExampleMiddleware())
 
@@ -63,6 +66,7 @@ func main() {
 	r.NewRoute("GET", `/post/(?P<id>\d+)`, ct.ReadPost)
 	r.NewRoute("PATCH", `/post/(?P<id>\d+)`, ct.UpdatePost)
 	r.NewRoute("DELETE", `/post/(?P<id>\d+)`, ct.DeletePost)
+	r.NewRoute("GET", `/posts`, ct.ReadPosts)
 
 	// Comment
 	r.NewRoute("POST", `/comment/(?P<id>\d+)`, ct.CreateComment)
