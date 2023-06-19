@@ -72,6 +72,16 @@ curl -X POST -H "Content-Type: application/json" -d '{
   }
 }' -k https://localhost:8080/comment/2
 echo
+
+read -p "Press enter to to update comment id 1"
+curl -X PATCH -H "Content-Type: application/json" -d '{
+  "content": "testing for update IS THIS UPDATED AAAAAAAAAAAA"
+}' -k https://localhost:8080/comment/1
+echo
+
+read -p "Press enter to delete comment id 1"
+curl -X DELETE -k https://localhost:8080/comment/1
+echo
 echo "-------------------"
 
 read -p "Press enter to FAIL comment creation for post id 240"
@@ -84,23 +94,11 @@ curl -X POST -H "Content-Type: application/json" -d '{
 }' -k https://localhost:8080/comment/240
 echo
 
-read -p "Press enter to to update comment id 1"
-curl -X PATCH -H "Content-Type: application/json" -d '{
-  "content": "testing for update IS THIS UPDATED AAAAAAAAAAAA"
-}' -k https://localhost:8080/comment/1
-echo
-echo "-------------------"
-
 read -p "Press enter to FAIL updating comment id 69 (cuz it doesnt exist)"
 curl -X PATCH -H "Content-Type: application/json" -d '{
   "content": "testing for update IS THIS UPDATED AAAAAAAAAAAA"
 }' -k https://localhost:8080/comment/69
 echo
-
-read -p "Press enter to delete comment id 1"
-curl -X DELETE -k https://localhost:8080/comment/1
-echo
-echo "-------------------"
 
 read -p "Press enter to FAIL comment deletion id 79"
 curl -X DELETE -k https://localhost:8080/comment/79
