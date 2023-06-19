@@ -30,6 +30,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	post.CreationDate = time.Now()
 
 	database.CreatePost(post)
+	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, "Post successfully created")
 }
 
@@ -63,7 +64,7 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 	var post database.Post
 	var exists bool
 
-	postID, err := router.GetFieldInt(r, "id")
+	postID, err := router.GetFieldString(r, "id")
 	if err != nil {
 		http.Error(w, "Invalid post ID", http.StatusBadRequest)
 	}
@@ -94,7 +95,7 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 func DeletePost(w http.ResponseWriter, r *http.Request) {
 	var exists bool
 
-	postID, err := router.GetFieldInt(r, "id")
+	postID, err := router.GetFieldString(r, "id")
 	if err != nil {
 		http.Error(w, "Invalid post ID", http.StatusBadRequest)
 	}

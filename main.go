@@ -69,11 +69,11 @@ func main() {
 	r.NewRoute("GET", `/posts`, ct.ReadPosts)
 
 	// Comment
-	r.NewRoute("POST", `/comment/(?P<id>\d+)/(?P<id>\d+)`, ct.CreateComment)
-	r.NewRoute("GET", `/comment/(?P<id>\d+)/(?P<id>\d+)`, ct.ReadComment)
+	r.NewRoute("POST", `/comment/(?P<id>\d+)`, ct.CreateComment)
+	r.NewRoute("GET", `/comment/(?P<id>\d+)`, ct.ReadComment)
 	r.NewRoute("PATCH", `/comment/(?P<id>\d+)`, ct.UpdateComment)
 	r.NewRoute("DELETE", `/comment/(?P<id>\d+)`, ct.DeleteComment)
-	r.NewRoute("GET", `/comments/(?P<id>\d+)`, ct.DeleteComment)
+	r.NewRoute("GET", `/comments/(?P<id>\d+)`, ct.ReadComments)
 
 	// Login
 	r.NewRoute("GET", `/login`, ct.Login)

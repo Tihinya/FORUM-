@@ -37,6 +37,7 @@ func SelectPost(id string) []byte {
 
 		err = json.Unmarshal([]byte(categoriesString), &post.Categories)
 		checkErr(err)
+		post.Comments = fmt.Sprintf("https://localhost:8080/comments/%d", post.Id)
 
 		posts = append(posts, post)
 	}
@@ -62,6 +63,7 @@ func SelectAllPosts() []byte {
 
 		err = json.Unmarshal([]byte(categoriesString), &post.Categories)
 		checkErr(err)
+		post.Comments = fmt.Sprintf("https://localhost:8080/comments/%d", post.Id)
 
 		posts = append(posts, post)
 	}
@@ -73,7 +75,7 @@ func SelectAllPosts() []byte {
 	return jsonPosts
 }
 
-func UpdatePost(post Post, postID int) bool {
+func UpdatePost(post Post, postID string) bool {
 	stmt, _ := db.Prepare(`
 		UPDATE post SET
 			Title = ?,
@@ -84,11 +86,11 @@ func UpdatePost(post Post, postID int) bool {
 	`)
 
 	if post.Id != 0 {
-		postID = post.Id
+		postID = strconv.Itoa(post.Id)
 	}
 
 	// Checks if post with given ID exists in DB
-	if !checkIfExist(postID) {
+	if !checkIfPostExist(postID) {
 		return false
 	}
 
@@ -99,8 +101,8 @@ func UpdatePost(post Post, postID int) bool {
 	return true
 }
 
-func DeletePost(postID int) bool {
-	if !checkIfExist(postID) {
+func DeletePost(postID string) bool {
+	if !checkIfPostExist(postID) {
 		return false
 	}
 
@@ -112,9 +114,8 @@ func DeletePost(postID int) bool {
 	return true
 }
 
-func checkIfExist(postID int) bool {
-	fmt.Println(postID)
-	err = db.QueryRow("SELECT 1 FROM post WHERE id='" + (strconv.Itoa(postID) + "'")).Scan(&postID)
+func checkIfPostExist(postID string) bool {
+	err = db.QueryRow("SELECT 1 FROM post WHERE id = ?", postID).Scan(&postID)
 
 	if err != nil {
 		return false
