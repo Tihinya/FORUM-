@@ -30,3 +30,10 @@ type UserInfo struct {
 	Avatar   string `json:"avatar"`
 	Username string `json:"username"`
 }
+
+type Like struct {
+	Id        int    `json:"id"`
+	PostId    int    `json:"postId"`
+	CommentId int    `json:"commentId"`
+	Username  string `json:"username"`
+}

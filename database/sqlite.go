@@ -54,6 +54,19 @@ func CreateTables() {
 	_, err = stmt.Exec()
 	checkErr(err)
 
+	stmt, err = db.Prepare(`
+		CREATE TABLE IF NOT EXISTS like (
+			Id INTEGER PRIMARY KEY AUTOINCREMENT,
+			PostId INTEGER DEFAULT 0,
+			CommentId INTEGER DEFAULT 0,
+			Username TEXT NOT NULL
+		)
+	`)
+	checkErr(err)
+
+	_, err = stmt.Exec()
+	checkErr(err)
+
 	// Create another table:
 	// ....
 

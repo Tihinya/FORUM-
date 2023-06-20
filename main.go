@@ -75,6 +75,15 @@ func main() {
 	r.NewRoute("DELETE", `/comment/(?P<id>\d+)`, ct.DeleteComment)
 	r.NewRoute("GET", `/comments/(?P<id>\d+)`, ct.ReadComments)
 
+	// Like
+	r.NewRoute("POST", `/post/(?P<id>\d+)/like`, ct.LikePost)
+	r.NewRoute("POST", `/post/(?P<id>\d+)/unlike`, ct.UnlikePost)
+	r.NewRoute("POST", `/comment/(?P<id>\d+)/like`, ct.LikeComment)
+	r.NewRoute("POST", `/comment/(?P<id>\d+)/unlike`, ct.UnlikeComment)
+
+	// Temp
+	r.NewRoute("GET", `/likes`, ct.Temp_getLikes)
+
 	// Login
 	r.NewRoute("GET", `/login`, ct.Login)
 	r.NewRoute("GET", `/logout/(?P<id>\d+)`, ct.LogOut)
