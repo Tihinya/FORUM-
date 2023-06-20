@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	ct "forum/controllers"
+	"forum/database"
 	"forum/router"
 	"io"
 	"log"
@@ -48,20 +49,24 @@ func main() {
 
 	r := router.NewRouter()
 
+	database.CreateTables()
+
 	// middleware usage example
 	r.AddGlobalMiddleware(ExampleMiddleware())
 
 	// User
-	r.NewRoute("POST", `/user/(?P<id>\d+)`, ct.CreateUser)
-	r.NewRoute("GET", `/user/(?P<id>\d+)`, ct.ReadUser)
-	r.NewRoute("PATCH", `/user/(?P<id>\d+)`, ct.UpdateUser)
-	r.NewRoute("DELETE", `/user/(?P<id>\d+)`, ct.DeleteUser)
+	r.NewRoute("POST", `/user/create`, ct.CreateUser)
+	r.NewRoute("GET", `/user/(?P<id>\d+)/get`, ct.ReadUser)
+	r.NewRoute("GET", `/users/get`, ct.ReadUsers)
+	r.NewRoute("PATCH", `/user/(?P<id>\d+)/update`, ct.UpdateUser)
+	r.NewRoute("DELETE", `/user/(?P<id>\d+)/delete`, ct.DeleteUser)
 
 	// Post
 	r.NewRoute("POST", `/post/(?P<id>\d+)`, ct.CreatePost)
 	r.NewRoute("GET", `/post/(?P<id>\d+)`, ct.ReadPost)
 	r.NewRoute("PATCH", `/post/(?P<id>\d+)`, ct.UpdatePost)
 	r.NewRoute("DELETE", `/post/(?P<id>\d+)`, ct.DeletePost)
+	r.NewRoute("GET", `/posts`, ct.ReadPosts)
 
 	// Comment
 	r.NewRoute("POST", `/comment/(?P<id>\d+)`, ct.CreateComment)
@@ -72,13 +77,6 @@ func main() {
 	// Login
 	r.NewRoute("GET", `/login`, ct.Login)
 	r.NewRoute("GET", `/logout/(?P<id>\d+)`, ct.LogOut)
-
-	// Pages
-	r.NewRoute("GET", `/`, ct.MainPage)
-	r.NewRoute("GET", `/registration`, ct.LoginRegistrationPage)
-	r.NewRoute("GET", `/profile/(?P<id>\d+)`, ct.ProfilePage)
-	r.NewRoute("GET", `/error`, ct.ErrorPage)
-	r.NewRoute("GET", `/limit`, ct.PerformancePage)
 
 	http.HandleFunc("/", r.Serve)
 
