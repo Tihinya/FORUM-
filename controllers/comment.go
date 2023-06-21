@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"forum/database"
 	"forum/router"
 	"log"
@@ -15,7 +14,7 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&comment)
 	if err != nil {
-		ReturnErrorMessageJSON(w, r, "Invalid request body", 400)
+		ReturnMessageJSON(w, r, "Invalid request body", 400, "error")
 		return
 	}
 
@@ -27,18 +26,18 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(comment.Content) == 0 {
-		ReturnErrorMessageJSON(w, r, "Comment creation failed, the comment content can not be empty", 400)
+		ReturnMessageJSON(w, r, "Comment creation failed, the comment content can not be empty", 400, "error")
 		return
 	}
 
 	comment.CreationDate = time.Now()
 
 	if !database.CreateCommentRow(comment, postId) {
-		ReturnErrorMessageJSON(w, r, "Comment creation failed, post with given ID does not exist", 400)
+		ReturnMessageJSON(w, r, "Comment creation failed, post with given ID does not exist", 400, "error")
 		return
 	}
 
-	fmt.Fprint(w, "Comment successfully created")
+	ReturnMessageJSON(w, r, "Comment successfully created", 200, "success")
 }
 
 func ReadComment(w http.ResponseWriter, r *http.Request) {
@@ -85,17 +84,17 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 
 	err = json.NewDecoder(r.Body).Decode(&comment)
 	if err != nil {
-		ReturnErrorMessageJSON(w, r, "Invalid request body", 400)
+		ReturnMessageJSON(w, r, "Invalid request body", 400, "error")
 		return
 	}
 
 	if !database.UpdateComment(comment, commentId) {
-		ReturnErrorMessageJSON(w, r, "Comment updating failed, the comment with given id does not exist", 400)
+		ReturnMessageJSON(w, r, "Comment updating failed, the comment with given id does not exist", 400, "error")
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, "Comment successfully updated")
+	ReturnMessageJSON(w, r, "Post successfully updated", 200, "success")
 }
 
 func DeleteComment(w http.ResponseWriter, r *http.Request) {
@@ -107,10 +106,10 @@ func DeleteComment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !database.DeleteComment(commentId) {
-		ReturnErrorMessageJSON(w, r, "Comment updating failed, the comment with given id does not exist", 400)
+		ReturnMessageJSON(w, r, "Comment updating failed, the comment with given id does not exist", 400, "error")
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, "Comment successfully deleted")
+	ReturnMessageJSON(w, r, "Comment successfully deleted", 200, "success")
 }

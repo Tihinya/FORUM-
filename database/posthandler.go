@@ -11,7 +11,7 @@ func CreatePost(post Post) {
 	categoriesJSON, err := json.Marshal(post.Categories)
 	checkErr(err)
 
-	stmt, _ := db.Prepare(`
+	stmt, err := db.Prepare(`
 		INSERT INTO post (
 			Title,
 			Content,
@@ -21,17 +21,22 @@ func CreatePost(post Post) {
 			Categories
 		) VALUES (?, ?, ?, ?, ?, ?)
 	`)
-	stmt.Exec(post.Title, post.Content, post.UserInfo.Avatar, post.UserInfo.Username, post.CreationDate, categoriesJSON)
+	checkErr(err)
+
+	_, err = stmt.Exec(post.Title, post.Content, post.UserInfo.Avatar, post.UserInfo.Username, post.CreationDate, categoriesJSON)
+	checkErr(err)
 }
 
-func SelectPost(id string) Post {
-	var post Post
+func SelectPost(id string) []Post {
 	var categoriesString string
+	var posts []Post
 
 	rows, err := db.Query("SELECT * FROM post where id='" + (id) + "'")
 	checkErr(err)
 
 	for rows.Next() {
+		var post Post
+
 		err = rows.Scan(
 			&post.Id,
 			&post.Title,
@@ -45,13 +50,13 @@ func SelectPost(id string) Post {
 			&post.LastEdited,
 		)
 		checkErr(err)
+		err = json.Unmarshal([]byte(categoriesString), &post.Categories)
+		checkErr(err)
+		post.Comments = fmt.Sprintf("https://localhost:8080/comments/%d", post.Id)
+		posts = append(posts, post)
 	}
 
-	err = json.Unmarshal([]byte(categoriesString), &post.Categories)
-	checkErr(err)
-	post.Comments = fmt.Sprintf("https://localhost:8080/comments/%d", post.Id)
-
-	return post
+	return posts
 }
 
 // GET all posts from posts table

@@ -7,7 +7,7 @@ curl -X POST -H "Content-Type: application/json" -d '{
     "username": "Dick Kickem"
   },
   "categories": ["beanz", "x", "heinz"]
-}' -k https://localhost:8080/post/1
+}' -k https://localhost:8080/post
 echo
 
 read -p "Press enter to modify your post!"

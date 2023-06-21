@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"forum/database"
 	"forum/router"
 	"log"
@@ -14,17 +13,16 @@ import (
 
 // POST method
 func CreatePost(w http.ResponseWriter, r *http.Request) {
-
 	var post database.Post
 
 	err := json.NewDecoder(r.Body).Decode(&post)
 	if err != nil {
-		ReturnErrorMessageJSON(w, r, "Invalid request body", 400)
+		ReturnMessageJSON(w, r, "Invalid request body", 400, "error")
 		return
 	}
 
 	if len(post.Title) == 0 || len(post.Content) == 0 {
-		http.Error(w, "Post creation failed, the post content or title can not be empty", http.StatusBadRequest)
+		ReturnMessageJSON(w, r, "Post creation failed, the post content or title can not be empty", 400, "error")
 		return
 	}
 
@@ -33,7 +31,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	database.CreatePost(post)
 
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, "Post successfully created")
+	ReturnMessageJSON(w, r, "Post successfully created", 200, "success")
 }
 
 // GET method
@@ -77,24 +75,24 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 
 	err = json.NewDecoder(r.Body).Decode(&post)
 	if err != nil {
-		ReturnErrorMessageJSON(w, r, "Invalid request body", 400)
+		ReturnMessageJSON(w, r, "Invalid request body", 400, "error")
 		return
 	}
 
 	if len(post.Content) == 0 {
-		ReturnErrorMessageJSON(w, r, "Post updating failed, the post content cannot be empty", 400)
+		ReturnMessageJSON(w, r, "Post updating failed, the post content cannot be empty", 400, "error")
 		return
 	}
 
 	exists = database.UpdatePost(post, postID)
 
 	if !exists {
-		ReturnErrorMessageJSON(w, r, "Post updating failed, the post with that ID does not exist", 400)
+		ReturnMessageJSON(w, r, "Post updating failed, the post with that ID does not exist", 400, "error")
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, "Post successfully updated")
+	ReturnMessageJSON(w, r, "Post successfully updated", 200, "success")
 }
 
 // DELETE method
@@ -111,18 +109,18 @@ func DeletePost(w http.ResponseWriter, r *http.Request) {
 	exists = database.DeletePost(postID)
 
 	if !exists {
-		ReturnErrorMessageJSON(w, r, "Post deletion failed, the post with that ID does not exist", 400)
+		ReturnMessageJSON(w, r, "Post deletion failed, the post with that ID does not exist", 400, "error")
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, "Post successfully deleted")
+	ReturnMessageJSON(w, r, "Post successfully deleted", 200, "success")
 }
 
-func ReturnErrorMessageJSON(w http.ResponseWriter, r *http.Request, message string, httpError int) {
+func ReturnMessageJSON(w http.ResponseWriter, r *http.Request, message string, httpError int, status string) {
 	w.WriteHeader(httpError)
 	json.NewEncoder(w).Encode(database.Response{
-		Status:  "error",
+		Status:  status,
 		Message: message,
 	})
 }
