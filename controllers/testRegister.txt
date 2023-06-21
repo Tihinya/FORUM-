@@ -1,0 +1,30 @@
+Comands how check ticket 
+
+- Create User
+
+curl -X POST -H "Content-Type: application/json" -d '{
+  "username": "john_doe",
+  "email": "john@example.com",
+  "password": "password123",
+  "password_confirmation": "password123",
+  "avatar": "https://example.com/avatar.png"
+}' -k https://localhost:8080/user/create
+
+- View all users
+
+curl -X GET -k https://localhost:8080/users/get
+
+- Get user by ID
+
+curl -X GET -k https://localhost:8080/user/<userId>/get
+
+- Update user by ID
+
+curl -X PATCH -H "Content-Type: application/json" -d '{
+  "username": "john_smith",
+  "email": "john@example.com"
+}' -k https://localhost:8080/user/<userId>/update
+
+- Delete user by ID
+
+curl -X DELETE -k https://localhost:8080/user/<userId>/delete
