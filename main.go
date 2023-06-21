@@ -62,7 +62,7 @@ func main() {
 	r.NewRoute("DELETE", `/user/(?P<id>\d+)/delete`, ct.DeleteUser)
 
 	// Post
-	r.NewRoute("POST", `/post/(?P<id>\d+)`, ct.CreatePost)
+	r.NewRoute("POST", `/post`, ct.CreatePost)
 	r.NewRoute("GET", `/post/(?P<id>\d+)`, ct.ReadPost)
 	r.NewRoute("PATCH", `/post/(?P<id>\d+)`, ct.UpdatePost)
 	r.NewRoute("DELETE", `/post/(?P<id>\d+)`, ct.DeletePost)
