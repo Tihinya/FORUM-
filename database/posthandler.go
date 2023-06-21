@@ -24,33 +24,38 @@ func CreatePost(post Post) {
 	stmt.Exec(post.Title, post.Content, post.UserInfo.Avatar, post.UserInfo.Username, post.CreationDate, categoriesJSON)
 }
 
-func SelectPost(id string) []byte {
-	var posts []Post
+func SelectPost(id string) Post {
+	var post Post
+	var categoriesString string
+
 	rows, err := db.Query("SELECT * FROM post where id='" + (id) + "'")
 	checkErr(err)
 
 	for rows.Next() {
-		var post Post
-		var categoriesString string
-
-		rows.Scan(&post.Id, &post.Title, &post.Content, &post.UserInfo.Avatar, &post.UserInfo.Username, &post.CreationDate, &post.Likes, &post.Dislikes, &categoriesString, &post.LastEdited)
-
-		err = json.Unmarshal([]byte(categoriesString), &post.Categories)
+		err = rows.Scan(
+			&post.Id,
+			&post.Title,
+			&post.Content,
+			&post.UserInfo.Avatar,
+			&post.UserInfo.Username,
+			&post.CreationDate,
+			&post.Likes,
+			&post.Dislikes,
+			&categoriesString,
+			&post.LastEdited,
+		)
 		checkErr(err)
-		post.Comments = fmt.Sprintf("https://localhost:8080/comments/%d", post.Id)
-
-		posts = append(posts, post)
 	}
 
-	// Convert posts to json
-	jsonPosts, err := json.Marshal(posts)
+	err = json.Unmarshal([]byte(categoriesString), &post.Categories)
 	checkErr(err)
+	post.Comments = fmt.Sprintf("https://localhost:8080/comments/%d", post.Id)
 
-	return jsonPosts
+	return post
 }
 
 // GET all posts from posts table
-func SelectAllPosts() []byte {
+func SelectAllPosts() []Post {
 	var posts []Post
 	rows, err := db.Query("SELECT * FROM post")
 	checkErr(err)
@@ -59,7 +64,19 @@ func SelectAllPosts() []byte {
 		var post Post
 		var categoriesString string
 
-		rows.Scan(&post.Id, &post.Title, &post.Content, &post.UserInfo.Avatar, &post.UserInfo.Username, &post.CreationDate, &post.Likes, &post.Dislikes, &categoriesString, &post.LastEdited)
+		err = rows.Scan(
+			&post.Id,
+			&post.Title,
+			&post.Content,
+			&post.UserInfo.Avatar,
+			&post.UserInfo.Username,
+			&post.CreationDate,
+			&post.Likes,
+			&post.Dislikes,
+			&categoriesString,
+			&post.LastEdited,
+		)
+		checkErr(err)
 
 		err = json.Unmarshal([]byte(categoriesString), &post.Categories)
 		checkErr(err)
@@ -68,15 +85,15 @@ func SelectAllPosts() []byte {
 		posts = append(posts, post)
 	}
 
-	// Convert posts to json
-	jsonPosts, err := json.Marshal(posts)
-	checkErr(err)
-
-	return jsonPosts
+	return posts
 }
 
 func UpdatePost(post Post, postID string) bool {
-	stmt, _ := db.Prepare(`
+	if !checkIfPostExist(postID) {
+		return false
+	}
+
+	stmt, err := db.Prepare(`
 		UPDATE post SET
 			Title = ?,
 			Content = ?,
@@ -84,19 +101,17 @@ func UpdatePost(post Post, postID string) bool {
 			LastEdited = ?
 		WHERE id = ?
 	`)
+	checkErr(err)
 
 	if post.Id != 0 {
 		postID = strconv.Itoa(post.Id)
 	}
 
-	// Checks if post with given ID exists in DB
-	if !checkIfPostExist(postID) {
-		return false
-	}
+	categoriesJSON, err := json.Marshal(post.Categories)
+	checkErr(err)
 
-	categoriesJSON, _ := json.Marshal(post.Categories)
-
-	stmt.Exec(post.Title, post.Content, string(categoriesJSON), time.Now(), postID)
+	_, err = stmt.Exec(post.Title, post.Content, string(categoriesJSON), time.Now(), postID)
+	checkErr(err)
 
 	return true
 }
@@ -106,10 +121,13 @@ func DeletePost(postID string) bool {
 		return false
 	}
 
-	stmt, _ := db.Prepare(`
+	stmt, err := db.Prepare(`
 		DELETE FROM post WHERE ID = ?
 	`)
-	stmt.Exec(postID)
+	checkErr(err)
+
+	_, err = stmt.Exec(postID)
+	checkErr(err)
 
 	return true
 }

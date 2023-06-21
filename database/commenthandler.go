@@ -1,9 +1,7 @@
 package database
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 )
 
@@ -30,33 +28,32 @@ func CreateCommentRow(comment Comment, postId string) bool {
 
 }
 
-func SelectComment(commentId string) []byte {
-	var comments []Comment
+func SelectComment(commentId string) Comment {
+	var comment Comment
 
 	rows, err := db.Query("SELECT * FROM comment where Id = ?", commentId)
 	checkErr(err)
 
 	for rows.Next() {
-		var comment Comment
-
-		rows.Scan(&comment.Id, &comment.PostId, &comment.Content, &comment.UserInfo.Avatar, &comment.UserInfo.Username, &comment.CreationDate, &comment.Likes, &comment.Dislikes, &comment.LastEdited)
+		err = rows.Scan(
+			&comment.Id,
+			&comment.PostId,
+			&comment.Content,
+			&comment.UserInfo.Avatar,
+			&comment.UserInfo.Username,
+			&comment.CreationDate,
+			&comment.Likes,
+			&comment.Dislikes,
+			&comment.LastEdited,
+		)
 		checkErr(err)
-
-		comments = append(comments, comment)
 	}
 
-	// Convert comments to json
-	jsoncomments, err := json.Marshal(comments)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return jsoncomments
+	return comment
 }
 
 // GET all comments from comments table
-func SelectAllComments(id string) []byte {
+func SelectAllComments(id string) []Comment {
 	var comments []Comment
 
 	rows, err := db.Query("SELECT * FROM comment where PostId = ?", id)
@@ -65,36 +62,41 @@ func SelectAllComments(id string) []byte {
 	for rows.Next() {
 		var comment Comment
 
-		rows.Scan(&comment.Id, &comment.PostId, &comment.Content, &comment.UserInfo.Avatar, &comment.UserInfo.Username, &comment.CreationDate, &comment.Likes, &comment.Dislikes, &comment.LastEdited)
+		err = rows.Scan(
+			&comment.Id,
+			&comment.PostId,
+			&comment.Content,
+			&comment.UserInfo.Avatar,
+			&comment.UserInfo.Username,
+			&comment.CreationDate,
+			&comment.Likes,
+			&comment.Dislikes,
+			&comment.LastEdited,
+		)
 		checkErr(err)
 
 		comments = append(comments, comment)
 	}
 
-	// Convert comments to json
-	jsoncomments, err := json.Marshal(comments)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return jsoncomments
+	return comments
 }
 
 func UpdateComment(comment Comment, commentId string) bool {
-	stmt, _ := db.Prepare(`
+	stmt, err := db.Prepare(`
 		UPDATE comment SET
 			Content = ?,
 			LastEdited = ?
 		WHERE id = ?
 	`)
+	checkErr(err)
 
 	// Checks if comment with given ID exists in DB
 	if !checkIfCommentExist(commentId) {
 		return false
 	}
 
-	stmt.Exec(comment.Content, time.Now(), commentId)
+	_, err = stmt.Exec(comment.Content, time.Now(), commentId)
+	checkErr(err)
 
 	return true
 }
@@ -104,10 +106,13 @@ func DeleteComment(commentID string) bool {
 		return false
 	}
 
-	stmt, _ := db.Prepare(`
+	stmt, err := db.Prepare(`
 		DELETE FROM comment WHERE ID = ?
 	`)
-	stmt.Exec(commentID)
+	checkErr(err)
+
+	_, err = stmt.Exec(commentID)
+	checkErr(err)
 
 	return true
 }

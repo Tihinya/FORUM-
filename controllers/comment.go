@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"forum/database"
 	"forum/router"
+	"log"
 	"net/http"
 	"time"
 )
@@ -14,26 +15,29 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&comment)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		ReturnErrorMessageJSON(w, r, "Invalid request body", 400)
 		return
 	}
 
 	postId, err := router.GetFieldString(r, "id")
 	if err != nil {
-		http.Error(w, "Invalid comment ID", http.StatusBadRequest)
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	if len(comment.Content) == 0 {
-		http.Error(w, "Comment creation failed, the comment content can not be empty", http.StatusBadRequest)
+		ReturnErrorMessageJSON(w, r, "Comment creation failed, the comment content can not be empty", 400)
 		return
 	}
 
 	comment.CreationDate = time.Now()
 
 	if !database.CreateCommentRow(comment, postId) {
-		fmt.Fprintf(w, "Comment creation failed, post with id %v does not exist", postId)
+		ReturnErrorMessageJSON(w, r, "Comment creation failed, post with given ID does not exist", 400)
 		return
 	}
+
 	fmt.Fprint(w, "Comment successfully created")
 }
 
@@ -42,13 +46,15 @@ func ReadComment(w http.ResponseWriter, r *http.Request) {
 
 	commentId, err := router.GetFieldString(r, "id")
 	if err != nil {
-		http.Error(w, "Invalid comment ID", http.StatusBadRequest)
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	comment := database.SelectComment(commentId)
 
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "%s", comment)
+	json.NewEncoder(w).Encode(comment)
 }
 
 func ReadComments(w http.ResponseWriter, r *http.Request) {
@@ -56,13 +62,15 @@ func ReadComments(w http.ResponseWriter, r *http.Request) {
 
 	postId, err := router.GetFieldString(r, "id")
 	if err != nil {
-		http.Error(w, "Invalid comment ID", http.StatusBadRequest)
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
-	comment := database.SelectAllComments(postId)
+	comments := database.SelectAllComments(postId)
 
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "%s", comment)
+	json.NewEncoder(w).Encode(comments)
 }
 
 func UpdateComment(w http.ResponseWriter, r *http.Request) {
@@ -70,18 +78,19 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 
 	commentId, err := router.GetFieldString(r, "id")
 	if err != nil {
-		http.Error(w, "Invalid comment ID", http.StatusBadRequest)
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	err = json.NewDecoder(r.Body).Decode(&comment)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		ReturnErrorMessageJSON(w, r, "Invalid request body", 400)
 		return
 	}
 
 	if !database.UpdateComment(comment, commentId) {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "Comment updating failed, the comment with id %v does not exist", commentId)
+		ReturnErrorMessageJSON(w, r, "Comment updating failed, the comment with given id does not exist", 400)
 		return
 	}
 
@@ -92,12 +101,13 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 func DeleteComment(w http.ResponseWriter, r *http.Request) {
 	commentId, err := router.GetFieldString(r, "id")
 	if err != nil {
-		http.Error(w, "Invalid comment ID", http.StatusBadRequest)
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	if !database.DeleteComment(commentId) {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "Comment deletion failed, the comment with id %v does not exist", commentId)
+		ReturnErrorMessageJSON(w, r, "Comment updating failed, the comment with given id does not exist", 400)
 		return
 	}
 
