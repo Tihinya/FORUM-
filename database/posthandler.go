@@ -11,7 +11,7 @@ func CreatePost(post Post) {
 	categoriesJSON, err := json.Marshal(post.Categories)
 	checkErr(err)
 
-	stmt, _ := db.Prepare(`
+	stmt, _ := DB.Prepare(`
 		INSERT INTO post (
 			Title,
 			Content,
@@ -26,7 +26,7 @@ func CreatePost(post Post) {
 
 func SelectPost(id string) []byte {
 	var posts []Post
-	rows, err := db.Query("SELECT * FROM post where id='" + (id) + "'")
+	rows, err := DB.Query("SELECT * FROM post where id='" + (id) + "'")
 	checkErr(err)
 
 	for rows.Next() {
@@ -51,7 +51,7 @@ func SelectPost(id string) []byte {
 // GET all posts from posts table
 func SelectAllPosts() []byte {
 	var posts []Post
-	rows, err := db.Query("SELECT * FROM post")
+	rows, err := DB.Query("SELECT * FROM post")
 	checkErr(err)
 
 	for rows.Next() {
@@ -74,7 +74,7 @@ func SelectAllPosts() []byte {
 }
 
 func UpdatePost(post Post, postID int) bool {
-	stmt, _ := db.Prepare(`
+	stmt, _ := DB.Prepare(`
 		UPDATE post SET
 			Title = ?,
 			Content = ?,
@@ -104,7 +104,7 @@ func DeletePost(postID int) bool {
 		return false
 	}
 
-	stmt, _ := db.Prepare(`
+	stmt, _ := DB.Prepare(`
 		DELETE FROM post WHERE ID = ?
 	`)
 	stmt.Exec(postID)
@@ -114,7 +114,7 @@ func DeletePost(postID int) bool {
 
 func checkIfExist(postID int) bool {
 	fmt.Println(postID)
-	err = db.QueryRow("SELECT 1 FROM post WHERE id='" + (strconv.Itoa(postID) + "'")).Scan(&postID)
+	err = DB.QueryRow("SELECT 1 FROM post WHERE id='" + (strconv.Itoa(postID) + "'")).Scan(&postID)
 
 	if err != nil {
 		return false
