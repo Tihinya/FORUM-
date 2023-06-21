@@ -1,7 +1,6 @@
 package database
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -11,7 +10,7 @@ func CreateCommentRow(comment Comment, postId string) bool {
 		return false
 	}
 
-	stmt, _ := db.Prepare(`
+	stmt, err := db.Prepare(`
 		INSERT INTO comment (
 			PostId,
 			Content,
@@ -20,12 +19,12 @@ func CreateCommentRow(comment Comment, postId string) bool {
 			CreationDate
 		) VALUES (?, ?, ?, ?, ?)
 	`)
+	checkErr(err)
 
-	stmt.Exec(postId, comment.Content, comment.UserInfo.Avatar, comment.UserInfo.Username, comment.CreationDate)
+	_, err = stmt.Exec(postId, comment.Content, comment.UserInfo.Avatar, comment.UserInfo.Username, comment.CreationDate)
+	checkErr(err)
 
-	fmt.Println("Comment successfully created")
 	return true
-
 }
 
 func SelectComment(commentId string) Comment {

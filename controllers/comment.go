@@ -94,7 +94,7 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	ReturnMessageJSON(w, r, "Post successfully updated", 200, "success")
+	ReturnMessageJSON(w, r, "Comment successfully updated", 200, "success")
 }
 
 func DeleteComment(w http.ResponseWriter, r *http.Request) {
