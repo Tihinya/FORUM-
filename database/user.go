@@ -25,14 +25,14 @@ func CreateUser(user UserInfo) (int, error) {
 }
 
 func SelectAllUsers() ([]UserInfo, error) {
-	rows, err := DB.Query("SELECT * FROM users")
+	rows, err := DB.Query("SELECT user_id, email, username, profile_picture FROM users")
 	if err != nil {
 		return nil, err
 	}
 	var users []UserInfo
 	for rows.Next() {
 		var user UserInfo
-		err := rows.Scan(&user.ID, &user.Email, &user.Username, &user.Password, &user.ProfilePicture)
+		err := rows.Scan(&user.ID, &user.Email, &user.Username, &user.ProfilePicture)
 		if err != nil {
 			return nil, err
 		}
@@ -46,10 +46,13 @@ func SelectAllUsers() ([]UserInfo, error) {
 }
 
 func SelectUser(userID int) (*UserInfo, error) {
-	row := DB.QueryRow("SELECT * FROM users WHERE id = ?", userID)
+	row, err := DB.Query("SELECT user_id, email, username, profile_picture FROM users")
+	if err != nil {
+		return nil, err
+	}
 
 	var user UserInfo
-	err := row.Scan(&user.ID, &user.Email, &user.Username, &user.Password, &user.ProfilePicture)
+	err = row.Scan(&user.ID, &user.Email, &user.Username, &user.ProfilePicture)
 	if err != nil {
 		return nil, err
 	}
