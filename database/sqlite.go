@@ -38,16 +38,21 @@ func CreateTables() {
 	// Create another table:
 	users, err := DB.Prepare(`
 		CREATE TABLE IF NOT EXISTS users (
-			ID INTEGER PRIMARY KEY AUTOINCREMENT,
-			Email TEXT,
-			Username TEXT,
-			Password TEXT,
-			Avatar TEXT
+			user_id  INTEGER PRIMARY KEY AUTOINCREMENT,
+			email TEXT,
+			username TEXT,
+			password TEXT,
+			profile_picture BLOB
 		);
 	`)
-	checkErr(err)
+	if err != nil {
+		log.Println(err)
+	}
+
 	_, err = users.Exec()
-	checkErr(err)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func checkErr(err error) {

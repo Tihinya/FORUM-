@@ -15,16 +15,16 @@ type Post struct {
 }
 
 type UserInfo struct {
-	ID       int    `json:"id"`
-	Avatar   string `json:"avatar"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	ID             int    `json:"id"`
+	ProfilePicture string `json:"avatar"`
+	Username       string `json:"username"`
+	Email          string `json:"email"`
+	Password       string `json:"password"`
 }
 type RegistrationRequest struct {
 	Username             string `json:"username"`
 	Email                string `json:"email"`
 	Password             string `json:"password"`
 	PasswordConfirmation string `json:"password_confirmation"`
-	Avatar               string `json:"avatar"`
+	ProfilePicture      string `json:"avatar"`
 }

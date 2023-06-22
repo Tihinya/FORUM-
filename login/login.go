@@ -3,6 +3,7 @@ package login
 import (
 	"database/sql"
 	"encoding/json"
+	"forum/config"
 	"forum/database"
 	"forum/session"
 	"log"
@@ -23,7 +24,6 @@ func AddLogin(w http.ResponseWriter, userId int) {
 }
 
 func Registration(w http.ResponseWriter, r *http.Request) {
-
 	var register database.RegistrationRequest
 
 	err := json.NewDecoder(r.Body).Decode(&register)
@@ -79,10 +79,10 @@ func Registration(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	user := database.UserInfo{
-		Avatar:   register.Avatar,
-		Username: register.Username,
-		Email:    register.Email,
-		Password: register.Password,
+		ProfilePicture: config.Config.ProfilePicture,
+		Username:       register.Username,
+		Email:          register.Email,
+		Password:       register.Password,
 	}
 
 	// Encrypt the password
@@ -94,8 +94,8 @@ func Registration(w http.ResponseWriter, r *http.Request) {
 	}
 	user.Password = string(hashedPassword)
 
-	id, error := database.CreateUser(user)
-	if error != nil {
+	id, err := database.CreateUser(user)
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

@@ -1,0 +1,12 @@
+{
+    "sqltools.useNodeRuntime": true,
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "SqlCommection",
+            "database": "${workspaceFolder:forum}/database/database.db",
+            "group": "sdfsdf"
+        }
+    ]
+}

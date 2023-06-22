@@ -21,7 +21,7 @@ func CreatePost(post Post) {
 			Categories
 		) VALUES (?, ?, ?, ?, ?, ?)
 	`)
-	stmt.Exec(post.Title, post.Content, post.UserInfo.Avatar, post.UserInfo.Username, post.CreationDate, categoriesJSON)
+	stmt.Exec(post.Title, post.Content, post.UserInfo.ProfilePicture, post.UserInfo.Username, post.CreationDate, categoriesJSON)
 }
 
 func SelectPost(id string) []byte {
@@ -33,7 +33,7 @@ func SelectPost(id string) []byte {
 		var post Post
 		var categoriesString string
 
-		rows.Scan(&post.Id, &post.Title, &post.Content, &post.UserInfo.Avatar, &post.UserInfo.Username, &post.CreationDate, &post.Likes, &post.Dislikes, &categoriesString, &post.LastEdited)
+		rows.Scan(&post.Id, &post.Title, &post.Content, &post.UserInfo.ProfilePicture, &post.UserInfo.Username, &post.CreationDate, &post.Likes, &post.Dislikes, &categoriesString, &post.LastEdited)
 
 		err = json.Unmarshal([]byte(categoriesString), &post.Categories)
 		checkErr(err)
@@ -58,7 +58,7 @@ func SelectAllPosts() []byte {
 		var post Post
 		var categoriesString string
 
-		rows.Scan(&post.Id, &post.Title, &post.Content, &post.UserInfo.Avatar, &post.UserInfo.Username, &post.CreationDate, &post.Likes, &post.Dislikes, &categoriesString, &post.LastEdited)
+		rows.Scan(&post.Id, &post.Title, &post.Content, &post.UserInfo.ProfilePicture, &post.UserInfo.Username, &post.CreationDate, &post.Likes, &post.Dislikes, &categoriesString, &post.LastEdited)
 
 		err = json.Unmarshal([]byte(categoriesString), &post.Categories)
 		checkErr(err)

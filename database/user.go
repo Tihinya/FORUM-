@@ -2,16 +2,16 @@ package database
 
 func CreateUser(user UserInfo) (int, error) {
 	sqlStmt, err := DB.Prepare(`INSERT INTO users(
-		Email,
-		Username,
-		Password,
-		Avatar)
+		email,
+		username,
+		password,
+		profile_picture)
 	VALUES(?, ?, ?, ?)`)
 	if err != nil {
 		return 0, err
 	}
 
-	result, err := sqlStmt.Exec(user.Email, user.Username, user.Password, user.Avatar)
+	result, err := sqlStmt.Exec(user.Email, user.Username, user.Password, user.ProfilePicture)
 	if err != nil {
 		return 0, err
 	}
@@ -32,7 +32,7 @@ func SelectAllUsers() ([]UserInfo, error) {
 	var users []UserInfo
 	for rows.Next() {
 		var user UserInfo
-		err := rows.Scan(&user.ID, &user.Email, &user.Username, &user.Password, &user.Avatar)
+		err := rows.Scan(&user.ID, &user.Email, &user.Username, &user.Password, &user.ProfilePicture)
 		if err != nil {
 			return nil, err
 		}
@@ -49,7 +49,7 @@ func SelectUser(userID int) (*UserInfo, error) {
 	row := DB.QueryRow("SELECT * FROM users WHERE id = ?", userID)
 
 	var user UserInfo
-	err := row.Scan(&user.ID, &user.Email, &user.Username, &user.Password, &user.Avatar)
+	err := row.Scan(&user.ID, &user.Email, &user.Username, &user.Password, &user.ProfilePicture)
 	if err != nil {
 		return nil, err
 	}

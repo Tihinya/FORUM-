@@ -1,36 +1,14 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
+	"forum/config"
 	ct "forum/controllers"
 	"forum/database"
 	"forum/router"
-	"io"
 	"log"
 	"net/http"
-	"os"
 )
-
-type Config struct {
-	Port string `json:"port"`
-}
-
-func ParseConfig() Config {
-	var config Config
-
-	jsonFile, err := os.Open("dev_config.json")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer jsonFile.Close()
-	byteValue, err := io.ReadAll(jsonFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	json.Unmarshal(byteValue, &config)
-	return config
-}
 
 func ExampleMiddleware() router.Middleware {
 	return func(next http.Handler) http.Handler {
@@ -45,7 +23,6 @@ func ExampleMiddleware() router.Middleware {
 }
 
 func main() {
-	config := ParseConfig()
 
 	r := router.NewRouter()
 
@@ -80,7 +57,7 @@ func main() {
 
 	http.HandleFunc("/", r.Serve)
 
-	log.Println("Ctrl + Click on the link: https://localhost:" + config.Port)
+	log.Println("Ctrl + Click on the link: https://localhost:" + config.Config.Port)
 	log.Println("To stop the server press `Ctrl + C`")
-	log.Fatal(http.ListenAndServeTLS(":"+config.Port, "cert.pem", "key.pem", nil))
+	log.Fatal(http.ListenAndServeTLS(":"+config.Config.Port, "cert.pem", "key.pem", nil))
 }
