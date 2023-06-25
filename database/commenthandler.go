@@ -116,6 +116,16 @@ func DeleteComment(commentID string) bool {
 	return true
 }
 
+func deletePostComments(postId int) {
+	stmt, err := db.Prepare(`
+		DELETE FROM comment WHERE post_id = ?
+	`)
+	checkErr(err)
+
+	_, err = stmt.Exec(postId)
+	checkErr(err)
+}
+
 func checkIfCommentExist(commentId string) bool {
 	var exists bool
 

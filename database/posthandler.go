@@ -116,6 +116,8 @@ func DeletePost(postId int) bool {
 	_, err = stmt.Exec(postId)
 	checkErr(err)
 
+	deletePostComments(postId)
+
 	return true
 }
 
