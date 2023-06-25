@@ -14,11 +14,11 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&comment)
 	if err != nil {
-		ReturnMessageJSON(w, r, "Invalid request body", 400, "error")
+		returnMessageJSON(w, "Invalid request body", http.StatusBadRequest, "error")
 		return
 	}
 
-	postId, err := router.GetFieldString(r, "id")
+	postId, err := router.GetFieldInt(r, "id")
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -26,18 +26,18 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(comment.Content) == 0 {
-		ReturnMessageJSON(w, r, "Comment creation failed, the comment content can not be empty", 400, "error")
+		returnMessageJSON(w, "Comment creation failed, the comment content can not be empty", http.StatusBadRequest, "error")
 		return
 	}
 
 	comment.CreationDate = time.Now()
 
 	if !database.CreateCommentRow(comment, postId) {
-		ReturnMessageJSON(w, r, "Comment creation failed, post with given ID does not exist", 400, "error")
+		returnMessageJSON(w, "Comment creation failed, post with given ID does not exist", http.StatusBadRequest, "error")
 		return
 	}
 
-	ReturnMessageJSON(w, r, "Comment successfully created", 200, "success")
+	returnMessageJSON(w, "Comment successfully created", http.StatusOK, "success")
 }
 
 func ReadComment(w http.ResponseWriter, r *http.Request) {
@@ -52,7 +52,6 @@ func ReadComment(w http.ResponseWriter, r *http.Request) {
 
 	comment := database.SelectComment(commentId)
 
-	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(comment)
 }
 
@@ -68,7 +67,6 @@ func ReadComments(w http.ResponseWriter, r *http.Request) {
 
 	comments := database.SelectAllComments(postId)
 
-	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(comments)
 }
 
@@ -84,17 +82,16 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 
 	err = json.NewDecoder(r.Body).Decode(&comment)
 	if err != nil {
-		ReturnMessageJSON(w, r, "Invalid request body", 400, "error")
+		returnMessageJSON(w, "Invalid request body", http.StatusBadRequest, "error")
 		return
 	}
 
 	if !database.UpdateComment(comment, commentId) {
-		ReturnMessageJSON(w, r, "Comment updating failed, the comment with given id does not exist", 400, "error")
+		returnMessageJSON(w, "Comment updating failed, the comment with given id does not exist", http.StatusBadRequest, "error")
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	ReturnMessageJSON(w, r, "Comment successfully updated", 200, "success")
+	returnMessageJSON(w, "Comment successfully updated", http.StatusOK, "success")
 }
 
 func DeleteComment(w http.ResponseWriter, r *http.Request) {
@@ -106,10 +103,9 @@ func DeleteComment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !database.DeleteComment(commentId) {
-		ReturnMessageJSON(w, r, "Comment updating failed, the comment with given id does not exist", 400, "error")
+		returnMessageJSON(w, "Comment updating failed, the comment with given id does not exist", http.StatusBadRequest, "error")
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	ReturnMessageJSON(w, r, "Comment successfully deleted", 200, "success")
+	returnMessageJSON(w, "Comment successfully deleted", http.StatusOK, "success")
 }

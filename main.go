@@ -67,6 +67,8 @@ func main() {
 	r.NewRoute("PATCH", `/post/(?P<id>\d+)`, ct.UpdatePost)
 	r.NewRoute("DELETE", `/post/(?P<id>\d+)`, ct.DeletePost)
 	r.NewRoute("GET", `/posts`, ct.ReadPosts)
+	r.NewRoute("GET", `/categories`, ct.ReadCategories)
+	r.NewRoute("GET", `/postcategories`, ct.ReadPostCategories) // TO BE REMOVED
 
 	// Comment
 	r.NewRoute("POST", `/comment/(?P<id>\d+)`, ct.CreateComment)

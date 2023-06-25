@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-func CreateCommentRow(comment Comment, postId string) bool {
+func CreateCommentRow(comment Comment, postId int) bool {
 
 	if !checkIfPostExist(postId) {
 		return false
@@ -12,16 +12,16 @@ func CreateCommentRow(comment Comment, postId string) bool {
 
 	stmt, err := db.Prepare(`
 		INSERT INTO comment (
-			PostId,
-			Content,
-			Avatar,
-			Username,
-			CreationDate
+			post_id,
+			content,
+			profile_picture,
+			username,
+			creation_date
 		) VALUES (?, ?, ?, ?, ?)
 	`)
 	checkErr(err)
 
-	_, err = stmt.Exec(postId, comment.Content, comment.UserInfo.Avatar, comment.UserInfo.Username, comment.CreationDate)
+	_, err = stmt.Exec(postId, comment.Content, comment.UserInfo.ProfilePicture, comment.UserInfo.Username, comment.CreationDate)
 	checkErr(err)
 
 	return true
@@ -30,7 +30,7 @@ func CreateCommentRow(comment Comment, postId string) bool {
 func SelectComment(commentId string) Comment {
 	var comment Comment
 
-	rows, err := db.Query("SELECT * FROM comment where Id = ?", commentId)
+	rows, err := db.Query("SELECT * FROM comment where id = ?", commentId)
 	checkErr(err)
 
 	for rows.Next() {
@@ -38,7 +38,7 @@ func SelectComment(commentId string) Comment {
 			&comment.Id,
 			&comment.PostId,
 			&comment.Content,
-			&comment.UserInfo.Avatar,
+			&comment.UserInfo.ProfilePicture,
 			&comment.UserInfo.Username,
 			&comment.CreationDate,
 			&comment.Likes,
@@ -55,7 +55,7 @@ func SelectComment(commentId string) Comment {
 func SelectAllComments(id string) []Comment {
 	var comments []Comment
 
-	rows, err := db.Query("SELECT * FROM comment where PostId = ?", id)
+	rows, err := db.Query("SELECT * FROM comment where post_id = ?", id)
 	checkErr(err)
 
 	for rows.Next() {
@@ -65,7 +65,7 @@ func SelectAllComments(id string) []Comment {
 			&comment.Id,
 			&comment.PostId,
 			&comment.Content,
-			&comment.UserInfo.Avatar,
+			&comment.UserInfo.ProfilePicture,
 			&comment.UserInfo.Username,
 			&comment.CreationDate,
 			&comment.Likes,
@@ -83,8 +83,8 @@ func SelectAllComments(id string) []Comment {
 func UpdateComment(comment Comment, commentId string) bool {
 	stmt, err := db.Prepare(`
 		UPDATE comment SET
-			Content = ?,
-			LastEdited = ?
+			content = ?,
+			last_edited = ?
 		WHERE id = ?
 	`)
 	checkErr(err)
@@ -106,7 +106,7 @@ func DeleteComment(commentID string) bool {
 	}
 
 	stmt, err := db.Prepare(`
-		DELETE FROM comment WHERE ID = ?
+		DELETE FROM comment WHERE id = ?
 	`)
 	checkErr(err)
 
@@ -117,11 +117,9 @@ func DeleteComment(commentID string) bool {
 }
 
 func checkIfCommentExist(commentId string) bool {
-	err = db.QueryRow("SELECT 1 FROM comment WHERE id=?", commentId).Scan(&commentId)
+	var exists bool
 
-	if err != nil {
-		return false
-	}
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM comment WHERE id=?)", commentId).Scan(&exists)
 
-	return true
+	return err == nil && exists
 }
