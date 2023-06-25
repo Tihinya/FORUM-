@@ -317,15 +317,3 @@ func checkIfCategoryExist(category string) bool {
 
 	return err == nil && exists
 }
-
-func getCategoryId(category string) int64 {
-	var categoryId int64
-
-	err := db.QueryRow("SELECT 1 FROM category WHERE id = ?", category).Scan(&categoryId)
-
-	if err == nil {
-		return categoryId
-	}
-
-	return 0
-}
