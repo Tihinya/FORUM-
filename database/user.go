@@ -46,13 +46,10 @@ func SelectAllUsers() ([]UserInfo, error) {
 }
 
 func SelectUser(userID int) (*UserInfo, error) {
-	row, err := DB.Query("SELECT user_id, email, username, profile_picture FROM users")
-	if err != nil {
-		return nil, err
-	}
+	row := DB.QueryRow("SELECT user_id, email, username, profile_picture FROM users WHERE user_id=?", userID)
 
 	var user UserInfo
-	err = row.Scan(&user.ID, &user.Email, &user.Username, &user.ProfilePicture)
+	err := row.Scan(&user.ID, &user.Email, &user.Username, &user.ProfilePicture)
 	if err != nil {
 		return nil, err
 	}

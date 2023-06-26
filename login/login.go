@@ -24,7 +24,7 @@ func AddLogin(w http.ResponseWriter, userId int) {
 }
 
 func Registration(w http.ResponseWriter, r *http.Request) {
-	var register database.RegistrationRequest
+	var register database.UserInfo
 
 	err := json.NewDecoder(r.Body).Decode(&register)
 	if err != nil {
