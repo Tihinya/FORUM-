@@ -62,7 +62,7 @@ func UpdateUser(userName string, email string, userID int) error {
 		UPDATE users SET
 		email=?,
 		username=?
-		WHERE id=?
+		WHERE user_id=?
 	`)
 	if err != nil {
 		return err
@@ -76,7 +76,7 @@ func UpdateUser(userName string, email string, userID int) error {
 func DeleteUser(userID int) error {
 	stmt, err := DB.Prepare(`
 		DELETE FROM users
-		WHERE id=?
+		WHERE user_id=?
 	`)
 	if err != nil {
 		return err
