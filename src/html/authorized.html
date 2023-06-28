@@ -15,12 +15,53 @@
   </head>
   <body>
     <div class="header">
-      <a class="header__logo" href="/src/html/main-page.html"
+      <a class="header__logo" href="/src/html/authorized.html"
         ><p>Cartel Forum</p></a
       >
       <input class="search__bar" placeholder="...Search" />
-      <a class="sign__button" href="/src/html/sign-up.html">Sign Up</a>
-      <a class="sign__button" href="/src/html/login.html">Sign In</a>
+      <div class="sign__button" id="notification-button">Notification</div>
+      <div class="profile-menu">
+        <div class="profile-nav">
+          <div class="user__info_picture">
+            <a href="/src/html/profile-page.html"
+              ><img src="/src/img/avatarka.jpeg"
+            /></a>
+          </div>
+          <div class="profile-popup">
+            <img src="/src/img/arrow-down.svg" id="show-button" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="notify-menu" id="notify-popup">
+      <div class="post-message">
+        <div class="post-message__1">
+          <p>Dog of wisdom look upon you!</p>
+          <a class="sign__button" href="/src/html/authorized.html">See post!</a>
+        </div>
+        <div class="post-message__1">
+          <p>Your Post got liked: UX/UI</p>
+          <a class="sign__button" href="/src/html/authorized.html">See post!</a>
+        </div>
+      </div>
+      <div class="promotion-message">
+        <div class="promotion-message__text">
+          <p>Person “HungryStepan” requested a promotion to Moderator</p>
+        </div>
+        <div class="promotion-message__buttons">
+          <a class="sign__button" href="/src/html/authorized.html">Accept</a>
+          <a class="sign__button-orange" href="/src/html/authorized.html"
+            >Decline</a
+          >
+        </div>
+      </div>
+    </div>
+    <div class="profile-nav-menu" id="popup">
+      <div class="profile-nav-menu__underline">
+        <p>Signed as HungryStepan</p>
+      </div>
+      <p style="cursor: pointer">Perosnal Cabinet</p>
+      <a href="/src/html/main-page.html"><p>Logout</p></a>
     </div>
     <div class="main__container">
       <div class="nav__menu">
