@@ -15,6 +15,10 @@ type Post struct {
 }
 
 type UserInfo struct {
-	Avatar   string `json:"avatar"`
-	Username string `json:"username"`
+	ID                   int    `json:"id"`
+	ProfilePicture       string `json:"avatar"`
+	Username             string `json:"username"`
+	Email                string `json:"email"`
+	Password             string `json:"password"`
+	PasswordConfirmation string `json:"password_confirmation"`
 }
