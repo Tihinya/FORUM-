@@ -7,16 +7,16 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var db *sql.DB
+var DB *sql.DB
 var err error
 
 // Run `go get github.com/mattn/go-sqlite3` in terminal to download db driver
 func CreateTables() {
-	db, err = sql.Open("sqlite3", "./database/database.db")
+	DB, err = sql.Open("sqlite3", "./database/database.db")
 	checkErr(err)
 
 	// Post database table
-	stmt, err := db.Prepare(`
+	stmt, err := DB.Prepare(`
 		CREATE TABLE IF NOT EXISTS post (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			title TEXT NOT NULL,
@@ -35,7 +35,7 @@ func CreateTables() {
 	_, err = stmt.Exec()
 	checkErr(err)
 
-	stmt, err = db.Prepare(`
+	stmt, err = DB.Prepare(`
 		CREATE TABLE IF NOT EXISTS category (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			category TEXT
@@ -46,7 +46,7 @@ func CreateTables() {
 	_, err = stmt.Exec()
 	checkErr(err)
 
-	stmt, err = db.Prepare(`
+	stmt, err = DB.Prepare(`
 		CREATE TABLE IF NOT EXISTS post_category (
 			post_id INTEGER,
 			category_id INTEGER,
@@ -59,7 +59,7 @@ func CreateTables() {
 	_, err = stmt.Exec()
 	checkErr(err)
 
-	stmt, err = db.Prepare(`
+	stmt, err = DB.Prepare(`
 		CREATE TABLE IF NOT EXISTS comment (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			post_id INTEGER NOT NULL,
@@ -79,8 +79,19 @@ func CreateTables() {
 	checkErr(err)
 
 	// Create another table:
-	// ....
+	users, err := DB.Prepare(`
+		CREATE TABLE IF NOT EXISTS users (
+			user_id  INTEGER PRIMARY KEY AUTOINCREMENT,
+			email TEXT,
+			username TEXT,
+			password TEXT,
+			profile_picture BLOB
+		);
+	`)
+	checkErr(err)
 
+	_, err = users.Exec()
+	checkErr(err)
 }
 
 func checkErr(err error) {

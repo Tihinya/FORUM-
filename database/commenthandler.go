@@ -10,7 +10,7 @@ func CreateCommentRow(comment Comment, postId int) bool {
 		return false
 	}
 
-	stmt, err := db.Prepare(`
+	stmt, err := DB.Prepare(`
 		INSERT INTO comment (
 			post_id,
 			content,
@@ -30,7 +30,7 @@ func CreateCommentRow(comment Comment, postId int) bool {
 func SelectComment(commentId string) Comment {
 	var comment Comment
 
-	rows, err := db.Query("SELECT * FROM comment where id = ?", commentId)
+	rows, err := DB.Query("SELECT * FROM comment where id = ?", commentId)
 	checkErr(err)
 
 	for rows.Next() {
@@ -55,7 +55,7 @@ func SelectComment(commentId string) Comment {
 func SelectAllComments(id string) []Comment {
 	var comments []Comment
 
-	rows, err := db.Query("SELECT * FROM comment where post_id = ?", id)
+	rows, err := DB.Query("SELECT * FROM comment where post_id = ?", id)
 	checkErr(err)
 
 	for rows.Next() {
@@ -81,7 +81,7 @@ func SelectAllComments(id string) []Comment {
 }
 
 func UpdateComment(comment Comment, commentId string) bool {
-	stmt, err := db.Prepare(`
+	stmt, err := DB.Prepare(`
 		UPDATE comment SET
 			content = ?,
 			last_edited = ?
@@ -105,7 +105,7 @@ func DeleteComment(commentID string) bool {
 		return false
 	}
 
-	stmt, err := db.Prepare(`
+	stmt, err := DB.Prepare(`
 		DELETE FROM comment WHERE id = ?
 	`)
 	checkErr(err)
@@ -117,7 +117,7 @@ func DeleteComment(commentID string) bool {
 }
 
 func deletePostComments(postId int) {
-	stmt, err := db.Prepare(`
+	stmt, err := DB.Prepare(`
 		DELETE FROM comment WHERE post_id = ?
 	`)
 	checkErr(err)
@@ -129,7 +129,7 @@ func deletePostComments(postId int) {
 func checkIfCommentExist(commentId string) bool {
 	var exists bool
 
-	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM comment WHERE id=?)", commentId).Scan(&exists)
+	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM comment WHERE id=?)", commentId).Scan(&exists)
 
 	return err == nil && exists
 }

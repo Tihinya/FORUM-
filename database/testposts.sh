@@ -3,7 +3,7 @@ curl -X POST -H "Content-Type: application/json" -d '{
   "title": "What an amazing new test post!",
   "content": "i predict that the id is going to be 6!",
   "user_info": {
-    "profile_picture": "https://example.com/avatar.png",
+    "avatar": "https://example.com/avatar.png",
     "username": "Dick Kickem"
   },
   "categories": ["beanz", "x", "heinz"]

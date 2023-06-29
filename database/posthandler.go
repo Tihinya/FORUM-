@@ -6,7 +6,7 @@ import (
 )
 
 func CreatePost(post Post) {
-	stmt, err := db.Prepare(`
+	stmt, err := DB.Prepare(`
 		INSERT INTO post (
 			title,
 			content,
@@ -29,7 +29,7 @@ func CreatePost(post Post) {
 func SelectPost(id string) []Post {
 	var posts []Post
 
-	rows, err := db.Query(`
+	rows, err := DB.Query(`
 		SELECT post.id, post.title, post.content,
 		post.profile_picture, post.username, post.creation_date,
 		post.likes, post.dislikes, post.last_edited
@@ -64,7 +64,7 @@ func SelectPost(id string) []Post {
 // GET all posts from posts table
 func SelectAllPosts() []Post {
 	var posts []Post
-	rows, err := db.Query(`
+	rows, err := DB.Query(`
 		SELECT post.id, post.title, post.content,
 		post.profile_picture, post.username, post.creation_date,
 		post.likes, post.dislikes, post.last_edited
@@ -108,7 +108,7 @@ func DeletePost(postId int) bool {
 	post.Categories = nil
 	UpdatePost(post, postId)
 
-	stmt, err := db.Prepare(`
+	stmt, err := DB.Prepare(`
 		DELETE FROM post WHERE id = ?
 	`)
 	checkErr(err)
@@ -126,7 +126,7 @@ func UpdatePost(post Post, postID int) bool {
 		return false
 	}
 
-	stmt, err := db.Prepare(`
+	stmt, err := DB.Prepare(`
 		UPDATE post SET
 			title = ?,
 			content = ?,
@@ -149,7 +149,7 @@ func UpdatePost(post Post, postID int) bool {
 
 func getCategories(post Post) []string {
 
-	categoryRows, err := db.Query(`
+	categoryRows, err := DB.Query(`
 		SELECT category FROM category
 		INNER JOIN post_category ON category.id = post_category.category_id
 		INNER JOIN post ON post_category.post_id = post.id
@@ -172,7 +172,7 @@ func getCategories(post Post) []string {
 func updateCategories(post Post, postId int) {
 	var existingCategories []int64
 
-	rows, err := db.Query(`
+	rows, err := DB.Query(`
 		SELECT category_id FROM post_category
 		WHERE post_id = ?
 	`, postId)
@@ -197,13 +197,13 @@ func updateCategories(post Post, postId int) {
 		var count int
 
 		// Get the count of categories linked to a post
-		err := db.QueryRow(`
+		err := DB.QueryRow(`
 			SELECT COUNT(*) FROM post_category
 			WHERE category_id = ?
 		`, categoryId).Scan(&count)
 		checkErr(err)
 
-		stmt, err := db.Prepare(`
+		stmt, err := DB.Prepare(`
 			DELETE FROM post_category WHERE category_id = ? AND post_id = ?
 		`)
 		checkErr(err)
@@ -213,7 +213,7 @@ func updateCategories(post Post, postId int) {
 
 		// Removes all categories with only 1 connection to posts
 		if count == 1 {
-			stmt, err := db.Prepare(`
+			stmt, err := DB.Prepare(`
 				DELETE FROM category WHERE id = ?
 			`)
 			checkErr(err)
@@ -234,14 +234,14 @@ func addCategory(post Post, postId int) {
 	for i := range post.Categories {
 		var categoryId int64
 
-		err := db.QueryRow(`SELECT COUNT(*) FROM post`).Scan(&postCount)
+		err := DB.QueryRow(`SELECT COUNT(*) FROM post`).Scan(&postCount)
 		checkErr(err)
 
 		if checkIfCategoryExist(post.Categories[i]) {
-			err = db.QueryRow("SELECT id FROM category WHERE category = ?", post.Categories[i]).Scan(&categoryId)
+			err = DB.QueryRow("SELECT id FROM category WHERE category = ?", post.Categories[i]).Scan(&categoryId)
 
 		} else {
-			stmt, err := db.Prepare(`INSERT INTO category (category) VALUES (?)`)
+			stmt, err := DB.Prepare(`INSERT INTO category (category) VALUES (?)`)
 			checkErr(err)
 
 			result, err := stmt.Exec(post.Categories[i])
@@ -263,7 +263,7 @@ func addCategory(post Post, postId int) {
 }
 
 func insertPostCategory(postId int, categoryId int64) {
-	stmt, err := db.Prepare(`INSERT INTO post_category (post_id, category_id) VALUES (?, ?)`)
+	stmt, err := DB.Prepare(`INSERT INTO post_category (post_id, category_id) VALUES (?, ?)`)
 	checkErr(err)
 
 	_, err = stmt.Exec(postId, categoryId)
@@ -272,7 +272,7 @@ func insertPostCategory(postId int, categoryId int64) {
 
 func SelectAllCategories() []Category {
 	var categories []Category
-	rows, err := db.Query("SELECT * FROM category")
+	rows, err := DB.Query("SELECT * FROM category")
 	checkErr(err)
 
 	for rows.Next() {
@@ -289,7 +289,7 @@ func SelectAllCategories() []Category {
 
 func SelectAllPostCategory() []PostCategory {
 	var post_categories []PostCategory
-	rows, err := db.Query("SELECT * FROM post_category")
+	rows, err := DB.Query("SELECT * FROM post_category")
 	checkErr(err)
 
 	for rows.Next() {
@@ -307,7 +307,7 @@ func SelectAllPostCategory() []PostCategory {
 func checkIfPostExist(commentId int) bool {
 	var exists bool
 
-	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM post WHERE id=?)", commentId).Scan(&exists)
+	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM post WHERE id=?)", commentId).Scan(&exists)
 
 	return err == nil && exists
 }
@@ -315,7 +315,7 @@ func checkIfPostExist(commentId int) bool {
 func checkIfCategoryExist(category string) bool {
 	var exists bool
 
-	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM category WHERE category=?)", category).Scan(&exists)
+	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM category WHERE category=?)", category).Scan(&exists)
 
 	return err == nil && exists
 }
