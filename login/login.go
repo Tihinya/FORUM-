@@ -1,126 +1,136 @@
 package login
 
 import (
-	"database/sql"
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"forum/config"
 	"forum/database"
 	"forum/session"
-	"log"
+	"io"
 	"net/http"
-	"regexp"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
-type RegistrationResponse struct {
-	Status  string `json:"status"`
-	Message string `json:"message,omitempty"`
+const GitHubClientId = "47e016761d5f8ce28a47"
+const GitHubClientSecret = "afe9109f33fc285efd7e43d3b5a79338d089817f"
+
+type githubUser struct {
+	Login string `json:"login"`
+	Email string `json:"email"`
 }
 
 func AddLogin(w http.ResponseWriter, userId int) {
 	token := session.SessionStorage.CreateSession(userId)
 	session.SessionStorage.SetCookie(token, w)
 }
+func GetGithubAccessToken(code string) (string, error) {
 
-func Registration(w http.ResponseWriter, r *http.Request) {
-	var register database.UserInfo
+	// Set us the request body as JSON
+	requestBodyMap := map[string]string{
+		"client_id":     GitHubClientId,
+		"client_secret": GitHubClientSecret,
+		"code":          code,
+		"scope":         "user:email",
+	}
+	requestJSON, _ := json.Marshal(requestBodyMap)
 
-	err := json.NewDecoder(r.Body).Decode(&register)
+	// POST request to set URL
+	req, reqerr := http.NewRequest(
+		"POST",
+		"https://github.com/login/oauth/access_token",
+		bytes.NewBuffer(requestJSON),
+	)
+	if reqerr != nil {
+		return "", reqerr
+	}
+
+	// Header setting
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+
+	// Get the response
+	resp, resperr := http.DefaultClient.Do(req)
+	if resperr != nil {
+		return "", resperr
+	}
+
+	// Response body converted to stringified JSON
+	respbody, _ := io.ReadAll(resp.Body)
+
+	// Represents the response received from Github
+	type githubAccessTokenResponse struct {
+		AccessToken string `json:"access_token"`
+		TokenType   string `json:"token_type"`
+		Scope       string `json:"scope"`
+	}
+
+	// Convert stringified JSON to a struct object of type githubAccessTokenResponse
+	var ghresp githubAccessTokenResponse
+	json.Unmarshal(respbody, &ghresp)
+
+	return ghresp.AccessToken, nil
+}
+
+func GetGithubData(accessToken string) (githubUser, error) {
+
+	// Parsing to workable struct
+	var user githubUser
+
+	// Get request to a set URL
+	req, reqerr := http.NewRequest(
+		"GET",
+		"https://api.github.com/user",
+		nil,
+	)
+
+	if reqerr != nil {
+		return githubUser{}, reqerr
+	}
+
+	// Set the Authorization header before sending the request
+	authorizationHeaderValue := fmt.Sprintf("token %s", accessToken)
+	req.Header.Set("Authorization", authorizationHeaderValue)
+	req.Header.Set("Accept", "application/vnd.github+json")
+
+	// Make the request
+	resp, resperr := http.DefaultClient.Do(req)
+	if resperr != nil {
+		return githubUser{}, resperr
+	}
+
+	// Read the response as a byte slice
+	respbody, _ := io.ReadAll(resp.Body)
+
+	err := json.Unmarshal(respbody, &user)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(RegistrationResponse{
-			Status:  "error",
-			Message: "Invalid request body",
-		})
-		return
+		return githubUser{}, err
 	}
 
-	// Validate inputs
-	if register.Email == "" || register.Password == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(RegistrationResponse{
-			Status:  "error",
-			Message: "Email and password are required",
-		})
-		return
-	}
-	// Check email format
-	if !validateEmail(register.Email) {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(RegistrationResponse{
-			Status:  "error",
-			Message: "Invalid email format",
-		})
-		return
-	}
-	// Password check
-	if register.Password != register.PasswordConfirmation {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(RegistrationResponse{
-			Status:  "error",
-			Message: "Password confirmation does not match",
-		})
-		return
-	}
-
-	// Check if email is already taken
-	exist, err := checkEmailExists(database.DB, register.Email)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	if exist {
-		w.WriteHeader(http.StatusConflict)
-		json.NewEncoder(w).Encode(RegistrationResponse{
-			Status:  "error",
-			Message: "Email or username already taken",
-		})
-		return
-	}
+	// Convert byte slice to string and return
+	return user, nil
+}
+func AddUser(username string, email string, password string) (int, error) {
 	user := database.UserInfo{
 		ProfilePicture: config.Config.ProfilePicture,
-		Username:       register.Username,
-		Email:          register.Email,
-		Password:       register.Password,
+		Username:       username,
+		Email:          email,
+		Password:       password,
 	}
 
 	// Encrypt the password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(register.Password), bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	// hashedPassword, err := security.PasswordEncrypting(register.Password)
 	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		return 0, err
 	}
 	user.Password = string(hashedPassword)
 
 	id, err := database.CreateUser(user)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return 0, err
 	}
 	user.ID = id
-
-	//set session
-	token := session.SessionStorage.CreateSession(id)
-	session.SessionStorage.SetCookie(token, w)
-
-	json.NewEncoder(w).Encode(RegistrationResponse{
-		Status:  "success",
-		Message: "Registration successful",
-	})
-}
-
-func validateEmail(email string) bool {
-	regex := `^[A-Za-z0-9~\x60!#$%^&*()_\-+={\[}\]|\\:;"'<,>.?/]{1,64}@[a-z]{1,255}\.[a-z]{1,63}$`
-	match, _ := regexp.MatchString(regex, email)
-	return len(email) > 0 && match
-}
-func checkEmailExists(db *sql.DB, email string) (bool, error) {
-	var count int
-	err := db.QueryRow("SELECT COUNT(*) FROM users WHERE email = ?", email).Scan(&count)
-	if err != nil {
-		return false, err
-	}
-	return count > 0, nil
+	return id, nil
 }

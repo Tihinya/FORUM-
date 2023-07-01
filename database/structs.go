@@ -19,6 +19,14 @@ type UserInfo struct {
 	ProfilePicture       string `json:"avatar"`
 	Username             string `json:"username"`
 	Email                string `json:"email"`
-	Password             string `json:"password"`
-	PasswordConfirmation string `json:"password_confirmation"`
+	Password             string `json:"password,omitempty"`
+	PasswordConfirmation string `json:"password_confirmation,omitempty"`
+}
+type Response struct {
+	Status  string `json:"status"`
+	Message string `json:"message,omitempty"`
+}
+type UpdateUserRequest struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
 }
