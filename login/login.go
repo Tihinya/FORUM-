@@ -13,9 +13,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-const GitHubClientId = "47e016761d5f8ce28a47"
-const GitHubClientSecret = "afe9109f33fc285efd7e43d3b5a79338d089817f"
-
 type githubUser struct {
 	Login string `json:"login"`
 	Email string `json:"email"`
@@ -29,8 +26,8 @@ func GetGithubAccessToken(code string) (string, error) {
 
 	// Set us the request body as JSON
 	requestBodyMap := map[string]string{
-		"client_id":     GitHubClientId,
-		"client_secret": GitHubClientSecret,
+		"client_id":     config.Config.GitHubClientId,
+		"client_secret": config.Config.GitHubClientSecret,
 		"code":          code,
 		"scope":         "user:email",
 	}

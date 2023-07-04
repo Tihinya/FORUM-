@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
+	"forum/config"
 	"forum/database"
 	"forum/login"
 	"forum/security"
@@ -37,7 +38,7 @@ func GithubLogin(w http.ResponseWriter, r *http.Request) {
 	// Create the dynamic redirect URL for login
 	redirectURL := fmt.Sprintf(
 		"https://github.com/login/oauth/authorize?client_id=%s&redirect_uri=%s",
-		login.GitHubClientId,
+		config.Config.GitHubClientId,
 		"https://localhost:8080/login/github/callback",
 	)
 
