@@ -28,7 +28,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 
 	post.CreationDate = time.Now()
 
-	database.CreatePost(post)
+	err = database.CreatePost(post)
 
 	returnMessageJSON(w, "Post successfully created", http.StatusOK, "success")
 }
@@ -44,7 +44,11 @@ func ReadPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	post := database.SelectPost(postID)
+	post, err := database.SelectPost(postID)
+	if err != nil {
+		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		return
+	}
 
 	json.NewEncoder(w).Encode(post)
 }
@@ -53,7 +57,11 @@ func ReadPost(w http.ResponseWriter, r *http.Request) {
 func ReadPosts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	posts := database.SelectAllPosts()
+	posts, err := database.SelectAllPosts()
+	if err != nil {
+		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		return
+	}
 
 	json.NewEncoder(w).Encode(posts)
 }
@@ -61,6 +69,7 @@ func ReadPosts(w http.ResponseWriter, r *http.Request) {
 // PATCH method
 func UpdatePost(w http.ResponseWriter, r *http.Request) {
 	var post database.Post
+	var exists bool
 
 	postID, err := router.GetFieldInt(r, "id")
 	if err != nil {
@@ -80,8 +89,14 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !database.UpdatePost(post, postID) {
+	exists, err = database.UpdatePost(post, postID)
+
+	if !exists {
 		returnMessageJSON(w, "Post updating failed, the post with that ID does not exist", http.StatusBadRequest, "error")
+		return
+	}
+	if err != nil {
+		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
 		return
 	}
 
@@ -90,6 +105,8 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 
 // DELETE method
 func DeletePost(w http.ResponseWriter, r *http.Request) {
+	var exists bool
+
 	postID, err := router.GetFieldInt(r, "id")
 	if err != nil {
 		log.Println(err)
@@ -97,8 +114,14 @@ func DeletePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !database.DeletePost(postID) {
+	exists, err = database.DeletePost(postID)
+
+	if !exists {
 		returnMessageJSON(w, "Post deletion failed, the post with that ID does not exist", http.StatusBadRequest, "error")
+		return
+	}
+	if err != nil {
+		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
 		return
 	}
 
@@ -108,7 +131,11 @@ func DeletePost(w http.ResponseWriter, r *http.Request) {
 func ReadCategories(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	categories := database.SelectAllCategories()
+	categories, err := database.SelectAllCategories()
+	if err != nil {
+		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		return
+	}
 
 	json.NewEncoder(w).Encode(categories)
 }
@@ -116,7 +143,11 @@ func ReadCategories(w http.ResponseWriter, r *http.Request) {
 func ReadPostCategories(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	post_categories := database.SelectAllPostCategory()
+	post_categories, err := database.SelectAllPostCategory()
+	if err != nil {
+		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		return
+	}
 
 	json.NewEncoder(w).Encode(post_categories)
 }
