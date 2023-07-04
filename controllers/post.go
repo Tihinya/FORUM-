@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"forum/database"
 	"forum/router"
+	"log"
 	"net/http"
 	"time"
 )
@@ -13,24 +13,24 @@ import (
 
 // POST method
 func CreatePost(w http.ResponseWriter, r *http.Request) {
-
 	var post database.Post
 
 	err := json.NewDecoder(r.Body).Decode(&post)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		returnMessageJSON(w, "Invalid request body", http.StatusBadRequest, "error")
 		return
 	}
 
 	if len(post.Title) == 0 || len(post.Content) == 0 {
-		http.Error(w, "Post creation failed, the post content or title can not be empty", http.StatusBadRequest)
+		returnMessageJSON(w, "Post creation failed, the post content or title can not be empty", http.StatusBadRequest, "error")
 		return
 	}
 
 	post.CreationDate = time.Now()
 
 	database.CreatePost(post)
-	fmt.Fprint(w, "Post successfully created")
+
+	returnMessageJSON(w, "Post successfully created", http.StatusOK, "success")
 }
 
 // GET method
@@ -39,13 +39,14 @@ func ReadPost(w http.ResponseWriter, r *http.Request) {
 
 	postID, err := router.GetFieldString(r, "id")
 	if err != nil {
-		http.Error(w, "Invalid post ID", http.StatusBadRequest)
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	post := database.SelectPost(postID)
 
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "%s", post)
+	json.NewEncoder(w).Encode(post)
 }
 
 // GET method for all posts
@@ -54,58 +55,68 @@ func ReadPosts(w http.ResponseWriter, r *http.Request) {
 
 	posts := database.SelectAllPosts()
 
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "%s", posts)
+	json.NewEncoder(w).Encode(posts)
 }
 
 // PATCH method
 func UpdatePost(w http.ResponseWriter, r *http.Request) {
 	var post database.Post
-	var exists bool
 
 	postID, err := router.GetFieldInt(r, "id")
 	if err != nil {
-		http.Error(w, "Invalid post ID", http.StatusBadRequest)
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	err = json.NewDecoder(r.Body).Decode(&post)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		returnMessageJSON(w, "Invalid request body", http.StatusBadRequest, "error")
 		return
 	}
 
 	if len(post.Content) == 0 {
-		http.Error(w, "Post updating failed, the post content cannot be empty", http.StatusBadRequest)
+		returnMessageJSON(w, "Post updating failed, the post content cannot be empty", http.StatusBadRequest, "error")
 		return
 	}
 
-	exists = database.UpdatePost(post, postID)
-
-	if !exists {
-		http.Error(w, "Post updating failed, the post with that ID does not exist", http.StatusBadRequest)
+	if !database.UpdatePost(post, postID) {
+		returnMessageJSON(w, "Post updating failed, the post with that ID does not exist", http.StatusBadRequest, "error")
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, "Post successfully updated")
+	returnMessageJSON(w, "Post successfully updated", http.StatusOK, "success")
 }
 
 // DELETE method
 func DeletePost(w http.ResponseWriter, r *http.Request) {
-	var exists bool
-
 	postID, err := router.GetFieldInt(r, "id")
 	if err != nil {
-		http.Error(w, "Invalid post ID", http.StatusBadRequest)
-	}
-
-	exists = database.DeletePost(postID)
-
-	if !exists {
-		http.Error(w, "Post deletion failed, the post with that ID does not exist", http.StatusBadRequest)
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, "Post successfully deleted")
+	if !database.DeletePost(postID) {
+		returnMessageJSON(w, "Post deletion failed, the post with that ID does not exist", http.StatusBadRequest, "error")
+		return
+	}
+
+	returnMessageJSON(w, "Post successfully deleted", http.StatusOK, "success")
+}
+
+func ReadCategories(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	categories := database.SelectAllCategories()
+
+	json.NewEncoder(w).Encode(categories)
+}
+
+func ReadPostCategories(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	post_categories := database.SelectAllPostCategory()
+
+	json.NewEncoder(w).Encode(post_categories)
 }
