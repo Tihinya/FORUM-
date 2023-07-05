@@ -6,12 +6,11 @@ import (
 	"fmt"
 	"forum/config"
 	"forum/database"
+	"forum/security"
 	"forum/session"
 	"io"
 	"log"
 	"net/http"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 type githubUser struct {
@@ -122,8 +121,7 @@ func AddUser(username string, email string, password string) (int, error) {
 	}
 
 	// Encrypt the password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	// hashedPassword, err := security.PasswordEncrypting(register.Password)
+	hashedPassword, err := security.PasswordEncrypting(password)
 	if err != nil {
 		return 0, err
 	}
