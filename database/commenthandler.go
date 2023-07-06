@@ -4,10 +4,9 @@ import (
 	"time"
 )
 
-func CreateCommentRow(comment Comment, postId int) bool {
-
+func CreateCommentRow(comment Comment, postId int) (bool, error) {
 	if !checkIfPostExist(postId) {
-		return false
+		return false, nil
 	}
 
 	stmt, err := DB.Prepare(`
@@ -19,44 +18,25 @@ func CreateCommentRow(comment Comment, postId int) bool {
 			creation_date
 		) VALUES (?, ?, ?, ?, ?)
 	`)
-	checkErr(err)
-
-	_, err = stmt.Exec(postId, comment.Content, comment.UserInfo.ProfilePicture, comment.UserInfo.Username, comment.CreationDate)
-	checkErr(err)
-
-	return true
-}
-
-func SelectComment(commentId string) Comment {
-	var comment Comment
-
-	rows, err := DB.Query("SELECT * FROM comment where id = ?", commentId)
-	checkErr(err)
-
-	for rows.Next() {
-		err = rows.Scan(
-			&comment.Id,
-			&comment.PostId,
-			&comment.Content,
-			&comment.UserInfo.ProfilePicture,
-			&comment.UserInfo.Username,
-			&comment.CreationDate,
-			&comment.Likes,
-			&comment.Dislikes,
-			&comment.LastEdited,
-		)
-		checkErr(err)
+	if err != nil {
+		return false, err
 	}
 
-	return comment
+	_, err = stmt.Exec(postId, comment.Content, comment.UserInfo.ProfilePicture, comment.UserInfo.Username, comment.CreationDate)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
-// GET all comments from comments table
-func SelectAllComments(id string) []Comment {
+func SelectComment(commentId string) ([]Comment, error) {
 	var comments []Comment
 
-	rows, err := DB.Query("SELECT * FROM comment where post_id = ?", id)
-	checkErr(err)
+	rows, err := DB.Query("SELECT * FROM comment where id = ?", commentId)
+	if err != nil {
+		return nil, err
+	}
 
 	for rows.Next() {
 		var comment Comment
@@ -72,60 +52,109 @@ func SelectAllComments(id string) []Comment {
 			&comment.Dislikes,
 			&comment.LastEdited,
 		)
-		checkErr(err)
+		if err != nil {
+			return nil, err
+		}
 
 		comments = append(comments, comment)
 	}
 
-	return comments
+	return comments, nil
 }
 
-func UpdateComment(comment Comment, commentId string) bool {
+// GET all comments from comments table
+func SelectAllComments(id string) ([]Comment, error) {
+	var comments []Comment
+
+	rows, err := DB.Query("SELECT * FROM comment where post_id = ?", id)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var comment Comment
+
+		err = rows.Scan(
+			&comment.Id,
+			&comment.PostId,
+			&comment.Content,
+			&comment.UserInfo.ProfilePicture,
+			&comment.UserInfo.Username,
+			&comment.CreationDate,
+			&comment.Likes,
+			&comment.Dislikes,
+			&comment.LastEdited,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		comments = append(comments, comment)
+	}
+
+	return comments, nil
+}
+
+func UpdateComment(comment Comment, commentId string) (bool, error) {
+	if !checkIfCommentExist(commentId) {
+		return false, nil
+	}
+
 	stmt, err := DB.Prepare(`
 		UPDATE comment SET
 			content = ?,
 			last_edited = ?
 		WHERE id = ?
 	`)
-	checkErr(err)
-
-	// Checks if comment with given ID exists in DB
-	if !checkIfCommentExist(commentId) {
-		return false
+	if err != nil {
+		return false, err
 	}
 
 	_, err = stmt.Exec(comment.Content, time.Now(), commentId)
-	checkErr(err)
+	if err != nil {
+		return false, err
+	}
 
-	return true
+	return true, nil
 }
 
-func DeleteComment(commentID string) bool {
+func DeleteComment(commentID string) (bool, error) {
 	if !checkIfCommentExist(commentID) {
-		return false
+		return false, nil
 	}
 
 	stmt, err := DB.Prepare(`
 		DELETE FROM comment WHERE id = ?
 	`)
-	checkErr(err)
+	if err != nil {
+		return false, err
+	}
 
 	_, err = stmt.Exec(commentID)
-	checkErr(err)
+	if err != nil {
+		return false, err
+	}
 
-	return true
+	return true, nil
 }
 
-func deletePostComments(postId int) {
+func deletePostComments(postId int) error {
 	stmt, err := DB.Prepare(`
 		DELETE FROM comment WHERE post_id = ?
 	`)
-	checkErr(err)
+	if err != nil {
+		return err
+	}
 
 	_, err = stmt.Exec(postId)
-	checkErr(err)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
+// Checks if comment with given ID exists in DB
 func checkIfCommentExist(commentId string) bool {
 	var exists bool
 
