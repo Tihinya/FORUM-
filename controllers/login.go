@@ -9,8 +9,10 @@ import (
 	"forum/security"
 	"forum/session"
 	"forum/validation"
+	"io"
 	"log"
 	"net/http"
+	"net/url"
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {
@@ -31,15 +33,86 @@ func LogOut(w http.ResponseWriter, r *http.Request) {
 	session.SessionStorage.DeleteCookie(w)
 }
 
-func GoogleLogin(w http.ResponseWriter, r *http.Request)    {}
-func GoogleCallback(w http.ResponseWriter, r *http.Request) {}
+func GoogleLogin(w http.ResponseWriter, r *http.Request) {
+	var scope = config.Config.GoogleOAuth
+	url := fmt.Sprintf("https://accounts.google.com/o/oauth2/auth?client_id=%s&redirect_uri=%s&scope=%s&response_type=code",
+		config.Config.GoogleID, config.Config.GoogleRedirectURI, scope)
+	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+}
+func GoogleCallback(w http.ResponseWriter, r *http.Request) {
+	code := r.URL.Query().Get("code")
+	if code == "" {
+		http.Error(w, "Code not found from callback request!", http.StatusInternalServerError)
+		return
+	}
+
+	values := url.Values{
+		"code":          {code},
+		"client_id":     {config.Config.GoogleID},
+		"client_secret": {config.Config.GoogleClientSecret},
+		"redirect_uri":  {config.Config.GoogleRedirectURI},
+		"grant_type":    {"authorization_code"},
+	}
+
+	resp, err := http.PostForm(config.Config.GoogleGetToken, values)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	type oauthToken struct {
+		AccessToken string `json:"access_token"`
+	}
+
+	var authenticateToken oauthToken
+	if err := json.Unmarshal(body, &authenticateToken); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	googleUser := login.GetUserData(authenticateToken.AccessToken)
+	if googleUser.Name == "" {
+		http.Error(w, "Failed to get user data from Google API", http.StatusInternalServerError)
+		return
+	}
+
+	id, err := validation.GetUserID(database.DB, googleUser.Email)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if id == 0 {
+		// User does not exist, create a new user
+		id, err = login.AddUser(googleUser.Name, googleUser.Email, security.CreateRandomPassword(10))
+		if err != nil {
+			log.Println(err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+
+	// Set session
+	token := session.SessionStorage.CreateSession(id)
+	session.SessionStorage.SetCookie(token, w)
+
+	redirectURL := "/login/github/redirect"
+	http.Redirect(w, r, redirectURL, http.StatusFound)
+}
 
 func GithubLogin(w http.ResponseWriter, r *http.Request) {
 	// Create the dynamic redirect URL for login
 	redirectURL := fmt.Sprintf(
 		"https://github.com/login/oauth/authorize?client_id=%s&redirect_uri=%s",
 		config.Config.GitHubClientId,
-		"https://localhost:8080/login/github/callback",
+		config.Config.GitHubRedirectURI,
 	)
 
 	// Redirect the user to the GitHub page for authentication

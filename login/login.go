@@ -6,15 +6,19 @@ import (
 	"fmt"
 	"forum/config"
 	"forum/database"
+	"forum/security"
 	"forum/session"
 	"io"
+	"log"
 	"net/http"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 type githubUser struct {
 	Login string `json:"login"`
+	Email string `json:"email"`
+}
+type userData struct {
+	Name  string `json:"name"`
 	Email string `json:"email"`
 }
 
@@ -43,7 +47,7 @@ func GetGithubAccessToken(code string) (string, error) {
 		return "", reqerr
 	}
 
-	// Header setting
+	// Set return type JSON
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
 
@@ -117,8 +121,7 @@ func AddUser(username string, email string, password string) (int, error) {
 	}
 
 	// Encrypt the password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	// hashedPassword, err := security.PasswordEncrypting(register.Password)
+	hashedPassword, err := security.PasswordEncrypting(password)
 	if err != nil {
 		return 0, err
 	}
@@ -130,4 +133,25 @@ func AddUser(username string, email string, password string) (int, error) {
 	}
 	user.ID = id
 	return id, nil
+}
+func GetUserData(token string) userData {
+	var result userData
+	resp, err := http.Get("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + token)
+	if err != nil {
+		log.Println(err)
+		return result
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Println(err)
+		return result
+	}
+	var userInfo userData
+	if err := json.Unmarshal(body, &userInfo); err != nil {
+		log.Println(err)
+		return result
+	}
+	result = userInfo
+	return result
 }

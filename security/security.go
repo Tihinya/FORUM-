@@ -3,6 +3,8 @@ package security
 import (
 	"crypto/rand"
 	"math/big"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -12,10 +14,10 @@ const (
 	specialChars     = "!@#$%^&*()-=_+[]{}|;:,.<>/?"
 )
 
-// func PasswordEncrypting(password string) (string, error) {
-// 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-// 	return string(hashedPassword), err
-// }
+func PasswordEncrypting(password string) (string, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	return string(hashedPassword), err
+}
 
 func CreateRandomPassword(length int) string {
 	charset := uppercaseLetters + lowercaseLetters + digits + specialChars
