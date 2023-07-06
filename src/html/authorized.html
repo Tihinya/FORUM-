@@ -78,6 +78,31 @@
         </div>
       </div>
       <div class="post__container">
+        <div class="add-thread">
+          <div class="thread-button" id="add-a-thread">+</div>
+          <input type="text" maxlength="120" placeholder="Add a thread" />
+          <div class="thread-window" id="detailed-thread">
+            <div class="thread-options">
+              <div class="upload-image">
+                <img src="/src/img/add picture.svg" />
+              </div>
+              <textarea
+                class="thread-text"
+                rows="18"
+                placeholder="Description here"
+              ></textarea>
+              <div class="thread-tags">
+                <p class="thread-subject" id="tag-active">UX/UI</p>
+                <p class="thread-subject" id="tag-active">Cybersecurity</p>
+                <p class="thread-subject" id="tag-active">JS</p>
+                <p class="thread-subject" id="tag-active">Wisdom</p>
+              </div>
+            </div>
+            <div class="create-post-button">
+              <a class="sign__button">Create Post</a>
+            </div>
+          </div>
+        </div>
         <div class="post__box">
           <div class="post__header">
             <div class="user__info">
@@ -108,7 +133,9 @@
               <p class="tag">js</p>
             </div>
             <div class="post__likes">
-              <img src="/src/img/message-square.svg" />
+              <a href="/src/html/post-comment.html"
+                ><img src="/src/img/message-square.svg"
+              /></a>
               <p>15</p>
               <img src="/src/img/thumbs-up.svg" />
               <p>12</p>
@@ -147,7 +174,9 @@
               <p class="tag">js</p>
             </div>
             <div class="post__likes">
-              <img src="/src/img/message-square.svg" />
+              <a href="/src/html/post-comment.html"
+                ><img src="/src/img/message-square.svg"
+              /></a>
               <p>15</p>
               <img src="/src/img/thumbs-up.svg" />
               <p>12</p>
@@ -186,7 +215,9 @@
               <p class="tag">js</p>
             </div>
             <div class="post__likes">
-              <img src="/src/img/message-square.svg" />
+              <a href="/src/html/post-comment.html"
+                ><img src="/src/img/message-square.svg"
+              /></a>
               <p>15</p>
               <img src="/src/img/thumbs-up.svg" />
               <p>12</p>
