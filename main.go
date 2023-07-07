@@ -57,7 +57,12 @@ func main() {
 	// Login
 	r.NewRoute("GET", `/login`, ct.Login)
 	r.NewRoute("GET", `/logout/(?P<id>\d+)`, ct.LogOut)
+	r.NewRoute("GET", `/login/google`, ct.GoogleLogin)
+	r.NewRoute("GET", `/login/google/callback`, ct.GoogleCallback)
+	r.NewRoute("GET", `/login/github`, ct.GithubLogin)
+	r.NewRoute("GET", `/login/github/callback`, ct.GithubCallback)
 
+	r.NewRoute("GET", `/login/github/redirect`, ct.GithubCallbackRedirect)
 	http.HandleFunc("/", r.Serve)
 
 	log.Println("Ctrl + Click on the link: https://localhost:" + config.Config.Port)
