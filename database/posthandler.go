@@ -138,12 +138,19 @@ func DeletePost(postId int) (bool, error) {
 	stmt, err := DB.Prepare(`
 		DELETE FROM post WHERE id = ?
 	`)
-	checkErr(err)
+	if err != nil {
+		return false, err
+	}
 
 	_, err = stmt.Exec(postId)
-	checkErr(err)
+	if err != nil {
+		return false, err
+	}
 
-	deletePostComments(postId)
+	err = deletePostComments(postId)
+	if err != nil {
+		return false, err
+	}
 
 	return true, nil
 }
@@ -182,13 +189,13 @@ func UpdatePost(post Post, postID int) (bool, error) {
 }
 
 func getCategories(post Post) ([]string, error) {
-
 	categoryRows, err := DB.Query(`
 		SELECT category FROM category
 		INNER JOIN post_category ON category.id = post_category.category_id
 		INNER JOIN post ON post_category.post_id = post.id
 		WHERE post.id = ?
 	`, post.Id)
+
 	if err != nil {
 		return nil, err
 	}
@@ -318,11 +325,17 @@ func addCategory(post Post, postId int) error {
 
 			if postCount == 1 {
 				err = insertPostCategory(postId, categoryId)
+				if err != nil {
+					return err
+				}
 			}
 		}
 
 		if postCount > 1 {
 			err = insertPostCategory(postId, categoryId)
+			if err != nil {
+				return err
+			}
 		}
 
 	}
