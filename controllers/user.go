@@ -2,27 +2,21 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
+	"forum/database"
 	"forum/login"
 	"forum/router"
+	"log"
 	"net/http"
 )
-
-type GetUserResponse struct {
-	Status string      `json:"status"`
-	User   *login.User `json:"user,omitempty"`
-}
 
 type UpdateUserRequest struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 }
-
 type UpdateUserResponse struct {
 	Status  string `json:"status"`
 	Message string `json:"message,omitempty"`
 }
-
 type DeleteUserResponse struct {
 	Status  string `json:"status"`
 	Message string `json:"message,omitempty"`
@@ -31,49 +25,49 @@ type DeleteUserResponse struct {
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	login.Registration(w, r)
 }
+
 func ReadUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	userID, err := router.GetFieldInt(r, "id")
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		json.NewEncoder(w).Encode(GetUserResponse{
-			Status: "error",
-		})
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	// Simulate retrieving the user from the database
-	user := getUserFromDB(userID)
-	fmt.Println(user)
-	if user == nil {
-		w.WriteHeader(http.StatusNotFound)
-		json.NewEncoder(w).Encode(GetUserResponse{
-			Status: "error",
-		})
+
+	user, err := database.SelectUser(userID)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	json.NewEncoder(w).Encode(GetUserResponse{
-		Status: "success",
-		User:   user,
-	})
+	json.NewEncoder(w).Encode(user)
+}
+
+func ReadUsers(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	users, err := database.SelectAllUsers()
+
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(users)
 }
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	userID, err := router.GetFieldInt(r, "id")
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(UpdateUserResponse{
-			Status:  "error",
-			Message: "Invalid user id",
-		})
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	// Simulate retrieving the user from the database
-	user := getUserFromDB(userID)
 
 	var req UpdateUserRequest
-	error := json.NewDecoder(r.Body).Decode(&req)
-	if error != nil {
+	err = json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(UpdateUserResponse{
 			Status:  "error",
@@ -82,8 +76,12 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user.Username = req.Username
-	user.Email = req.Email
+	err = database.UpdateUser(req.Username, req.Email, userID)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	json.NewEncoder(w).Encode(UpdateUserResponse{
 		Status:  "success",
@@ -94,34 +92,20 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	userID, err := router.GetFieldInt(r, "id")
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		json.NewEncoder(w).Encode(DeleteUserResponse{
-			Status:  "error",
-			Message: "User not found",
-		})
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	for i := 0; i < len(login.Users); i++ {
-		if login.Users[i].ID == userID {
-			login.Users = append(login.Users[:i], login.Users[i+1:]...)
-		}
+
+	err = database.DeleteUser(userID)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	json.NewEncoder(w).Encode(DeleteUserResponse{
 		Status:  "success",
 		Message: "User deleted successfully",
 	})
-}
-
-func ReadUsers(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(login.Users)
-
-}
-func getUserFromDB(id int) *login.User {
-	for i := 0; i < len(login.Users); i++ {
-		if login.Users[i].ID == id {
-			return &login.Users[i]
-		}
-	}
-	return nil
 }

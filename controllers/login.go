@@ -16,7 +16,7 @@ func LogOut(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
-	s := session.SessionStorage.GetSession(token, r)
+	s := session.SessionStorage.GetSession(token)
 	s.RemoveSession()
 	session.SessionStorage.DeleteCookie(w)
 }
