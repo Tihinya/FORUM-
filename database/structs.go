@@ -59,7 +59,6 @@ type UpdateUserRequest struct {
 }
 
 type Like struct {
-	Id        int    `json:"id"`
 	PostId    int    `json:"postId"`
 	CommentId int    `json:"commentId"`
 	Username  string `json:"username"`

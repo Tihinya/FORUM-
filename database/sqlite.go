@@ -80,7 +80,6 @@ func CreateTables() {
 
 	stmt, err = DB.Prepare(`
 		CREATE TABLE IF NOT EXISTS like (
-			Id INTEGER PRIMARY KEY AUTOINCREMENT,
 			PostId INTEGER DEFAULT 0,
 			CommentId INTEGER DEFAULT 0,
 			Username TEXT NOT NULL

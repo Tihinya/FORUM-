@@ -1,16 +1,12 @@
 package database
 
-import (
-	"encoding/json"
-)
-
-func LikePost(postId int, username string) bool {
+func LikePost(postId int, username string) (bool, error) {
 	if !checkIfPostExist(postId) {
-		return false
+		return false, nil
 	}
 
-	if !checkIfPostLiked(postId, username) {
-		return false
+	if checkIfPostLiked(postId, username) {
+		return false, nil
 	}
 
 	stmt, err := DB.Prepare(`
@@ -19,106 +15,138 @@ func LikePost(postId int, username string) bool {
 			Username
 		) VALUES (?, ?)
 	`)
-	checkErr(err)
+	if err != nil {
+		return false, err
+	}
 
-	stmt.Exec(postId, username)
-	checkErr(err)
+	_, err = stmt.Exec(postId, username)
+	if err != nil {
+		return false, err
+	}
 
-	return true
+	return true, nil
 }
 
-func UnlikePost(postId int, username string) bool {
+func UnlikePost(postId int, username string) (bool, error) {
 	if !checkIfPostExist(postId) {
-		return false
+		return false, nil
 	}
 
 	if !checkIfPostLiked(postId, username) {
-		return false
+		return false, nil
 	}
 
-	stmt, _ := DB.Prepare(`
+	stmt, err := DB.Prepare(`
 		DELETE FROM like WHERE PostId = ? AND Username = ?
 	`)
-	stmt.Exec(postId, username)
+	if err != nil {
+		return false, err
+	}
 
-	return true
+	_, err = stmt.Exec(postId, username)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
-func LikeComment(commentId int, username string) bool {
+func LikeComment(commentId int, username string) (bool, error) {
 	if !checkIfCommentExist(commentId) {
-		return false
+		return false, nil
 	}
 
-	if !checkIfCommentLiked(commentId, username) {
-		return false
+	if checkIfCommentLiked(commentId, username) {
+		return false, nil
 	}
 
-	stmt, _ := DB.Prepare(`
+	stmt, err := DB.Prepare(`
 		INSERT INTO like (
 			CommentId,
 			Username
 		) VALUES (?, ?)
 	`)
-	stmt.Exec(commentId, username)
+	if err != nil {
+		return false, err
+	}
 
-	return true
+	_, err = stmt.Exec(commentId, username)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
-func UnlikeComment(commentId int, username string) bool {
+func UnlikeComment(commentId int, username string) (bool, error) {
 	if !checkIfCommentExist(commentId) {
-		return false
+		return false, nil
 	}
 
 	if !checkIfCommentLiked(commentId, username) {
-		return false
+		return false, nil
 	}
 
-	stmt, _ := DB.Prepare(`
+	stmt, err := DB.Prepare(`
 		DELETE FROM like WHERE CommentId = ? AND Username = ?
 	`)
-	stmt.Exec(commentId, username)
+	if err != nil {
+		return false, err
+	}
 
-	return true
+	_, err = stmt.Exec(commentId, username)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func getPostLikes(postId int) (int, error) {
+	var count int
+
+	err := DB.QueryRow(`SELECT COUNT(*) FROM like WHERE PostId = ?`, postId).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+
 }
 
 func checkIfPostLiked(postId int, username string) bool {
-	err = DB.QueryRow("SELECT 1 FROM like WHERE PostId = ? AND Username = ?", postId, username).Scan(&username)
+	var exists bool
 
-	if err == nil {
-		return false
-	}
+	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM like WHERE PostId = ? AND Username = ?)", postId, username).Scan(&exists)
 
-	return true
-
+	return err == nil && exists
 }
 
 func checkIfCommentLiked(commentId int, username string) bool {
-	err = DB.QueryRow("SELECT 1 FROM like WHERE CommentId = ? AND Username = ?", commentId, username).Scan(&username)
+	var exists bool
 
-	if err == nil {
-		return false
-	}
+	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM like WHERE CommentId = ? AND Username = ?)", commentId, username).Scan(&exists)
 
-	return true
-
+	return err == nil && exists
 }
 
-func Temp_selectLikes() []byte {
+func Temp_selectLikes() ([]Like, error) {
 	var likes []Like
 	rows, err := DB.Query("SELECT * FROM like")
-	checkErr(err)
+	if err != nil {
+		return nil, err
+	}
 
 	for rows.Next() {
 		var like Like
 
-		rows.Scan(&like.Id, &like.PostId, &like.CommentId, &like.Username)
+		err = rows.Scan(&like.PostId, &like.CommentId, &like.Username)
+		if err != nil {
+			return nil, err
+		}
 
 		likes = append(likes, like)
 	}
 
-	// Convert posts to json
-	jsonLikes, err := json.Marshal(likes)
-	checkErr(err)
-
-	return jsonLikes
+	return likes, nil
 }

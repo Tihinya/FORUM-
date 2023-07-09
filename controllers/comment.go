@@ -11,6 +11,7 @@ import (
 
 func CreateComment(w http.ResponseWriter, r *http.Request) {
 	var comment database.Comment
+	var exists bool
 
 	err := json.NewDecoder(r.Body).Decode(&comment)
 	if err != nil {
@@ -30,9 +31,16 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	exists, err = database.CreateCommentRow(comment, postId)
+
 	comment.CreationDate = time.Now()
 
-	if !database.CreateCommentRow(comment, postId) {
+	if err != nil {
+		log.Println(err)
+		returnMessageJSON(w, "Internal error", http.StatusBadRequest, "error")
+		return
+	}
+	if !exists {
 		returnMessageJSON(w, "Comment creation failed, post with given ID does not exist", http.StatusBadRequest, "error")
 		return
 	}
@@ -43,14 +51,19 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 func ReadComment(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	commentId, err := router.GetFieldString(r, "id")
+	commentId, err := router.GetFieldInt(r, "id")
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	comment := database.SelectComment(commentId)
+	comment, err := database.SelectComment(commentId)
+	if err != nil {
+		log.Println(err)
+		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		return
+	}
 
 	json.NewEncoder(w).Encode(comment)
 }
@@ -58,20 +71,26 @@ func ReadComment(w http.ResponseWriter, r *http.Request) {
 func ReadComments(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	postId, err := router.GetFieldString(r, "id")
+	postId, err := router.GetFieldInt(r, "id")
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	comments := database.SelectAllComments(postId)
+	comments, err := database.SelectAllComments(postId)
+	if err != nil {
+		log.Println(err)
+		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		return
+	}
 
 	json.NewEncoder(w).Encode(comments)
 }
 
 func UpdateComment(w http.ResponseWriter, r *http.Request) {
 	var comment database.Comment
+	var exists bool
 
 	commentId, err := router.GetFieldInt(r, "id")
 	if err != nil {
@@ -86,7 +105,14 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !database.UpdateComment(comment, commentId) {
+	exists, err = database.UpdateComment(comment, commentId)
+
+	if err != nil {
+		log.Println(err)
+		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		return
+	}
+	if !exists {
 		returnMessageJSON(w, "Comment updating failed, the comment with given id does not exist", http.StatusBadRequest, "error")
 		return
 	}
@@ -95,6 +121,8 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteComment(w http.ResponseWriter, r *http.Request) {
+	var exists bool
+
 	commentId, err := router.GetFieldInt(r, "id")
 	if err != nil {
 		log.Println(err)
@@ -102,7 +130,14 @@ func DeleteComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !database.DeleteComment(commentId) {
+	exists, err = database.DeleteComment(commentId)
+
+	if err != nil {
+		log.Println(err)
+		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		return
+	}
+	if !exists {
 		returnMessageJSON(w, "Comment updating failed, the comment with given id does not exist", http.StatusBadRequest, "error")
 		return
 	}
