@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func CreatePost(post Post) {
+func CreatePost(post Post) error {
 	stmt, err := DB.Prepare(`
 		INSERT INTO post (
 			title,
@@ -15,18 +15,29 @@ func CreatePost(post Post) {
 			creation_date
 		) VALUES (?, ?, ?, ?, ?)
 	`)
-	checkErr(err)
+	if err != nil {
+		return err
+	}
 
 	result, err := stmt.Exec(post.Title, post.Content, post.UserInfo.ProfilePicture, post.UserInfo.Username, post.CreationDate)
-	checkErr(err)
+	if err != nil {
+		return err
+	}
 
 	postId, err := result.LastInsertId()
-	checkErr(err)
+	if err != nil {
+		return err
+	}
 
-	addCategory(post, int(postId))
+	err = addCategory(post, int(postId))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func SelectPost(id string) []Post {
+func SelectPost(id string) ([]Post, error) {
 	var posts []Post
 
 	rows, err := DB.Query(`
@@ -35,7 +46,9 @@ func SelectPost(id string) []Post {
 		post.likes, post.dislikes, post.last_edited
 		FROM post WHERE id = ?
 	`, id)
-	checkErr(err)
+	if err != nil {
+		return nil, err
+	}
 
 	for rows.Next() {
 		var post Post
@@ -51,27 +64,31 @@ func SelectPost(id string) []Post {
 			&post.Dislikes,
 			&post.LastEdited,
 		)
-		checkErr(err)
+		if err != nil {
+			return nil, err
+		}
 
-		post.Categories = getCategories(post)
+		post.Categories, err = getCategories(post)
 		post.Comments = fmt.Sprintf("https://localhost:8080/comments/%d", post.Id)
 		posts = append(posts, post)
 	}
 
-	return posts
+	return posts, nil
 }
 
 // GET all posts from posts table
-func SelectAllPosts() []Post {
+func SelectAllPosts() ([]Post, error) {
 	var posts []Post
+
 	rows, err := DB.Query(`
 		SELECT post.id, post.title, post.content,
 		post.profile_picture, post.username, post.creation_date,
 		post.likes, post.dislikes, post.last_edited
 		FROM post
 	`)
-
-	checkErr(err)
+	if err != nil {
+		return nil, err
+	}
 
 	for rows.Next() {
 		var post Post
@@ -87,43 +104,60 @@ func SelectAllPosts() []Post {
 			&post.Dislikes,
 			&post.LastEdited,
 		)
+		if err != nil {
+			return nil, err
+		}
 
-		post.Categories = getCategories(post)
+		post.Categories, err = getCategories(post)
 
 		post.Comments = fmt.Sprintf("https://localhost:8080/comments/%d", post.Id)
 
 		posts = append(posts, post)
 	}
 
-	return posts
+	return posts, nil
 }
 
-func DeletePost(postId int) bool {
+func DeletePost(postId int) (bool, error) {
 	var post Post
+	var exists bool
 
 	if !checkIfPostExist(postId) {
-		return false
+		return false, nil
 	}
 
 	post.Categories = nil
-	UpdatePost(post, postId)
+	exists, err = UpdatePost(post, postId)
+	if !exists {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
 
 	stmt, err := DB.Prepare(`
 		DELETE FROM post WHERE id = ?
 	`)
-	checkErr(err)
+	if err != nil {
+		return false, err
+	}
 
 	_, err = stmt.Exec(postId)
-	checkErr(err)
+	if err != nil {
+		return false, err
+	}
 
-	deletePostComments(postId)
+	err = deletePostComments(postId)
+	if err != nil {
+		return false, err
+	}
 
-	return true
+	return true, nil
 }
 
-func UpdatePost(post Post, postID int) bool {
+func UpdatePost(post Post, postID int) (bool, error) {
 	if !checkIfPostExist(postID) {
-		return false
+		return false, nil
 	}
 
 	stmt, err := DB.Prepare(`
@@ -133,64 +167,82 @@ func UpdatePost(post Post, postID int) bool {
 			last_edited = ?
 		WHERE id = ?
 	`)
-	checkErr(err)
+	if err != nil {
+		return false, err
+	}
 
 	if post.Id != 0 {
 		postID = int(post.Id)
 	}
 
 	_, err = stmt.Exec(post.Title, post.Content, time.Now(), postID)
-	checkErr(err)
+	if err != nil {
+		return false, err
+	}
 
-	updateCategories(post, postID)
+	err = updateCategories(post, postID)
+	if err != nil {
+		return false, err
+	}
 
-	return true
+	return true, nil
 }
 
-func getCategories(post Post) []string {
-
+func getCategories(post Post) ([]string, error) {
 	categoryRows, err := DB.Query(`
 		SELECT category FROM category
 		INNER JOIN post_category ON category.id = post_category.category_id
 		INNER JOIN post ON post_category.post_id = post.id
 		WHERE post.id = ?
 	`, post.Id)
-	checkErr(err)
+
+	if err != nil {
+		return nil, err
+	}
 
 	for categoryRows.Next() {
 		var category string
 
 		err = categoryRows.Scan(&category)
-		checkErr(err)
+		if err != nil {
+			return nil, err
+		}
 
 		post.Categories = append(post.Categories, category)
 	}
 
-	return post.Categories
+	return post.Categories, nil
 }
 
-func updateCategories(post Post, postId int) {
+func updateCategories(post Post, postId int) error {
 	var existingCategories []int64
 
 	rows, err := DB.Query(`
 		SELECT category_id FROM post_category
 		WHERE post_id = ?
 	`, postId)
-	checkErr(err)
+	if err != nil {
+		return err
+	}
 
 	for rows.Next() {
 		var categoryId int64
 
 		err = rows.Scan(&categoryId)
-		checkErr(err)
+		if err != nil {
+			return err
+		}
 
 		existingCategories = append(existingCategories, categoryId)
 	}
 
 	// If no categories in current post, skip straight to adding categories
 	if existingCategories == nil {
-		addCategory(post, postId)
-		return
+		err = addCategory(post, postId)
+		if err != nil {
+			return err
+		}
+		return nil
 	}
 
 	for _, categoryId := range existingCategories {
@@ -201,107 +253,148 @@ func updateCategories(post Post, postId int) {
 			SELECT COUNT(*) FROM post_category
 			WHERE category_id = ?
 		`, categoryId).Scan(&count)
-		checkErr(err)
+		if err != nil {
+			return err
+		}
 
 		stmt, err := DB.Prepare(`
 			DELETE FROM post_category WHERE category_id = ? AND post_id = ?
 		`)
-		checkErr(err)
+		if err != nil {
+			return err
+		}
 
 		_, err = stmt.Exec(categoryId, postId)
-		checkErr(err)
+		if err != nil {
+			return err
+		}
 
 		// Removes all categories with only 1 connection to posts
 		if count == 1 {
 			stmt, err := DB.Prepare(`
 				DELETE FROM category WHERE id = ?
 			`)
-			checkErr(err)
+			if err != nil {
+				return err
+			}
 
 			_, err = stmt.Exec(categoryId)
-			checkErr(err)
+			if err != nil {
+				return err
+			}
 
 		}
 	}
 
-	addCategory(post, postId)
+	err = addCategory(post, postId)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // Categories many-to-many link
-func addCategory(post Post, postId int) {
+func addCategory(post Post, postId int) error {
 	var postCount int
 
 	for i := range post.Categories {
 		var categoryId int64
 
 		err := DB.QueryRow(`SELECT COUNT(*) FROM post`).Scan(&postCount)
-		checkErr(err)
+		if err != nil {
+			return err
+		}
 
 		if checkIfCategoryExist(post.Categories[i]) {
 			err = DB.QueryRow("SELECT id FROM category WHERE category = ?", post.Categories[i]).Scan(&categoryId)
 
 		} else {
 			stmt, err := DB.Prepare(`INSERT INTO category (category) VALUES (?)`)
-			checkErr(err)
-
+			if err != nil {
+				return err
+			}
 			result, err := stmt.Exec(post.Categories[i])
-			checkErr(err)
+			if err != nil {
+				return err
+			}
 
 			categoryId, err = result.LastInsertId()
-			checkErr(err)
+			if err != nil {
+				return err
+			}
 
 			if postCount == 1 {
-				insertPostCategory(postId, categoryId)
+				err = insertPostCategory(postId, categoryId)
+				if err != nil {
+					return err
+				}
 			}
 		}
 
 		if postCount > 1 {
-			insertPostCategory(postId, categoryId)
+			err = insertPostCategory(postId, categoryId)
+			if err != nil {
+				return err
+			}
 		}
 
 	}
+	return nil
 }
 
-func insertPostCategory(postId int, categoryId int64) {
+func insertPostCategory(postId int, categoryId int64) error {
 	stmt, err := DB.Prepare(`INSERT INTO post_category (post_id, category_id) VALUES (?, ?)`)
-	checkErr(err)
+	if err != nil {
+		return err
+	}
 
 	_, err = stmt.Exec(postId, categoryId)
-	checkErr(err)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func SelectAllCategories() []Category {
+func SelectAllCategories() ([]Category, error) {
 	var categories []Category
 	rows, err := DB.Query("SELECT * FROM category")
-	checkErr(err)
+	if err != nil {
+		return nil, err
+	}
 
 	for rows.Next() {
 		var category Category
 
 		err = rows.Scan(&category.Id, &category.Category)
-		checkErr(err)
+		if err != nil {
+			return nil, err
+		}
 
 		categories = append(categories, category)
 	}
 
-	return categories
+	return categories, nil
 }
 
-func SelectAllPostCategory() []PostCategory {
+func SelectAllPostCategory() ([]PostCategory, error) {
 	var post_categories []PostCategory
 	rows, err := DB.Query("SELECT * FROM post_category")
-	checkErr(err)
+	if err != nil {
+		return nil, err
+	}
 
 	for rows.Next() {
 		var post_category PostCategory
 
 		err = rows.Scan(&post_category.PostId, &post_category.CategoryId)
-		checkErr(err)
+		if err != nil {
+			return nil, err
+		}
 
 		post_categories = append(post_categories, post_category)
 	}
 
-	return post_categories
+	return post_categories, nil
 }
 
 func checkIfPostExist(commentId int) bool {
