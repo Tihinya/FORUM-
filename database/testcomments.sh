@@ -4,42 +4,42 @@ echo
 curl -X POST -H "Content-Type: application/json" -d '{
   "title": "What an amazing new test post!",
   "content": "i predict that the id is going to be 501!",
-  "userInfo": {
-    "avatar": "https://example.com/avatar.png",
+  "user_info": {
+    "avatar": "https://example.com/profile_picture.png",
     "username": "Dick Kickem"
   },
   "categories": ["beanz", "x", "heinz"]
-}' -k https://localhost:8080/post/1
+}' -k https://localhost:8080/post
 echo
 
 curl -X POST -H "Content-Type: application/json" -d '{
   "title": "The Art of Cooking",
   "content": "Join me in a culinary adventure as we explore delicious recipes and culinary techniques.",
-  "userInfo": {
-    "avatar": "https://example.com/avatar.png",
+  "user_info": {
+    "avatar": "https://example.com/profile_picture.png",
     "username": "master_ceil"
   },
-  "categories": ["food", "tomcookery"]
-}' -k https://localhost:8080/post/2
+  "categories": ["food", "tomcookery", "beanz"]
+}' -k https://localhost:8080/post
 echo
 
 curl -X POST -H "Content-Type: application/json" -d '{
   "title": "Finess meister tips and trickets",
   "content": "Learn effective finess strategies and get inspired to lead a healthy lifestyle.",
-  "userInfo": {
-    "avatar": "https://example.com/avatar.png",
+  "user_info": {
+    "avatar": "https://example.com/profile_picture.png",
     "username": "finess_meisterman"
   },
-  "categories": ["health", "finess"]
-}' -k https://localhost:8080/post/3
+  "categories": ["health", "finess", "food"]
+}' -k https://localhost:8080/post
 echo
 echo
 
 read -p "Press enter to to create comments for post id 1"
 curl -X POST -H "Content-Type: application/json" -d '{
   "content": "ONEEEEEEEEEEEEEEEE",
-  "userInfo": {
-    "avatar": "https://example.com/avatar.png",
+  "user_info": {
+    "avatar": "https://example.com/profile_picture.png",
     "username": "Dick Kickem"
   }
 }' -k https://localhost:8080/comment/1
@@ -47,8 +47,8 @@ echo
 
 curl -X POST -H "Content-Type: application/json" -d '{
   "content": "TWOOOOOOO",
-  "userInfo": {
-    "avatar": "https://example.com/avatar.png",
+  "user_info": {
+    "avatar": "https://example.com/profile_picture.png",
     "username": "Dick Kickem2"
   }
 }' -k https://localhost:8080/comment/1
@@ -57,8 +57,8 @@ echo
 read -p "Press enter to to create comments for post id 2"
 curl -X POST -H "Content-Type: application/json" -d '{
   "content": "SUUUUUUUUUUUUUUUUUUUUUUUUUU",
-  "userInfo": {
-    "avatar": "https://example.com/avatar.png",
+  "user_info": {
+    "avatar": "https://example.com/profile_picture.png",
     "username": "Dick Nukem"
   }
 }' -k https://localhost:8080/comment/2
@@ -66,8 +66,8 @@ echo
 
 curl -X POST -H "Content-Type: application/json" -d '{
   "content": "cristiano ronaldo",
-  "userInfo": {
-    "avatar": "https://example.com/avatar.png",
+  "user_info": {
+    "avatar": "https://example.com/profile_picture.png",
     "username": "actualy cr"
   }
 }' -k https://localhost:8080/comment/2
@@ -87,8 +87,8 @@ echo "-------------------"
 read -p "Press enter to FAIL comment creation for post id 240"
 curl -X POST -H "Content-Type: application/json" -d '{
   "content": "SUUUUUUUUUUUUUUUUUUUUUUUUUU",
-  "userInfo": {
-    "avatar": "https://example.com/avatar.png",
+  "user_info": {
+    "avatar": "https://example.com/profile_picture.png",
     "username": "Dick Nukem"
   }
 }' -k https://localhost:8080/comment/240

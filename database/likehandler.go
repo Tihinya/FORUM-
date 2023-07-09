@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 )
 
-func LikePost(postId string, username string) bool {
+func LikePost(postId int, username string) bool {
 	if !checkIfPostExist(postId) {
 		return false
 	}
@@ -13,7 +13,7 @@ func LikePost(postId string, username string) bool {
 		return false
 	}
 
-	stmt, err := db.Prepare(`
+	stmt, err := DB.Prepare(`
 		INSERT INTO like (
 			PostId,
 			Username
@@ -27,7 +27,7 @@ func LikePost(postId string, username string) bool {
 	return true
 }
 
-func UnlikePost(postId string, username string) bool {
+func UnlikePost(postId int, username string) bool {
 	if !checkIfPostExist(postId) {
 		return false
 	}
@@ -36,7 +36,7 @@ func UnlikePost(postId string, username string) bool {
 		return false
 	}
 
-	stmt, _ := db.Prepare(`
+	stmt, _ := DB.Prepare(`
 		DELETE FROM like WHERE PostId = ? AND Username = ?
 	`)
 	stmt.Exec(postId, username)
@@ -44,7 +44,7 @@ func UnlikePost(postId string, username string) bool {
 	return true
 }
 
-func LikeComment(commentId string, username string) bool {
+func LikeComment(commentId int, username string) bool {
 	if !checkIfCommentExist(commentId) {
 		return false
 	}
@@ -53,7 +53,7 @@ func LikeComment(commentId string, username string) bool {
 		return false
 	}
 
-	stmt, _ := db.Prepare(`
+	stmt, _ := DB.Prepare(`
 		INSERT INTO like (
 			CommentId,
 			Username
@@ -64,7 +64,7 @@ func LikeComment(commentId string, username string) bool {
 	return true
 }
 
-func UnlikeComment(commentId string, username string) bool {
+func UnlikeComment(commentId int, username string) bool {
 	if !checkIfCommentExist(commentId) {
 		return false
 	}
@@ -73,7 +73,7 @@ func UnlikeComment(commentId string, username string) bool {
 		return false
 	}
 
-	stmt, _ := db.Prepare(`
+	stmt, _ := DB.Prepare(`
 		DELETE FROM like WHERE CommentId = ? AND Username = ?
 	`)
 	stmt.Exec(commentId, username)
@@ -81,8 +81,8 @@ func UnlikeComment(commentId string, username string) bool {
 	return true
 }
 
-func checkIfPostLiked(postId string, username string) bool {
-	err = db.QueryRow("SELECT 1 FROM like WHERE PostId = ? AND Username = ?", postId, username).Scan(&username)
+func checkIfPostLiked(postId int, username string) bool {
+	err = DB.QueryRow("SELECT 1 FROM like WHERE PostId = ? AND Username = ?", postId, username).Scan(&username)
 
 	if err == nil {
 		return false
@@ -92,8 +92,8 @@ func checkIfPostLiked(postId string, username string) bool {
 
 }
 
-func checkIfCommentLiked(commentId string, username string) bool {
-	err = db.QueryRow("SELECT 1 FROM like WHERE CommentId = ? AND Username = ?", commentId, username).Scan(&username)
+func checkIfCommentLiked(commentId int, username string) bool {
+	err = DB.QueryRow("SELECT 1 FROM like WHERE CommentId = ? AND Username = ?", commentId, username).Scan(&username)
 
 	if err == nil {
 		return false
@@ -105,7 +105,7 @@ func checkIfCommentLiked(commentId string, username string) bool {
 
 func Temp_selectLikes() []byte {
 	var likes []Like
-	rows, err := db.Query("SELECT * FROM like")
+	rows, err := DB.Query("SELECT * FROM like")
 	checkErr(err)
 
 	for rows.Next() {

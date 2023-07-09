@@ -10,7 +10,7 @@ import (
 var username = "brozkie"
 
 func LikePost(w http.ResponseWriter, r *http.Request) {
-	postId, err := router.GetFieldString(r, "id")
+	postId, err := router.GetFieldInt(r, "id")
 	if err != nil {
 		http.Error(w, "Invalid post ID", http.StatusBadRequest)
 	}
@@ -28,7 +28,7 @@ func LikePost(w http.ResponseWriter, r *http.Request) {
 }
 
 func UnlikePost(w http.ResponseWriter, r *http.Request) {
-	postId, err := router.GetFieldString(r, "id")
+	postId, err := router.GetFieldInt(r, "id")
 	if err != nil {
 		http.Error(w, "Invalid post ID", http.StatusBadRequest)
 	}
@@ -42,7 +42,7 @@ func UnlikePost(w http.ResponseWriter, r *http.Request) {
 }
 
 func LikeComment(w http.ResponseWriter, r *http.Request) {
-	commentId, err := router.GetFieldString(r, "id")
+	commentId, err := router.GetFieldInt(r, "id")
 	if err != nil {
 		http.Error(w, "Invalid comment ID", http.StatusBadRequest)
 	}

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Main Page</title>
+    <link rel="stylesheet" type="text/css" href="../css/index.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="header">
+      <a class="header__logo" href="/src/html/authorized.html"
+        ><p>Cartel Forum</p></a
+      >
+      <input class="search__bar" placeholder="...Search" />
+      <div class="sign__button" id="notification-button">Notification</div>
+      <div class="profile-menu">
+        <div class="profile-nav">
+          <div class="user__info_picture">
+            <a href="/src/html/profile-page.html"
+              ><img src="/src/img/avatarka.jpeg"
+            /></a>
+          </div>
+          <div class="profile-popup">
+            <img src="/src/img/arrow-down.svg" id="show-button" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="notify-menu" id="notify-popup">
+      <div class="post-message">
+        <div class="post-message__1">
+          <p>Dog of wisdom lookin upon you!</p>
+          <a class="sign__button" href="/src/html/authorized.html">See post!</a>
+        </div>
+        <div class="post-message__1">
+          <p>Your Post got liked: UX/UI</p>
+          <a class="sign__button" href="/src/html/authorized.html">See post!</a>
+        </div>
+      </div>
+      <div class="promotion-message">
+        <div class="promotion-message__text">
+          <p>Person “HungryStepan” requested a promotion to Moderator</p>
+        </div>
+        <div class="promotion-message__buttons">
+          <a class="sign__button" href="/src/html/authorized.html">Accept</a>
+          <a class="sign__button-orange" href="/src/html/authorized.html"
+            >Decline</a
+          >
+        </div>
+      </div>
+    </div>
+    <div class="profile-nav-menu" id="popup">
+      <div class="profile-nav-menu__underline">
+        <p>Signed as HungryStepan</p>
+      </div>
+      <a href="/src/html/profile-page.html"
+        ><p style="cursor: pointer">Perosnal Cabinet</p></a
+      >
+      <a href="/src/html/main-page.html"><p>Logout</p></a>
+    </div>
+    <div class="main__container">
+      <div class="nav__menu">
+        <div class="menu__logo">Menu</div>
+        <div class="nav__options">
+          <p class="nav__options_hover" id="hover-option">UX/UI</p>
+          <p class="nav__options_hover" id="hover-option">JavaScript</p>
+          <p class="nav__options_hover" id="hover-option">Golang</p>
+          <p class="nav__options_hover" id="hover-option">Wisdom</p>
+        </div>
+      </div>
+      <div class="post__container">
+        <div class="post__box">
+          <p>Person “HungryStepan” requested a promotion to Moderator</p>
+          <div class="button-pos">  
+            <div class="sign__button" href="/src/html/authorized.html">Accept</div>
+          <div class="sign__button-orange" href="/src/html/authorized.html"
+            >Decline</div>
+          </div>
+      
+        </div>
+        <div class="post__box">
+          <p>Person "Кабаньчик" requested a promotion to Moderator</p>
+          <div class="button-pos">  
+            <div class="sign__button" href="/src/html/authorized.html">Accept</div>
+          <div class="sign__button-orange" href="/src/html/authorized.html"
+            >Decline</div>
+          </div>
+        </div>
+        </div>
+        <div class="personal-navigator">
+          <div class="nav__menu_profile">
+            <div class="personal-navigator__menu">
+              <p>Personal Navigator</p>
+            </div>
+            <div class="personal-navigator__categories">
+              <a href="/src/html/profile-page.html"
+                ><p class="nav__options_hover">My Posts</p></a
+              >
+              <a href="/src/html/profile-page.html"
+                ><p class="nav__options_hover">My Likes</p></a
+              >
+              <a href="/src/html/profile-page.html"
+                ><p class="nav__options_hover">My Comments</p></a
+              >
+            </div>
+            <div class="personal-navigator__menu">
+              <p>Admin Navigator</p>
+            </div>
+            <div class="personal-navigator__categories">
+              <a href="/src/html/promotion.html"
+                ><p
+                  class="nav__options_hover nav__options_active"
+                  id="hover-option"
+                >
+                  Promotions
+                </p></a
+              >
+              <a href="/src/html/category.html"
+                ><p class="nav__options_hover" id="hover-option">
+                  Create Category
+                </p></a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/js/index.js"></script>
+  </body>
+</html>

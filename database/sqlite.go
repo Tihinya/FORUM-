@@ -18,16 +18,16 @@ func CreateTables() {
 	// Post database table
 	stmt, err := DB.Prepare(`
 		CREATE TABLE IF NOT EXISTS post (
-			Id INTEGER PRIMARY KEY AUTOINCREMENT,
-			Title TEXT NOT NULL,
-			Content TEXT NOT NULL,
-			Avatar TEXT,
-			Username TEXT,
-			CreationDate DATETIME,
-			Likes INTEGER DEFAULT 0,
-			Dislikes INTEGER DEFAULT 0,
-			Categories TEXT,
-			LastEdited DATETIME NULL
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			title TEXT NOT NULL,
+			content TEXT NOT NULL,
+			profile_picture TEXT,
+			username TEXT,
+			creation_date DATETIME,
+			likes INTEGER DEFAULT 0,
+			dislikes INTEGER DEFAULT 0,
+			categories TEXT NULL,
+			last_edited DATETIME NULL
 		);
 	`)
 	checkErr(err)
@@ -35,18 +35,42 @@ func CreateTables() {
 	_, err = stmt.Exec()
 	checkErr(err)
 
-	stmt, err = db.Prepare(`
+	stmt, err = DB.Prepare(`
+		CREATE TABLE IF NOT EXISTS category (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			category TEXT
+		);
+	`)
+	checkErr(err)
+
+	_, err = stmt.Exec()
+	checkErr(err)
+
+	stmt, err = DB.Prepare(`
+		CREATE TABLE IF NOT EXISTS post_category (
+			post_id INTEGER,
+			category_id INTEGER,
+			FOREIGN KEY (post_id) REFERENCES post(id),
+			FOREIGN KEY (category_id) REFERENCES categories(id)
+		);
+	`)
+	checkErr(err)
+
+	_, err = stmt.Exec()
+	checkErr(err)
+
+	stmt, err = DB.Prepare(`
 		CREATE TABLE IF NOT EXISTS comment (
-			Id INTEGER PRIMARY KEY AUTOINCREMENT,
-			PostId INTEGER NOT NULL,
-			Content TEXT NOT NULL,
-			Avatar TEXT,
-			Username TEXT,
-			CreationDate DATETIME,
-			Likes INTEGER DEFAULT 0,
-			Dislikes INTEGER DEFAULT 0,
-			LastEdited DATETIME NULL,
-			FOREIGN KEY (PostId) REFERENCES post(Id)
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			post_id INTEGER NOT NULL,
+			content TEXT NOT NULL,
+			profile_picture TEXT,
+			username TEXT,
+			creation_date DATETIME,
+			likes INTEGER DEFAULT 0,
+			dislikes INTEGER DEFAULT 0,
+			last_edited DATETIME NULL,
+			FOREIGN KEY (post_id) REFERENCES post(id)
 		)
 	`)
 	checkErr(err)
@@ -54,7 +78,7 @@ func CreateTables() {
 	_, err = stmt.Exec()
 	checkErr(err)
 
-	stmt, err = db.Prepare(`
+	stmt, err = DB.Prepare(`
 		CREATE TABLE IF NOT EXISTS like (
 			Id INTEGER PRIMARY KEY AUTOINCREMENT,
 			PostId INTEGER DEFAULT 0,
@@ -77,18 +101,14 @@ func CreateTables() {
 			profile_picture BLOB
 		);
 	`)
-	if err != nil {
-		log.Println(err)
-	}
+	checkErr(err)
 
 	_, err = users.Exec()
-	if err != nil {
-		log.Println(err)
-	}
+	checkErr(err)
 }
 
 func checkErr(err error) {
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 }
