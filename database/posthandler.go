@@ -71,6 +71,7 @@ func SelectPost(id string) ([]Post, error) {
 		post.Categories, err = getCategories(post)
 
 		post.Likes, err = getPostLikes(post.Id)
+		post.Dislikes, err = getPostDislikes(post.Id)
 
 		post.Comments = fmt.Sprintf("https://localhost:8080/comments/%d", post.Id)
 
@@ -115,6 +116,7 @@ func SelectAllPosts() ([]Post, error) {
 		post.Categories, err = getCategories(post)
 
 		post.Likes, err = getPostLikes(post.Id)
+		post.Dislikes, err = getPostDislikes(post.Id)
 
 		post.Comments = fmt.Sprintf("https://localhost:8080/comments/%d", post.Id)
 
@@ -158,6 +160,11 @@ func DeletePost(postId int) (bool, error) {
 		return false, err
 	}
 
+	err = deletePostLikes(postId)
+	if err != nil {
+		return false, err
+	}
+
 	return true, nil
 }
 
@@ -192,6 +199,34 @@ func UpdatePost(post Post, postID int) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func deletePostLikes(postId int) error {
+	stmt, err := DB.Prepare(`
+		DELETE FROM like WHERE PostId = ?
+	`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(postId)
+	if err != nil {
+		return err
+	}
+
+	stmt, err = DB.Prepare(`
+		DELETE FROM dislike WHERE PostId = ?
+	`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(postId)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func getCategories(post Post) ([]string, error) {

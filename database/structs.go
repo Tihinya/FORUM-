@@ -63,3 +63,9 @@ type Like struct {
 	CommentId int    `json:"commentId"`
 	Username  string `json:"username"`
 }
+
+type Dislike struct {
+	PostId    int    `json:"postId"`
+	CommentId int    `json:"commentId"`
+	Username  string `json:"username"`
+}

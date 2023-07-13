@@ -90,6 +90,18 @@ func CreateTables() {
 	_, err = stmt.Exec()
 	checkErr(err)
 
+	stmt, err = DB.Prepare(`
+		CREATE TABLE IF NOT EXISTS dislike (
+			PostId INTEGER DEFAULT 0,
+			CommentId INTEGER DEFAULT 0,
+			Username TEXT NOT NULL
+		)
+	`)
+	checkErr(err)
+
+	_, err = stmt.Exec()
+	checkErr(err)
+
 	// Create another table:
 	users, err := DB.Prepare(`
 		CREATE TABLE IF NOT EXISTS users (

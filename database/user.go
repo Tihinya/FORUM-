@@ -1,5 +1,7 @@
 package database
 
+import "fmt"
+
 func CreateUser(user UserInfo) (int, error) {
 	sqlStmt, err := DB.Prepare(`INSERT INTO users(
 		email,
@@ -88,4 +90,50 @@ func DeleteUser(userID int) error {
 	}
 
 	return nil
+}
+
+func ReadUserPosts(userID int) ([]string, error) {
+	var posts []string
+	var username string
+
+	err := DB.QueryRow(`SELECT username FROM users WHERE user_id = ?`, userID).Scan(&username)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := DB.Query(`
+		SELECT PostId, CommentId
+		FROM like WHERE Username = ?
+	`, username)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var like Like
+
+		err = rows.Scan(&like.PostId, &like.CommentId)
+		if err != nil {
+			return nil, err
+		}
+
+		if like.PostId != 0 {
+			post := "https://localhost:8080/post/" + fmt.Sprint(like.PostId)
+			posts = append(posts, post)
+		}
+	}
+
+	return posts, nil
+}
+
+func GetUsername(userID int) (string, error) {
+	var username string
+
+	err := DB.QueryRow("SELECT username FROM users WHERE user_id = ?", userID).Scan(&username)
+	if err != nil {
+		return "", err
+	}
+
+	return username, nil
 }

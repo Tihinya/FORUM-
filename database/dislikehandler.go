@@ -1,16 +1,16 @@
 package database
 
-func LikePost(postId int, username string) (bool, error) {
+func DislikePost(postId int, username string) (bool, error) {
 	if !checkIfPostExist(postId) {
 		return false, nil
 	}
 
-	if CheckIfPostLiked(postId, username) {
+	if CheckIfPostDisliked(postId, username) {
 		return false, nil
 	}
 
 	stmt, err := DB.Prepare(`
-		INSERT INTO like (
+		INSERT INTO dislike (
 			PostId,
 			Username
 		) VALUES (?, ?)
@@ -27,17 +27,17 @@ func LikePost(postId int, username string) (bool, error) {
 	return true, nil
 }
 
-func UnlikePost(postId int, username string) (bool, error) {
+func UndislikePost(postId int, username string) (bool, error) {
 	if !checkIfPostExist(postId) {
 		return false, nil
 	}
 
-	if !CheckIfPostLiked(postId, username) {
+	if !CheckIfPostDisliked(postId, username) {
 		return false, nil
 	}
 
 	stmt, err := DB.Prepare(`
-		DELETE FROM like WHERE PostId = ? AND Username = ?
+		DELETE FROM dislike WHERE PostId = ? AND Username = ?
 	`)
 	if err != nil {
 		return false, err
@@ -52,17 +52,17 @@ func UnlikePost(postId int, username string) (bool, error) {
 }
 
 /*
-func LikeComment(commentId int, username string) (bool, error) {
+func DislikeComment(commentId int, username string) (bool, error) {
 	if !checkIfCommentExist(commentId) {
 		return false, nil
 	}
 
-	if checkIfCommentLiked(commentId, username) {
+	if checkIfCommentDisliked(commentId, username) {
 		return false, nil
 	}
 
 	stmt, err := DB.Prepare(`
-		INSERT INTO like (
+		INSERT INTO dislike (
 			CommentId,
 			Username
 		) VALUES (?, ?)
@@ -79,17 +79,17 @@ func LikeComment(commentId int, username string) (bool, error) {
 	return true, nil
 }
 
-func UnlikeComment(commentId int, username string) (bool, error) {
+func UndislikeComment(commentId int, username string) (bool, error) {
 	if !checkIfCommentExist(commentId) {
 		return false, nil
 	}
 
-	if !checkIfCommentLiked(commentId, username) {
+	if !checkIfCommentDisliked(commentId, username) {
 		return false, nil
 	}
 
 	stmt, err := DB.Prepare(`
-		DELETE FROM like WHERE CommentId = ? AND Username = ?
+		DELETE FROM dislike WHERE CommentId = ? AND Username = ?
 	`)
 	if err != nil {
 		return false, err
@@ -104,10 +104,10 @@ func UnlikeComment(commentId int, username string) (bool, error) {
 }
 */
 
-func getPostLikes(postId int) (int, error) {
+func getPostDislikes(postId int) (int, error) {
 	var count int
 
-	err := DB.QueryRow(`SELECT COUNT(*) FROM like WHERE PostId = ?`, postId).Scan(&count)
+	err := DB.QueryRow(`SELECT COUNT(*) FROM dislike WHERE PostId = ?`, postId).Scan(&count)
 	if err != nil {
 		return 0, err
 	}
@@ -116,39 +116,39 @@ func getPostLikes(postId int) (int, error) {
 
 }
 
-func CheckIfPostLiked(postId int, username string) bool {
+func CheckIfPostDisliked(postId int, username string) bool {
 	var exists bool
 
-	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM like WHERE PostId = ? AND Username = ?)", postId, username).Scan(&exists)
+	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM dislike WHERE PostId = ? AND Username = ?)", postId, username).Scan(&exists)
 
 	return err == nil && exists
 }
 
-func checkIfCommentLiked(commentId int, username string) bool {
+func checkIfCommentDisliked(commentId int, username string) bool {
 	var exists bool
 
-	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM like WHERE CommentId = ? AND Username = ?)", commentId, username).Scan(&exists)
+	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM dislike WHERE CommentId = ? AND Username = ?)", commentId, username).Scan(&exists)
 
 	return err == nil && exists
 }
 
-func Temp_selectLikes() ([]Like, error) {
-	var likes []Like
-	rows, err := DB.Query("SELECT * FROM like")
+func Temp_selectDislikes() ([]Dislike, error) {
+	var Dislikes []Dislike
+	rows, err := DB.Query("SELECT * FROM dislike")
 	if err != nil {
 		return nil, err
 	}
 
 	for rows.Next() {
-		var like Like
+		var Dislike Dislike
 
-		err = rows.Scan(&like.PostId, &like.CommentId, &like.Username)
+		err = rows.Scan(&Dislike.PostId, &Dislike.CommentId, &Dislike.Username)
 		if err != nil {
 			return nil, err
 		}
 
-		likes = append(likes, like)
+		Dislikes = append(Dislikes, Dislike)
 	}
 
-	return likes, nil
+	return Dislikes, nil
 }
