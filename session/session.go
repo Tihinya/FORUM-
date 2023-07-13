@@ -16,7 +16,7 @@ type Session struct {
 }
 
 type Storage struct {
-	storage map[string]Session
+	storage map[string]*Session
 	lock    sync.RWMutex
 }
 
@@ -31,7 +31,7 @@ func (s *Storage) CreateSession(userId int) string {
 
 	sessionToken := uuid.Must(uuid.NewV4()).String()
 	expireTime := time.Now().Add(sessionLifeTime)
-	s.storage[sessionToken] = Session{
+	s.storage[sessionToken] = &Session{
 		UserId:     userId,
 		Token:      sessionToken,
 		ExpireTime: expireTime,
@@ -48,6 +48,10 @@ func (s *Storage) DeleteCookie(w http.ResponseWriter) {
 	})
 }
 
+func (s *Session) GetUID() int {
+	return s.UserId
+}
+
 func (s *Storage) SetCookie(sessionToken string, w http.ResponseWriter) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session_token",
@@ -59,7 +63,7 @@ func (s *Storage) SetCookie(sessionToken string, w http.ResponseWriter) {
 	})
 }
 
-func ValidateToken(r *http.Request) (string, error) {
+func (s *Storage) validateToken(r *http.Request) (string, error) {
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
 		return "", err
@@ -69,16 +73,22 @@ func ValidateToken(r *http.Request) (string, error) {
 	return sessionID, nil
 }
 
-func (s *Storage) GetSession(token string) Session {
+func (s *Storage) GetSession(r *http.Request) (*Session, error) {
+	sessionID, err := s.validateToken(r)
+	if err != nil {
+		return nil, err
+	}
+
 	s.lock.RLock()
 	defer s.lock.RUnlock()
 
-	session, ok := s.storage[token]
-	if !ok || session.ExpireTime.Before(time.Now()) {
-		return Session{}
+	session, exist := s.storage[sessionID]
+	if exist && err == nil || session.ExpireTime.Before(time.Now()) {
+		return nil, nil
 	}
 
-	return session
+	session.ExpireTime = time.Now()
+	return session, nil
 }
 
 func (s *Session) RemoveSession() {
@@ -104,7 +114,7 @@ func (s *Storage) startSessionCleanupRoutine() {
 
 func init() {
 	SessionStorage = Storage{
-		storage: make(map[string]Session),
+		storage: make(map[string]*Session),
 	}
 
 	go SessionStorage.startSessionCleanupRoutine()

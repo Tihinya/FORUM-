@@ -57,6 +57,15 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	// Check username format
+	if !validation.ValidateUsername(register.Email) {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(database.Response{
+			Status:  "error",
+			Message: "Invalid username format",
+		})
+		return
+	}
 	// Password check
 	if register.Password != register.PasswordConfirmation {
 		w.WriteHeader(http.StatusBadRequest)
@@ -68,7 +77,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check if email is already taken
-	exist, err := validation.GetUserID(database.DB, register.Email)
+	exist, err := validation.GetUserID(database.DB, register.Email, "")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -82,7 +91,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := login.AddUser(register.Username, register.Email, register.Password)
+	id, err := login.AddUser(register.Username, register.Email, register.Password, register.RoleID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -157,7 +166,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check if email is already taken
-	exist, err := validation.GetUserID(database.DB, req.Email)
+	exist, err := validation.GetUserID(database.DB, req.Email, "")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -170,8 +179,17 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	roleId, err := database.GetRoleId(req.Role)
+	if err != nil {
+		w.WriteHeader(http.StatusConflict)
+		json.NewEncoder(w).Encode(database.Response{
+			Status:  "error",
+			Message: "Role does not exist",
+		})
+		return
+	}
 
-	err = database.UpdateUser(req.Username, req.Email, userID)
+	err = database.UpdateUser(req.Username, req.Email, roleId, userID)
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)

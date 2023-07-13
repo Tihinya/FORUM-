@@ -78,20 +78,35 @@ func CreateTables() {
 	_, err = stmt.Exec()
 	checkErr(err)
 
-	// Create another table:
+	// Create roles table
+	roles, err := DB.Prepare(`
+		CREATE TABLE IF NOT EXISTS roles (
+			role_id  INTEGER PRIMARY KEY AUTOINCREMENT,
+			name TEXT
+		);
+	`)
+	checkErr(err)
+
+	_, err = roles.Exec()
+	checkErr(err)
+
+	// Create users table
 	users, err := DB.Prepare(`
 		CREATE TABLE IF NOT EXISTS users (
 			user_id  INTEGER PRIMARY KEY AUTOINCREMENT,
 			email TEXT,
 			username TEXT,
 			password TEXT,
-			profile_picture BLOB
+			profile_picture BLOB,
+			role_id INTEGER,
+			FOREIGN KEY (role_id) REFERENCES roles(role_id)
 		);
 	`)
 	checkErr(err)
 
 	_, err = users.Exec()
 	checkErr(err)
+
 }
 
 func checkErr(err error) {

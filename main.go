@@ -1,11 +1,15 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"forum/config"
 	ct "forum/controllers"
 	"forum/database"
+	"forum/login"
 	"forum/router"
+	"forum/session"
+	"forum/validation"
 	"log"
 	"net/http"
 )
@@ -22,13 +26,85 @@ func ExampleMiddleware() router.Middleware {
 	}
 }
 
+func AdminOnly() router.Middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Get the user's session
+			session, err := session.SessionStorage.GetSession(r)
+			if err != nil {
+				log.Println(err)
+				w.WriteHeader(http.StatusInternalServerError)
+				json.NewEncoder(w).Encode(database.Response{
+					Status:  "error",
+					Message: "Internal Server Error",
+				})
+				return
+			}
+
+			// Check if a valid session exists
+			if session == nil {
+				w.WriteHeader(http.StatusUnauthorized)
+				json.NewEncoder(w).Encode(database.Response{
+					Status:  "error",
+					Message: "Unauthorized",
+				})
+				return
+			}
+
+			// Retrieve the user from the database based on the ID
+			user, err := database.SelectUser(session.UserId)
+			if err != nil {
+				log.Println(err)
+				w.WriteHeader(http.StatusInternalServerError)
+				json.NewEncoder(w).Encode(database.Response{
+					Status:  "error",
+					Message: "Internal Server Error",
+				})
+				return
+			}
+
+			// Check if the user has the admin role
+			adminRoleID, err := validation.GetUserID(database.DB, "", "admin")
+			if err != nil {
+				log.Println(err)
+				w.WriteHeader(http.StatusInternalServerError)
+				json.NewEncoder(w).Encode(database.Response{
+					Status:  "error",
+					Message: "Internal Server Error",
+				})
+				return
+			}
+
+			if user.RoleID != adminRoleID {
+				w.WriteHeader(http.StatusForbidden)
+				json.NewEncoder(w).Encode(database.Response{
+					Status:  "error",
+					Message: "Insufficient privileges",
+				})
+				return
+			}
+
+			fmt.Println("Example admin privileges")
+			// User has the admin role, proceed to the next handler
+			next.ServeHTTP(w, r)
+		})
+	}
+}
 func main() {
 
 	r := router.NewRouter()
 
 	database.CreateTables()
-
+	err := database.GenerateDefaultRoles()
+	if err != nil {
+		log.Println(err)
+	}
+	login.CreateAdminUser()
+	if err != nil {
+		log.Println(err)
+	}
 	// middleware usage example
+	// r.AddGlobalMiddleware(AdminOnly())
 	r.AddGlobalMiddleware(ExampleMiddleware())
 
 	// User

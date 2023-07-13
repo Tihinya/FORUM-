@@ -6,12 +6,11 @@ import (
 	"fmt"
 	"forum/config"
 	"forum/database"
-	"forum/session"
+	"forum/security"
+	"forum/validation"
 	"io"
 	"log"
 	"net/http"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 type githubUser struct {
@@ -23,10 +22,6 @@ type userData struct {
 	Email string `json:"email"`
 }
 
-func AddLogin(w http.ResponseWriter, userId int) {
-	token := session.SessionStorage.CreateSession(userId)
-	session.SessionStorage.SetCookie(token, w)
-}
 func GetGithubAccessToken(code string) (string, error) {
 
 	// Set us the request body as JSON
@@ -113,17 +108,17 @@ func GetGithubData(accessToken string) (githubUser, error) {
 	// Convert byte slice to string and return
 	return user, nil
 }
-func AddUser(username string, email string, password string) (int, error) {
+func AddUser(username string, email string, password string, roleId int) (int, error) {
 	user := database.UserInfo{
 		ProfilePicture: config.Config.ProfilePicture,
 		Username:       username,
 		Email:          email,
 		Password:       password,
+		RoleID:         roleId,
 	}
 
 	// Encrypt the password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	// hashedPassword, err := security.PasswordEncrypting(register.Password)
+	hashedPassword, err := security.PasswordEncrypting(password)
 	if err != nil {
 		return 0, err
 	}
@@ -156,4 +151,25 @@ func GetUserData(token string) userData {
 	}
 	result = userInfo
 	return result
+}
+
+func CreateAdminUser() {
+	// Check if admin user already exists
+	roleId, err := database.GetRoleId("admin")
+	if err != nil {
+		log.Println(err)
+	}
+
+	id, err := validation.GetUserID(database.DB, "", "admin")
+	if err != nil {
+		log.Println(err)
+	}
+
+	if id == 0 {
+		// User does not exist, create a new user
+		_, err = AddUser("admin", "admin@example.com", "admin", roleId)
+		if err != nil {
+			log.Println(err)
+		}
+	}
 }

@@ -3,7 +3,7 @@
     "gitHubClientId":"47e016761d5f8ce28a47",
     "gitHubClientSecret":"afe9109f33fc285efd7e43d3b5a79338d089817f",
     "gitHubRedirectURI": "https://localhost:8080/login/github/callback",
-    "profile_picture": "https://www.example.com/example1",
+    "profile_picture": "https://www.picture.com/picture1",
     "googleID":"809283752923-nihoptdaj4u55pnqsldjgn9tajr9rb6m.apps.googleusercontent.com",
     "googleClientSecret":"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",
     "googleRedirectURI": "https://localhost:8080/login/google/callback",
