@@ -92,11 +92,10 @@ func DeleteUser(userID int) error {
 	return nil
 }
 
-func ReadUserPosts(userID int) ([]string, error) {
+func ReadUserLikedPosts(userID int) ([]string, error) {
 	var posts []string
-	var username string
 
-	err := DB.QueryRow(`SELECT username FROM users WHERE user_id = ?`, userID).Scan(&username)
+	username, err := GetUsername(userID)
 	if err != nil {
 		return nil, err
 	}
@@ -120,6 +119,40 @@ func ReadUserPosts(userID int) ([]string, error) {
 
 		if like.PostId != 0 {
 			post := "https://localhost:8080/post/" + fmt.Sprint(like.PostId)
+			posts = append(posts, post)
+		}
+	}
+
+	return posts, nil
+}
+
+func ReadUserDislikedPosts(userID int) ([]string, error) {
+	var posts []string
+
+	username, err := GetUsername(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := DB.Query(`
+		SELECT PostId, CommentId
+		FROM dislike WHERE Username = ?
+	`, username)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var dislike Dislike
+
+		err = rows.Scan(&dislike.PostId, &dislike.CommentId)
+		if err != nil {
+			return nil, err
+		}
+
+		if dislike.PostId != 0 {
+			post := "https://localhost:8080/post/" + fmt.Sprint(dislike.PostId)
 			posts = append(posts, post)
 		}
 	}

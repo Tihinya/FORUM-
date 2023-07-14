@@ -206,7 +206,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func ReadUserPosts(w http.ResponseWriter, r *http.Request) {
+func ReadUserLikedPosts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	userID, err := router.GetFieldInt(r, "id")
@@ -217,8 +217,64 @@ func ReadUserPosts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Authentication here
+	sessionToken, sessionTokenFound := checkForSessionToken(r)
+	if !sessionTokenFound {
+		returnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
+		return
+	}
 
-	posts, err := database.ReadUserPosts(userID)
+	if !checkIfUserLoggedin(sessionToken) {
+		returnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	sessionUserID := session.SessionStorage.GetSession(sessionToken.Value).UserId
+
+	if sessionUserID != userID {
+		returnMessageJSON(w, "You are not authorized to view this information", http.StatusInternalServerError, "unauthorized")
+		return
+	}
+
+	posts, err := database.ReadUserLikedPosts(userID)
+	if err != nil {
+		log.Println(err)
+		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		return
+	}
+
+	json.NewEncoder(w).Encode(posts)
+}
+
+func ReadUserDislikedPosts(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	userID, err := router.GetFieldInt(r, "id")
+	if err != nil {
+		log.Println(err)
+		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		return
+	}
+
+	// Authentication here
+	sessionToken, sessionTokenFound := checkForSessionToken(r)
+	if !sessionTokenFound {
+		returnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	if !checkIfUserLoggedin(sessionToken) {
+		returnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	sessionUserID := session.SessionStorage.GetSession(sessionToken.Value).UserId
+
+	if sessionUserID != userID {
+		returnMessageJSON(w, "You are not authorized to view this information", http.StatusInternalServerError, "unauthorized")
+		return
+	}
+
+	posts, err := database.ReadUserDislikedPosts(userID)
 	if err != nil {
 		log.Println(err)
 		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
