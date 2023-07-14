@@ -106,7 +106,6 @@ func UnlikePost(w http.ResponseWriter, r *http.Request) {
 	returnMessageJSON(w, "Post successfully unliked", http.StatusOK, "success")
 }
 
-/*
 func LikeComment(w http.ResponseWriter, r *http.Request) {
 	var existsLiked bool
 
@@ -116,6 +115,30 @@ func LikeComment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Authentication here
+	sessionToken, sessionTokenFound := checkForSessionToken(r)
+	if !sessionTokenFound {
+		returnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	if !checkIfUserLoggedin(sessionToken) {
+		returnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	userID := session.SessionStorage.GetSession(sessionToken.Value).UserId
+	username, err := database.GetUsername(userID)
+	if err != nil {
+		log.Println(err)
+		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		return
+	}
+
+	// Check if commennt is already disliked
+	if database.CheckIfCommentDisliked(commentId, username) {
+		returnMessageJSON(w, "Failed to like comment. Comment is already disliked.", http.StatusBadRequest, "error")
+		return
+	}
 
 	existsLiked, err = database.LikeComment(commentId, username)
 
@@ -143,6 +166,24 @@ func UnlikeComment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Authentication here
+	sessionToken, sessionTokenFound := checkForSessionToken(r)
+	if !sessionTokenFound {
+		returnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	if !checkIfUserLoggedin(sessionToken) {
+		returnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	userID := session.SessionStorage.GetSession(sessionToken.Value).UserId
+	username, err := database.GetUsername(userID)
+	if err != nil {
+		log.Println(err)
+		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		return
+	}
 
 	existsLiked, err = database.UnlikeComment(commentId, username)
 
@@ -160,7 +201,6 @@ func UnlikeComment(w http.ResponseWriter, r *http.Request) {
 
 	returnMessageJSON(w, "Comment successfully unliked", http.StatusOK, "success")
 }
-*/
 
 func Temp_getLikes(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")

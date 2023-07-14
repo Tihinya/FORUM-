@@ -59,14 +59,14 @@ func main() {
 	// Like
 	r.NewRoute("POST", `/post/(?P<id>\d+)/like`, ct.LikePost)
 	r.NewRoute("POST", `/post/(?P<id>\d+)/unlike`, ct.UnlikePost)
-	//r.NewRoute("POST", `/comment/(?P<id>\d+)/like`, ct.LikeComment)
-	//r.NewRoute("POST", `/comment/(?P<id>\d+)/unlike`, ct.UnlikeComment)
+	r.NewRoute("POST", `/comment/(?P<id>\d+)/like`, ct.LikeComment)
+	r.NewRoute("POST", `/comment/(?P<id>\d+)/unlike`, ct.UnlikeComment)
 
 	// Dislike
 	r.NewRoute("POST", `/post/(?P<id>\d+)/dislike`, ct.DislikePost)
 	r.NewRoute("POST", `/post/(?P<id>\d+)/undislike`, ct.UndislikePost)
-	//r.NewRoute("POST", `/comment/(?P<id>\d+)/dislike`, ct.DislikeComment)
-	//r.NewRoute("POST", `/comment/(?P<id>\d+)/undislike`, ct.UndislikeComment)
+	r.NewRoute("POST", `/comment/(?P<id>\d+)/dislike`, ct.DislikeComment)
+	r.NewRoute("POST", `/comment/(?P<id>\d+)/undislike`, ct.UndislikeComment)
 
 	// Temp
 	r.NewRoute("GET", `/likes`, ct.Temp_getLikes)

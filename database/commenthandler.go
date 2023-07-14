@@ -56,6 +56,9 @@ func SelectComment(commentId int) ([]Comment, error) {
 			return nil, err
 		}
 
+		comment.Likes, err = getCommentLikes(comment.Id)
+		comment.Dislikes, err = getCommentDislikes(comment.Id)
+
 		comments = append(comments, comment)
 	}
 
@@ -88,6 +91,9 @@ func SelectAllComments(id int) ([]Comment, error) {
 		if err != nil {
 			return nil, err
 		}
+
+		comment.Likes, err = getCommentLikes(comment.Id)
+		comment.Dislikes, err = getCommentDislikes(comment.Id)
 
 		comments = append(comments, comment)
 	}
@@ -147,6 +153,34 @@ func deletePostComments(postId int) error {
 	}
 
 	_, err = stmt.Exec(postId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func deleteCommentLikes(commentId int) error {
+	stmt, err := DB.Prepare(`
+		DELETE FROM like WHERE CommentId = ?
+	`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(commentId)
+	if err != nil {
+		return err
+	}
+
+	stmt, err = DB.Prepare(`
+		DELETE FROM dislike WHERE CommentId = ?
+	`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(commentId)
 	if err != nil {
 		return err
 	}

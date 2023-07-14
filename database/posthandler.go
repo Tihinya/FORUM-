@@ -201,34 +201,6 @@ func UpdatePost(post Post, postID int) (bool, error) {
 	return true, nil
 }
 
-func deletePostLikes(postId int) error {
-	stmt, err := DB.Prepare(`
-		DELETE FROM like WHERE PostId = ?
-	`)
-	if err != nil {
-		return err
-	}
-
-	_, err = stmt.Exec(postId)
-	if err != nil {
-		return err
-	}
-
-	stmt, err = DB.Prepare(`
-		DELETE FROM dislike WHERE PostId = ?
-	`)
-	if err != nil {
-		return err
-	}
-
-	_, err = stmt.Exec(postId)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func getCategories(post Post) ([]string, error) {
 	categoryRows, err := DB.Query(`
 		SELECT category FROM category
@@ -436,6 +408,34 @@ func SelectAllPostCategory() ([]PostCategory, error) {
 	}
 
 	return post_categories, nil
+}
+
+func deletePostLikes(postId int) error {
+	stmt, err := DB.Prepare(`
+		DELETE FROM like WHERE PostId = ?
+	`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(postId)
+	if err != nil {
+		return err
+	}
+
+	stmt, err = DB.Prepare(`
+		DELETE FROM dislike WHERE PostId = ?
+	`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(postId)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func checkIfPostExist(commentId int) bool {

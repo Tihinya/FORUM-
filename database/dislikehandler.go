@@ -51,13 +51,12 @@ func UndislikePost(postId int, username string) (bool, error) {
 	return true, nil
 }
 
-/*
 func DislikeComment(commentId int, username string) (bool, error) {
 	if !checkIfCommentExist(commentId) {
 		return false, nil
 	}
 
-	if checkIfCommentDisliked(commentId, username) {
+	if CheckIfCommentDisliked(commentId, username) {
 		return false, nil
 	}
 
@@ -84,7 +83,7 @@ func UndislikeComment(commentId int, username string) (bool, error) {
 		return false, nil
 	}
 
-	if !checkIfCommentDisliked(commentId, username) {
+	if !CheckIfCommentDisliked(commentId, username) {
 		return false, nil
 	}
 
@@ -102,7 +101,6 @@ func UndislikeComment(commentId int, username string) (bool, error) {
 
 	return true, nil
 }
-*/
 
 func getPostDislikes(postId int) (int, error) {
 	var count int
@@ -113,7 +111,17 @@ func getPostDislikes(postId int) (int, error) {
 	}
 
 	return count, nil
+}
 
+func getCommentDislikes(commentId int) (int, error) {
+	var count int
+
+	err := DB.QueryRow(`SELECT COUNT(*) FROM dislike WHERE CommentId = ?`, commentId).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }
 
 func CheckIfPostDisliked(postId int, username string) bool {
@@ -124,7 +132,7 @@ func CheckIfPostDisliked(postId int, username string) bool {
 	return err == nil && exists
 }
 
-func checkIfCommentDisliked(commentId int, username string) bool {
+func CheckIfCommentDisliked(commentId int, username string) bool {
 	var exists bool
 
 	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM dislike WHERE CommentId = ? AND Username = ?)", commentId, username).Scan(&exists)
