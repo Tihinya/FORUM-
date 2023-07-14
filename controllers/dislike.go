@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"forum/database"
 	"forum/router"
+	"forum/session"
 	"log"
 	"net/http"
 )
@@ -26,6 +27,14 @@ func DislikePost(w http.ResponseWriter, r *http.Request) {
 
 	if !checkIfUserLoggedin(sessionToken) {
 		returnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	userID := session.SessionStorage.GetSession(sessionToken.Value).UserId
+	username, err := database.GetUsername(userID)
+	if err != nil {
+		log.Println(err)
+		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
 		return
 	}
 
@@ -69,6 +78,14 @@ func UndislikePost(w http.ResponseWriter, r *http.Request) {
 
 	if !checkIfUserLoggedin(sessionToken) {
 		returnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	userID := session.SessionStorage.GetSession(sessionToken.Value).UserId
+	username, err := database.GetUsername(userID)
+	if err != nil {
+		log.Println(err)
+		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
 		return
 	}
 

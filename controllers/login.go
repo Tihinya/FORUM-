@@ -18,7 +18,7 @@ import (
 func Login(w http.ResponseWriter, r *http.Request) {
 	// This line is assigning a fixed user ID for testing purposes.
 	// You might want to modify this logic to authenticate the user properly.
-	userID := 228 // test user ID
+	userID := 1 // test user ID
 	login.AddLogin(w, userID)
 }
 
