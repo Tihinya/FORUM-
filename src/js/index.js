@@ -25,3 +25,22 @@ subjects.forEach(function (subject) {
     }
   });
 });
+
+const thread = document.getElementById("add-a-thread");
+const details = document.getElementById("detailed-thread");
+
+thread.addEventListener("click", function () {
+  details.classList.toggle("show");
+});
+
+const threadTags = document.querySelectorAll(".tag-active");
+let activeThread = threadTags[0];
+
+threadTags.forEach(function (tag) {
+  tag.addEventListener("click", function () {
+    if (activeThread !== tag) {
+      tag.classList.add("thread-subject-active");
+      activeThread = tag;
+    }
+  });
+});
