@@ -33,8 +33,7 @@ func DislikePost(w http.ResponseWriter, r *http.Request) {
 	userID := session.SessionStorage.GetSession(sessionToken.Value).UserId
 	username, err := database.GetUsername(userID)
 	if err != nil {
-		log.Println(err)
-		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		returnMessageJSON(w, "You are not logged in", http.StatusInternalServerError, "unauthorized")
 		return
 	}
 
@@ -84,8 +83,7 @@ func UndislikePost(w http.ResponseWriter, r *http.Request) {
 	userID := session.SessionStorage.GetSession(sessionToken.Value).UserId
 	username, err := database.GetUsername(userID)
 	if err != nil {
-		log.Println(err)
-		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		returnMessageJSON(w, "You are not logged in", http.StatusInternalServerError, "unauthorized")
 		return
 	}
 
@@ -129,8 +127,7 @@ func DislikeComment(w http.ResponseWriter, r *http.Request) {
 	userID := session.SessionStorage.GetSession(sessionToken.Value).UserId
 	username, err := database.GetUsername(userID)
 	if err != nil {
-		log.Println(err)
-		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		returnMessageJSON(w, "You are not logged in", http.StatusInternalServerError, "unauthorized")
 		return
 	}
 
@@ -180,8 +177,7 @@ func UndislikeComment(w http.ResponseWriter, r *http.Request) {
 	userID := session.SessionStorage.GetSession(sessionToken.Value).UserId
 	username, err := database.GetUsername(userID)
 	if err != nil {
-		log.Println(err)
-		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		returnMessageJSON(w, "You are not logged in", http.StatusInternalServerError, "unauthorized")
 		return
 	}
 
