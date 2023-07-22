@@ -101,7 +101,11 @@ func SelectAllComments(id int) ([]Comment, error) {
 	return comments, nil
 }
 
-func UpdateComment(comment Comment, commentId int) (bool, error) {
+func UpdateComment(comment Comment, commentId int, username string) (bool, error) {
+	if !checkCommentOwnership(commentId, username) {
+		return false, nil
+	}
+
 	if !checkIfCommentExist(commentId) {
 		return false, nil
 	}
@@ -124,7 +128,11 @@ func UpdateComment(comment Comment, commentId int) (bool, error) {
 	return true, nil
 }
 
-func DeleteComment(commentID int) (bool, error) {
+func DeleteComment(commentID int, username string) (bool, error) {
+	if !checkCommentOwnership(commentID, username) {
+		return false, nil
+	}
+
 	if !checkIfCommentExist(commentID) {
 		return false, nil
 	}
@@ -220,6 +228,14 @@ func checkIfCommentExist(commentId int) bool {
 	var exists bool
 
 	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM comment WHERE id=?)", commentId).Scan(&exists)
+
+	return err == nil && exists
+}
+
+func checkCommentOwnership(commentId int, username string) bool {
+	var exists bool
+
+	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM comment WHERE CommentId = ? AND Username = ?)", commentId, username).Scan(&exists)
 
 	return err == nil && exists
 }

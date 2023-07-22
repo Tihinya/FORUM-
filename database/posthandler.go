@@ -132,9 +132,13 @@ func SelectAllPosts() ([]Post, error) {
 	return posts, nil
 }
 
-func DeletePost(postId int) (bool, error) {
+func DeletePost(postId int, username string) (bool, error) {
 	var post Post
 	var exists bool
+
+	if !checkPostOwnership(postId, username) {
+		return false, nil
+	}
 
 	if !checkIfPostExist(postId) {
 		return false, nil
@@ -142,7 +146,7 @@ func DeletePost(postId int) (bool, error) {
 
 	// For deleting leftover categories
 	post.Categories = nil
-	exists, err = UpdatePost(post, postId)
+	exists, err = UpdatePost(post, postId, username)
 	if !exists {
 		return false, nil
 	}
@@ -187,7 +191,11 @@ func DeletePost(postId int) (bool, error) {
 	return true, nil
 }
 
-func UpdatePost(post Post, postID int) (bool, error) {
+func UpdatePost(post Post, postID int, username string) (bool, error) {
+	if !checkPostOwnership(postID, username) {
+		return false, nil
+	}
+
 	if !checkIfPostExist(postID) {
 		return false, nil
 	}
@@ -470,6 +478,14 @@ func checkIfCategoryExist(category string) bool {
 	var exists bool
 
 	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM category WHERE category=?)", category).Scan(&exists)
+
+	return err == nil && exists
+}
+
+func checkPostOwnership(postId int, username string) bool {
+	var exists bool
+
+	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM post WHERE PostId = ? AND Username = ?)", postId, username).Scan(&exists)
 
 	return err == nil && exists
 }

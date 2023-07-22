@@ -2,11 +2,13 @@ package controllers
 
 import (
 	"encoding/json"
-	"forum/database"
-	"forum/router"
 	"log"
 	"net/http"
 	"time"
+
+	"forum/database"
+	"forum/router"
+	"forum/session"
 )
 
 // Posts are readable on https://localhost:8080/posts
@@ -21,12 +23,33 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Authentication here
+	sessionToken, sessionTokenFound := checkForSessionToken(r)
+	if !sessionTokenFound {
+		returnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	if !checkIfUserLoggedin(sessionToken) {
+		returnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	userID := session.SessionStorage.GetSession(sessionToken.Value).UserId
+	username, err := database.GetUsername(userID)
+	if err != nil {
+		returnMessageJSON(w, "You are not logged in", http.StatusInternalServerError, "unauthorized")
+		return
+	}
+
 	if len(post.Title) == 0 || len(post.Content) == 0 {
 		returnMessageJSON(w, "Post creation failed, the post content or title can not be empty", http.StatusBadRequest, "error")
 		return
 	}
 
 	post.CreationDate = time.Now()
+	post.UserInfo.Username = username
+	post.UserInfo.ProfilePicture = "https://example.com/avatar.png"
 
 	err = database.CreatePost(post)
 	if err != nil {
@@ -92,12 +115,31 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Authentication here
+	sessionToken, sessionTokenFound := checkForSessionToken(r)
+	if !sessionTokenFound {
+		returnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	if !checkIfUserLoggedin(sessionToken) {
+		returnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	userID := session.SessionStorage.GetSession(sessionToken.Value).UserId
+	username, err := database.GetUsername(userID)
+	if err != nil {
+		returnMessageJSON(w, "You are not logged in", http.StatusInternalServerError, "unauthorized")
+		return
+	}
+
 	if len(post.Content) == 0 {
 		returnMessageJSON(w, "Post updating failed, the post content cannot be empty", http.StatusBadRequest, "error")
 		return
 	}
 
-	exists, err = database.UpdatePost(post, postID)
+	exists, err = database.UpdatePost(post, postID, username)
 
 	if err != nil {
 		log.Println(err)
@@ -105,7 +147,7 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !exists {
-		returnMessageJSON(w, "Post updating failed, the post with that ID does not exist", http.StatusBadRequest, "error")
+		returnMessageJSON(w, "Post updating failed, you do not have the right to update this post or the post with that ID does not exist", http.StatusBadRequest, "error")
 		return
 	}
 
@@ -123,7 +165,26 @@ func DeletePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	exists, err = database.DeletePost(postID)
+	// Authentication here
+	sessionToken, sessionTokenFound := checkForSessionToken(r)
+	if !sessionTokenFound {
+		returnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	if !checkIfUserLoggedin(sessionToken) {
+		returnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	userID := session.SessionStorage.GetSession(sessionToken.Value).UserId
+	username, err := database.GetUsername(userID)
+	if err != nil {
+		returnMessageJSON(w, "You are not logged in", http.StatusInternalServerError, "unauthorized")
+		return
+	}
+
+	exists, err = database.DeletePost(postID, username)
 
 	if err != nil {
 		log.Println(err)
@@ -131,7 +192,7 @@ func DeletePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !exists {
-		returnMessageJSON(w, "Post deletion failed, the post with that ID does not exist", http.StatusBadRequest, "error")
+		returnMessageJSON(w, "Post deletion failed, you do not have the right to delete this post or the post with that ID does not exist", http.StatusBadRequest, "error")
 		return
 	}
 
