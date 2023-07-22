@@ -2,9 +2,10 @@ package controllers
 
 import (
 	"encoding/json"
+	"net/http"
+
 	"forum/database"
 	"forum/session"
-	"net/http"
 )
 
 func returnMessageJSON(w http.ResponseWriter, message string, httpCode int, status string) {
@@ -26,11 +27,5 @@ func checkForSessionToken(r *http.Request) (*http.Cookie, bool) {
 
 func checkIfUserLoggedin(sessionToken *http.Cookie) bool {
 	sessionData := session.SessionStorage.GetSession(sessionToken.Value)
-
-	// If user is authorized
-	if sessionData.UserId == 0 {
-		return false
-	}
-
-	return true
+	return sessionData.UserId != 0
 }
