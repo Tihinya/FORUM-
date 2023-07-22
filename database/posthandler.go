@@ -69,9 +69,12 @@ func SelectPost(id string) ([]Post, error) {
 		}
 
 		post.Categories, err = getCategories(post)
+		if err != nil {
+			return nil, err
+		}
 
-		post.Likes, err = getPostLikes(post.Id)
-		post.Dislikes, err = getPostDislikes(post.Id)
+		post.Likes, _ = getPostLikes(post.Id)
+		post.Dislikes, _ = getPostDislikes(post.Id)
 
 		post.Comments = fmt.Sprintf("https://localhost:8080/comments/%d", post.Id)
 
@@ -114,9 +117,12 @@ func SelectAllPosts() ([]Post, error) {
 		}
 
 		post.Categories, err = getCategories(post)
+		if err != nil {
+			return nil, err
+		}
 
-		post.Likes, err = getPostLikes(post.Id)
-		post.Dislikes, err = getPostDislikes(post.Id)
+		post.Likes, _ = getPostLikes(post.Id)
+		post.Dislikes, _ = getPostDislikes(post.Id)
 
 		post.Comments = fmt.Sprintf("https://localhost:8080/comments/%d", post.Id)
 
@@ -134,6 +140,7 @@ func DeletePost(postId int) (bool, error) {
 		return false, nil
 	}
 
+	// For deleting leftover categories
 	post.Categories = nil
 	exists, err = UpdatePost(post, postId)
 	if !exists {
@@ -155,6 +162,11 @@ func DeletePost(postId int) (bool, error) {
 		return false, err
 	}
 
+	commentIds, err := getPostCommentIds(postId)
+	if err != nil {
+		return false, err
+	}
+
 	err = deletePostComments(postId)
 	if err != nil {
 		return false, err
@@ -163,6 +175,13 @@ func DeletePost(postId int) (bool, error) {
 	err = deletePostLikes(postId)
 	if err != nil {
 		return false, err
+	}
+
+	for _, commentId := range commentIds {
+		err = deleteCommentLikes(commentId)
+		if err != nil {
+			return false, err
+		}
 	}
 
 	return true, nil
@@ -208,7 +227,6 @@ func getCategories(post Post) ([]string, error) {
 		INNER JOIN post ON post_category.post_id = post.id
 		WHERE post.id = ?
 	`, post.Id)
-
 	if err != nil {
 		return nil, err
 	}
@@ -320,7 +338,9 @@ func addCategory(post Post, postId int) error {
 
 		if checkIfCategoryExist(post.Categories[i]) {
 			err = DB.QueryRow("SELECT id FROM category WHERE category = ?", post.Categories[i]).Scan(&categoryId)
-
+			if err != nil {
+				return err
+			}
 		} else {
 			stmt, err := DB.Prepare(`INSERT INTO category (category) VALUES (?)`)
 			if err != nil {

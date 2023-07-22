@@ -56,8 +56,8 @@ func SelectComment(commentId int) ([]Comment, error) {
 			return nil, err
 		}
 
-		comment.Likes, err = getCommentLikes(comment.Id)
-		comment.Dislikes, err = getCommentDislikes(comment.Id)
+		comment.Likes, _ = getCommentLikes(comment.Id)
+		comment.Dislikes, _ = getCommentDislikes(comment.Id)
 
 		comments = append(comments, comment)
 	}
@@ -92,8 +92,8 @@ func SelectAllComments(id int) ([]Comment, error) {
 			return nil, err
 		}
 
-		comment.Likes, err = getCommentLikes(comment.Id)
-		comment.Dislikes, err = getCommentDislikes(comment.Id)
+		comment.Likes, _ = getCommentLikes(comment.Id)
+		comment.Dislikes, _ = getCommentDislikes(comment.Id)
 
 		comments = append(comments, comment)
 	}
@@ -137,6 +137,11 @@ func DeleteComment(commentID int) (bool, error) {
 	}
 
 	_, err = stmt.Exec(commentID)
+	if err != nil {
+		return false, err
+	}
+
+	err = deleteCommentLikes(commentID)
 	if err != nil {
 		return false, err
 	}
@@ -186,6 +191,28 @@ func deleteCommentLikes(commentId int) error {
 	}
 
 	return nil
+}
+
+func getPostCommentIds(postId int) ([]int, error) {
+	var comments []int
+
+	rows, err := DB.Query(`SELECT id FROM comment WHERE post_id = ?`, postId)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var comment int
+
+		err = rows.Scan(&comment)
+		if err != nil {
+			return nil, err
+		}
+
+		comments = append(comments, comment)
+	}
+
+	return comments, nil
 }
 
 // Checks if comment with given ID exists in DB
