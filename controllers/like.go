@@ -2,12 +2,12 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
+	"net/http"
+
 	"forum/database"
 	"forum/router"
 	"forum/session"
-	"log"
-	"net/http"
 )
 
 func LikePost(w http.ResponseWriter, r *http.Request) {
@@ -52,8 +52,7 @@ func LikePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !existsLiked {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Liking post failed, post with id %v is already liked or does not exist", postId)
+		returnMessageJSON(w, "Liking post failed, post is already liked or does not exist", http.StatusBadRequest, "error")
 		return
 	}
 
@@ -96,8 +95,7 @@ func UnlikePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !existsLiked {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Unliking post failed, post with id %v is not liked or does not exist", postId)
+		returnMessageJSON(w, "Unliking post failed, post is not liked or does not exist", http.StatusBadRequest, "error")
 		return
 	}
 
@@ -146,8 +144,7 @@ func LikeComment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !existsLiked {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Liking comment failed, comment with id %v is already liked or does not exist", commentId)
+		returnMessageJSON(w, "Liking comment failed, comment is already liked or does not exist", http.StatusBadRequest, "error")
 		return
 	}
 
@@ -190,8 +187,7 @@ func UnlikeComment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !existsLiked {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Unliking comment failed, comment with id %v is not liked or does not exist", commentId)
+		returnMessageJSON(w, "Unliking comment failed, comment is not liked or does not exist", http.StatusBadRequest, "error")
 		return
 	}
 

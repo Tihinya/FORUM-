@@ -2,12 +2,12 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
+	"net/http"
+
 	"forum/database"
 	"forum/router"
 	"forum/session"
-	"log"
-	"net/http"
 )
 
 func DislikePost(w http.ResponseWriter, r *http.Request) {
@@ -52,8 +52,7 @@ func DislikePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !existsLiked {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "Disliking post failed, post with id %v is already disliked or does not exist", postId)
+		returnMessageJSON(w, "Disliking post failed, post is already disliked or does not exist", http.StatusBadRequest, "error")
 		return
 	}
 
@@ -96,8 +95,7 @@ func UndislikePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !existsLiked {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Undisliking post failed, post with id %v is not disliked or does not exist", postId)
+		returnMessageJSON(w, "Undisliking post failed, post is not disliked or does not exist", http.StatusBadRequest, "error")
 		return
 	}
 
@@ -146,8 +144,7 @@ func DislikeComment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !existsLiked {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Disliking comment failed, comment with id %v is already disliked or does not exist", commentId)
+		returnMessageJSON(w, "Disliking comment failed, comment is already disliked or does not exist", http.StatusBadRequest, "error")
 		return
 	}
 
@@ -190,8 +187,7 @@ func UndislikeComment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !existsLiked {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Undisliking comment failed, comment with id %v is not disliked or does not exist", commentId)
+		returnMessageJSON(w, "Undisliking comment failed, comment is not disliked or does not exist", http.StatusBadRequest, "error")
 		return
 	}
 
