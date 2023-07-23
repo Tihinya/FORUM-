@@ -1,1 +1,0 @@
-curl -X POST -k https://localhost:8080/post/1/like
