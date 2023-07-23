@@ -54,7 +54,6 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 
 	comment.CreationDate = time.Now()
 	comment.UserInfo.Username = username
-	comment.UserInfo.ProfilePicture = "https://example.com/avatar.png"
 
 	exists, err = database.CreateCommentRow(comment, postId)
 

@@ -77,6 +77,7 @@ func SelectPost(id string) ([]Post, error) {
 		post.Dislikes, _ = getPostDislikes(post.Id)
 
 		post.Comments = fmt.Sprintf("https://localhost:8080/comments/%d", post.Id)
+		post.UserInfo.ProfilePicture, _ = GetAvatar(post.UserInfo.Username)
 
 		posts = append(posts, post)
 	}
@@ -125,6 +126,7 @@ func SelectAllPosts() ([]Post, error) {
 		post.Dislikes, _ = getPostDislikes(post.Id)
 
 		post.Comments = fmt.Sprintf("https://localhost:8080/comments/%d", post.Id)
+		post.UserInfo.ProfilePicture, _ = GetAvatar(post.UserInfo.Username)
 
 		posts = append(posts, post)
 	}
@@ -485,7 +487,7 @@ func checkIfCategoryExist(category string) bool {
 func checkPostOwnership(postId int, username string) bool {
 	var exists bool
 
-	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM post WHERE PostId = ? AND Username = ?)", postId, username).Scan(&exists)
+	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM post WHERE id = ? AND username = ?)", postId, username).Scan(&exists)
 
 	return err == nil && exists
 }

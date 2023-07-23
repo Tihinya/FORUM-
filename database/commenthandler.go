@@ -59,6 +59,8 @@ func SelectComment(commentId int) ([]Comment, error) {
 		comment.Likes, _ = getCommentLikes(comment.Id)
 		comment.Dislikes, _ = getCommentDislikes(comment.Id)
 
+		comment.UserInfo.ProfilePicture, _ = GetAvatar(comment.UserInfo.Username)
+
 		comments = append(comments, comment)
 	}
 
@@ -94,6 +96,8 @@ func SelectAllComments(id int) ([]Comment, error) {
 
 		comment.Likes, _ = getCommentLikes(comment.Id)
 		comment.Dislikes, _ = getCommentDislikes(comment.Id)
+
+		comment.UserInfo.ProfilePicture, _ = GetAvatar(comment.UserInfo.Username)
 
 		comments = append(comments, comment)
 	}
@@ -235,7 +239,7 @@ func checkIfCommentExist(commentId int) bool {
 func checkCommentOwnership(commentId int, username string) bool {
 	var exists bool
 
-	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM comment WHERE CommentId = ? AND Username = ?)", commentId, username).Scan(&exists)
+	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM comment WHERE id = ? AND username = ?)", commentId, username).Scan(&exists)
 
 	return err == nil && exists
 }

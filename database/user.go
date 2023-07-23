@@ -170,3 +170,14 @@ func GetUsername(userID int) (string, error) {
 
 	return username, nil
 }
+
+func GetAvatar(username string) (string, error) {
+	var avatar string
+
+	err := DB.QueryRow("SELECT profile_picture FROM users WHERE username = ?", username).Scan(&avatar)
+	if err != nil {
+		return "", err
+	}
+
+	return avatar, nil
+}
