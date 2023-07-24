@@ -69,7 +69,16 @@ func SelectPost(id string) ([]Post, error) {
 		}
 
 		post.Categories, err = getCategories(post)
+		if err != nil {
+			return nil, err
+		}
+
+		post.Likes, _ = getPostLikes(post.Id)
+		post.Dislikes, _ = getPostDislikes(post.Id)
+
 		post.Comments = fmt.Sprintf("https://localhost:8080/comments/%d", post.Id)
+		post.UserInfo.ProfilePicture, _ = GetAvatar(post.UserInfo.Username)
+
 		posts = append(posts, post)
 	}
 
@@ -109,8 +118,15 @@ func SelectAllPosts() ([]Post, error) {
 		}
 
 		post.Categories, err = getCategories(post)
+		if err != nil {
+			return nil, err
+		}
+
+		post.Likes, _ = getPostLikes(post.Id)
+		post.Dislikes, _ = getPostDislikes(post.Id)
 
 		post.Comments = fmt.Sprintf("https://localhost:8080/comments/%d", post.Id)
+		post.UserInfo.ProfilePicture, _ = GetAvatar(post.UserInfo.Username)
 
 		posts = append(posts, post)
 	}
@@ -118,16 +134,21 @@ func SelectAllPosts() ([]Post, error) {
 	return posts, nil
 }
 
-func DeletePost(postId int) (bool, error) {
+func DeletePost(postId int, username string) (bool, error) {
 	var post Post
 	var exists bool
+
+	if !checkPostOwnership(postId, username) {
+		return false, nil
+	}
 
 	if !checkIfPostExist(postId) {
 		return false, nil
 	}
 
+	// For deleting leftover categories
 	post.Categories = nil
-	exists, err = UpdatePost(post, postId)
+	exists, err = UpdatePost(post, postId, username)
 	if !exists {
 		return false, nil
 	}
@@ -147,15 +168,36 @@ func DeletePost(postId int) (bool, error) {
 		return false, err
 	}
 
+	commentIds, err := getPostCommentIds(postId)
+	if err != nil {
+		return false, err
+	}
+
 	err = deletePostComments(postId)
 	if err != nil {
 		return false, err
 	}
 
+	err = deletePostLikes(postId)
+	if err != nil {
+		return false, err
+	}
+
+	for _, commentId := range commentIds {
+		err = deleteCommentLikes(commentId)
+		if err != nil {
+			return false, err
+		}
+	}
+
 	return true, nil
 }
 
-func UpdatePost(post Post, postID int) (bool, error) {
+func UpdatePost(post Post, postID int, username string) (bool, error) {
+	if !checkPostOwnership(postID, username) {
+		return false, nil
+	}
+
 	if !checkIfPostExist(postID) {
 		return false, nil
 	}
@@ -195,7 +237,6 @@ func getCategories(post Post) ([]string, error) {
 		INNER JOIN post ON post_category.post_id = post.id
 		WHERE post.id = ?
 	`, post.Id)
-
 	if err != nil {
 		return nil, err
 	}
@@ -307,7 +348,9 @@ func addCategory(post Post, postId int) error {
 
 		if checkIfCategoryExist(post.Categories[i]) {
 			err = DB.QueryRow("SELECT id FROM category WHERE category = ?", post.Categories[i]).Scan(&categoryId)
-
+			if err != nil {
+				return err
+			}
 		} else {
 			stmt, err := DB.Prepare(`INSERT INTO category (category) VALUES (?)`)
 			if err != nil {
@@ -397,6 +440,34 @@ func SelectAllPostCategory() ([]PostCategory, error) {
 	return post_categories, nil
 }
 
+func deletePostLikes(postId int) error {
+	stmt, err := DB.Prepare(`
+		DELETE FROM like WHERE PostId = ?
+	`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(postId)
+	if err != nil {
+		return err
+	}
+
+	stmt, err = DB.Prepare(`
+		DELETE FROM dislike WHERE PostId = ?
+	`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(postId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func checkIfPostExist(commentId int) bool {
 	var exists bool
 
@@ -409,6 +480,14 @@ func checkIfCategoryExist(category string) bool {
 	var exists bool
 
 	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM category WHERE category=?)", category).Scan(&exists)
+
+	return err == nil && exists
+}
+
+func checkPostOwnership(postId int, username string) bool {
+	var exists bool
+
+	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM post WHERE id = ? AND username = ?)", postId, username).Scan(&exists)
 
 	return err == nil && exists
 }

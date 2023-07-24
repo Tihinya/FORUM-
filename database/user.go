@@ -1,5 +1,7 @@
 package database
 
+import "fmt"
+
 func CreateUser(user UserInfo) (int, error) {
 	sqlStmt, err := DB.Prepare(`INSERT INTO users(
 		email,
@@ -88,4 +90,94 @@ func DeleteUser(userID int) error {
 	}
 
 	return nil
+}
+
+func ReadUserLikedPosts(userID int) ([]string, error) {
+	var posts []string
+
+	username, err := GetUsername(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := DB.Query(`
+		SELECT PostId, CommentId
+		FROM like WHERE Username = ?
+	`, username)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var like Like
+
+		err = rows.Scan(&like.PostId, &like.CommentId)
+		if err != nil {
+			return nil, err
+		}
+
+		if like.PostId != 0 {
+			post := "https://localhost:8080/post/" + fmt.Sprint(like.PostId)
+			posts = append(posts, post)
+		}
+	}
+
+	return posts, nil
+}
+
+func ReadUserDislikedPosts(userID int) ([]string, error) {
+	var posts []string
+
+	username, err := GetUsername(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := DB.Query(`
+		SELECT PostId, CommentId
+		FROM dislike WHERE Username = ?
+	`, username)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var dislike Dislike
+
+		err = rows.Scan(&dislike.PostId, &dislike.CommentId)
+		if err != nil {
+			return nil, err
+		}
+
+		if dislike.PostId != 0 {
+			post := "https://localhost:8080/post/" + fmt.Sprint(dislike.PostId)
+			posts = append(posts, post)
+		}
+	}
+
+	return posts, nil
+}
+
+func GetUsername(userID int) (string, error) {
+	var username string
+
+	err := DB.QueryRow("SELECT username FROM users WHERE user_id = ?", userID).Scan(&username)
+	if err != nil {
+		return "", err
+	}
+
+	return username, nil
+}
+
+func GetAvatar(username string) (string, error) {
+	var avatar string
+
+	err := DB.QueryRow("SELECT profile_picture FROM users WHERE username = ?", username).Scan(&avatar)
+	if err != nil {
+		return "", err
+	}
+
+	return avatar, nil
 }

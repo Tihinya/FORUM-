@@ -30,7 +30,7 @@ func CreateCommentRow(comment Comment, postId int) (bool, error) {
 	return true, nil
 }
 
-func SelectComment(commentId string) ([]Comment, error) {
+func SelectComment(commentId int) ([]Comment, error) {
 	var comments []Comment
 
 	rows, err := DB.Query("SELECT * FROM comment where id = ?", commentId)
@@ -56,6 +56,11 @@ func SelectComment(commentId string) ([]Comment, error) {
 			return nil, err
 		}
 
+		comment.Likes, _ = getCommentLikes(comment.Id)
+		comment.Dislikes, _ = getCommentDislikes(comment.Id)
+
+		comment.UserInfo.ProfilePicture, _ = GetAvatar(comment.UserInfo.Username)
+
 		comments = append(comments, comment)
 	}
 
@@ -63,7 +68,7 @@ func SelectComment(commentId string) ([]Comment, error) {
 }
 
 // GET all comments from comments table
-func SelectAllComments(id string) ([]Comment, error) {
+func SelectAllComments(id int) ([]Comment, error) {
 	var comments []Comment
 
 	rows, err := DB.Query("SELECT * FROM comment where post_id = ?", id)
@@ -89,13 +94,22 @@ func SelectAllComments(id string) ([]Comment, error) {
 			return nil, err
 		}
 
+		comment.Likes, _ = getCommentLikes(comment.Id)
+		comment.Dislikes, _ = getCommentDislikes(comment.Id)
+
+		comment.UserInfo.ProfilePicture, _ = GetAvatar(comment.UserInfo.Username)
+
 		comments = append(comments, comment)
 	}
 
 	return comments, nil
 }
 
-func UpdateComment(comment Comment, commentId string) (bool, error) {
+func UpdateComment(comment Comment, commentId int, username string) (bool, error) {
+	if !checkCommentOwnership(commentId, username) {
+		return false, nil
+	}
+
 	if !checkIfCommentExist(commentId) {
 		return false, nil
 	}
@@ -118,7 +132,11 @@ func UpdateComment(comment Comment, commentId string) (bool, error) {
 	return true, nil
 }
 
-func DeleteComment(commentID string) (bool, error) {
+func DeleteComment(commentID int, username string) (bool, error) {
+	if !checkCommentOwnership(commentID, username) {
+		return false, nil
+	}
+
 	if !checkIfCommentExist(commentID) {
 		return false, nil
 	}
@@ -131,6 +149,11 @@ func DeleteComment(commentID string) (bool, error) {
 	}
 
 	_, err = stmt.Exec(commentID)
+	if err != nil {
+		return false, err
+	}
+
+	err = deleteCommentLikes(commentID)
 	if err != nil {
 		return false, err
 	}
@@ -154,11 +177,69 @@ func deletePostComments(postId int) error {
 	return nil
 }
 
+func deleteCommentLikes(commentId int) error {
+	stmt, err := DB.Prepare(`
+		DELETE FROM like WHERE CommentId = ?
+	`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(commentId)
+	if err != nil {
+		return err
+	}
+
+	stmt, err = DB.Prepare(`
+		DELETE FROM dislike WHERE CommentId = ?
+	`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(commentId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func getPostCommentIds(postId int) ([]int, error) {
+	var comments []int
+
+	rows, err := DB.Query(`SELECT id FROM comment WHERE post_id = ?`, postId)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var comment int
+
+		err = rows.Scan(&comment)
+		if err != nil {
+			return nil, err
+		}
+
+		comments = append(comments, comment)
+	}
+
+	return comments, nil
+}
+
 // Checks if comment with given ID exists in DB
-func checkIfCommentExist(commentId string) bool {
+func checkIfCommentExist(commentId int) bool {
 	var exists bool
 
 	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM comment WHERE id=?)", commentId).Scan(&exists)
+
+	return err == nil && exists
+}
+
+func checkCommentOwnership(commentId int, username string) bool {
+	var exists bool
+
+	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM comment WHERE id = ? AND username = ?)", commentId, username).Scan(&exists)
 
 	return err == nil && exists
 }

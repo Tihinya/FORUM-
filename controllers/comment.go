@@ -2,11 +2,13 @@ package controllers
 
 import (
 	"encoding/json"
-	"forum/database"
-	"forum/router"
 	"log"
 	"net/http"
 	"time"
+
+	"forum/database"
+	"forum/router"
+	"forum/session"
 )
 
 func CreateComment(w http.ResponseWriter, r *http.Request) {
@@ -26,14 +28,34 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Authentication here
+	sessionToken, sessionTokenFound := checkForSessionToken(r)
+	if !sessionTokenFound {
+		returnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	if !checkIfUserLoggedin(sessionToken) {
+		returnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
 	if len(comment.Content) == 0 {
 		returnMessageJSON(w, "Comment creation failed, the comment content can not be empty", http.StatusBadRequest, "error")
 		return
 	}
 
-	exists, err = database.CreateCommentRow(comment, postId)
+	userID := session.SessionStorage.GetSession(sessionToken.Value).UserId
+	username, err := database.GetUsername(userID)
+	if err != nil {
+		returnMessageJSON(w, "You are not logged in", http.StatusInternalServerError, "unauthorized")
+		return
+	}
 
 	comment.CreationDate = time.Now()
+	comment.UserInfo.Username = username
+
+	exists, err = database.CreateCommentRow(comment, postId)
 
 	if err != nil {
 		log.Println(err)
@@ -51,7 +73,7 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 func ReadComment(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	commentId, err := router.GetFieldString(r, "id")
+	commentId, err := router.GetFieldInt(r, "id")
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -71,7 +93,7 @@ func ReadComment(w http.ResponseWriter, r *http.Request) {
 func ReadComments(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	postId, err := router.GetFieldString(r, "id")
+	postId, err := router.GetFieldInt(r, "id")
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -92,7 +114,7 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 	var comment database.Comment
 	var exists bool
 
-	commentId, err := router.GetFieldString(r, "id")
+	commentId, err := router.GetFieldInt(r, "id")
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -105,7 +127,26 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	exists, err = database.UpdateComment(comment, commentId)
+	// Authentication here
+	sessionToken, sessionTokenFound := checkForSessionToken(r)
+	if !sessionTokenFound {
+		returnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	if !checkIfUserLoggedin(sessionToken) {
+		returnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	userID := session.SessionStorage.GetSession(sessionToken.Value).UserId
+	username, err := database.GetUsername(userID)
+	if err != nil {
+		returnMessageJSON(w, "You are not logged in", http.StatusInternalServerError, "unauthorized")
+		return
+	}
+
+	exists, err = database.UpdateComment(comment, commentId, username)
 
 	if err != nil {
 		log.Println(err)
@@ -113,7 +154,7 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !exists {
-		returnMessageJSON(w, "Comment updating failed, the comment with given id does not exist", http.StatusBadRequest, "error")
+		returnMessageJSON(w, "Comment updating failed, you do not have the right to update this comment or the comment with given id does not exist", http.StatusBadRequest, "error")
 		return
 	}
 
@@ -123,14 +164,33 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 func DeleteComment(w http.ResponseWriter, r *http.Request) {
 	var exists bool
 
-	commentId, err := router.GetFieldString(r, "id")
+	commentId, err := router.GetFieldInt(r, "id")
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	exists, err = database.DeleteComment(commentId)
+	// Authentication here
+	sessionToken, sessionTokenFound := checkForSessionToken(r)
+	if !sessionTokenFound {
+		returnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	if !checkIfUserLoggedin(sessionToken) {
+		returnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	userID := session.SessionStorage.GetSession(sessionToken.Value).UserId
+	username, err := database.GetUsername(userID)
+	if err != nil {
+		returnMessageJSON(w, "You are not logged in", http.StatusInternalServerError, "unauthorized")
+		return
+	}
+
+	exists, err = database.DeleteComment(commentId, username)
 
 	if err != nil {
 		log.Println(err)
@@ -138,7 +198,7 @@ func DeleteComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !exists {
-		returnMessageJSON(w, "Comment updating failed, the comment with given id does not exist", http.StatusBadRequest, "error")
+		returnMessageJSON(w, "Comment updating failed, you do not have the right to update this comment or the comment with given id does not exist", http.StatusBadRequest, "error")
 		return
 	}
 
