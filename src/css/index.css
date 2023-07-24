@@ -1,5 +1,5 @@
 :root {
-  --background-color: #ecf0f3;
+  --background-color: rgb(236, 240, 243);
 
   --button-color: #7796f4;
   --button-color-hover: #3c61d3;
@@ -51,6 +51,8 @@ body {
 
   box-shadow: 0px 4px 5px 1px rgba(0, 0, 0, 0.3);
   background-color: var(--background-color);
+
+  z-index: 2;
 }
 
 .header__logo {
@@ -222,6 +224,14 @@ body {
   width: 54%;
 }
 
+.post-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  padding: 0px 0px 30px 0px;
+}
+
 .post__text:after {
   content: "...Read More";
   color: var(--button-color);
@@ -313,6 +323,20 @@ body {
   height: fit-content;
 }
 
+.thread-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 2.5%;
+  height: 28px;
+  color: white;
+  background-color: var(--button-color);
+  border-radius: 8px;
+
+  cursor: pointer;
+}
+
 @media (max-width: 650px) {
   .post__info {
     flex-direction: column;
@@ -348,6 +372,10 @@ body {
     flex-direction: column;
     align-items: baseline;
     gap: 0px;
+  }
+
+  .thread-button {
+    width: 10%;
   }
 }
 
@@ -534,7 +562,7 @@ body {
   flex-direction: column;
   gap: 20px;
 
-  width: 130%;
+  width: 100%;
 }
 
 .input-design {
@@ -832,4 +860,158 @@ body {
 
 .button-pos .sign__button-orange {
   width: 20%;
+}
+
+.code-field {
+  width: 100%;
+  background-color: #eaeaea;
+}
+
+.code-field p {
+  padding: 20px;
+  font-size: 18px;
+  font-family: "Roboto";
+  font-weight: 500;
+  letter-spacing: 0.1em;
+}
+
+.comment-design {
+  width: 200px;
+  background-color: white;
+  border-radius: 15px;
+  padding: 10px 0px 100px 10px;
+}
+
+.text-area {
+  background-color: white;
+  border: 0px;
+  border-radius: 15px;
+  padding: 10px 10px 10px 10px;
+
+  resize: none;
+}
+
+.post__box_comment-message {
+  font-size: 18px;
+  font-family: "Roboto";
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-align: center;
+}
+
+.add-thread {
+  position: relative;
+
+  box-sizing: border-box;
+  background: var(--background-color);
+  box-shadow: -2px -2px 4px rgba(255, 255, 255, 0.7),
+    2px 2px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 16px;
+
+  z-index: 1;
+}
+
+.add-thread input[type="text"] {
+  width: 97%;
+
+  border: none;
+  padding: 15px;
+  border-radius: 15px;
+  background: var(--background-color, #ecf0f3);
+  box-shadow: -3px -3px 2px 0px rgba(255, 255, 255, 0.8) inset,
+    2px 2px 2px 0px rgba(0, 0, 0, 0.25) inset;
+}
+
+.add-thread .thread-button {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+}
+
+.thread-window {
+  display: none;
+  flex-direction: column;
+  align-items: start;
+  align-self: stretch;
+  gap: 15px;
+  padding: 10px;
+}
+
+.thread-window.show {
+  display: flex;
+}
+
+.thread-options {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+
+  border-radius: 0.9375rem;
+  background: var(--create-post-text-background, #d9d9d9);
+  box-shadow: 2px 2px 4px 0px rgba(0, 0, 0, 0.25),
+    -2px -2px 4px 0px rgba(255, 255, 255, 0.7);
+}
+
+.upload-image {
+  width: 100%;
+  padding: 10px 0px 0px 30px;
+  cursor: pointer;
+}
+
+.thread-text {
+  padding: 10px 0px 0px 10px;
+  resize: none;
+  width: 97%;
+  border: none;
+  border-radius: 15px;
+}
+
+.thread-tags {
+  width: 100%;
+  padding: 0px 0px 0px 20px;
+  gap: 20px;
+  display: flex;
+  flex-direction: row;
+}
+
+.thread-subject {
+  font-family: "Roboto";
+  font-weight: 500;
+  padding: 2px 10px 2px 10px;
+  background-color: white;
+  border-radius: 10px;
+
+  transition: 0.3s;
+
+  user-select: none;
+  cursor: pointer;
+}
+
+.thread-subject:hover {
+  background-color: #c2c2c2;
+}
+
+.thread-subject-active {
+  background-color: var(--button-color-orange);
+}
+
+.create-post-button {
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+
+  width: 100%;
+}
+
+.post-text {
+  font-size: 18px;
+  font-family: "Roboto";
+  font-weight: 300;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: var(--text-color-black);
 }
