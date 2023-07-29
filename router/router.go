@@ -15,6 +15,7 @@ type route struct {
 	regex           *regexp.Regexp
 	handler         http.Handler
 	localMiddleware []Middleware
+	middlewareAfter []Middleware
 }
 
 type router struct {
@@ -51,6 +52,7 @@ func (r *router) NewRoute(method, regexpString string, handler http.HandlerFunc,
 		regex,
 		handler,
 		middleware,
+		make([]Middleware, 0),
 	})
 }
 
@@ -113,8 +115,8 @@ func (r *router) serve(w http.ResponseWriter, req *http.Request) {
 			req = req.WithContext(ctx)
 
 			handler := route.handler
-			for i := len(r.globalMiddleware) - 1; i >= 0; i-- {
-				handler = r.globalMiddleware[i](handler)
+			for i := len(route.localMiddleware) - 1; i >= 0; i-- {
+				handler = route.localMiddleware[i](handler)
 			}
 
 			handler.ServeHTTP(w, req)

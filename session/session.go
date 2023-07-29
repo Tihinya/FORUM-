@@ -83,11 +83,11 @@ func (s *Storage) GetSession(r *http.Request) (*Session, error) {
 	defer s.lock.RUnlock()
 
 	session, exist := s.storage[sessionID]
-	if exist && err == nil || session.ExpireTime.Before(time.Now()) {
+	if !exist || session.ExpireTime.Before(time.Now()) {
+		delete(s.storage, sessionID)
 		return nil, nil
 	}
 
-	session.ExpireTime = time.Now()
 	return session, nil
 }
 
@@ -99,9 +99,10 @@ func (s *Session) RemoveSession() {
 }
 
 func (s *Storage) startSessionCleanupRoutine() {
-	for {
-		time.Sleep(time.Second * 60)
+	ticker := time.NewTicker(time.Minute)
+	defer ticker.Stop()
 
+	for range ticker.C {
 		s.lock.Lock()
 		for token, session := range s.storage {
 			if time.Since(session.ExpireTime) >= session.LifeTime {

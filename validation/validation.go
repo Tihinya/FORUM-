@@ -47,15 +47,6 @@ func ValidateUsername(username string) bool {
 			return false
 		}
 	}
-	// Regex pattern for username validation
-	// Allows alphanumeric characters (a-z, A-Z, 0-9) and underscores
-	// Must start with a letter
-	// Must be between 3 and 16 characters in length
-	pattern := "^[a-zA-Z][a-zA-Z0-9_]{2,15}$"
 
-	// Compile the regex pattern
-	regex := regexp.MustCompile(pattern)
-
-	// Check if the username matches the pattern
-	return regex.MatchString(username)
+	return true
 }

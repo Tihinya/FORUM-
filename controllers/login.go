@@ -16,7 +16,7 @@ import (
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {
-	userID := 1 // test user ID
+	userID := 3 // test user ID
 	token := session.SessionStorage.CreateSession(userID)
 	session.SessionStorage.SetCookie(token, w)
 }

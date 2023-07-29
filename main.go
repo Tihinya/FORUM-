@@ -84,7 +84,7 @@ func AdminOnly() router.Middleware {
 				return
 			}
 
-			fmt.Println("Example admin privileges")
+			fmt.Fprintln(w, "Example admin privileges")
 			// User has the admin role, proceed to the next handler
 			next.ServeHTTP(w, r)
 		})
@@ -109,7 +109,7 @@ func main() {
 
 	// User
 	r.NewRoute("POST", `/user/create`, ct.CreateUser)
-	r.NewRoute("GET", `/user/(?P<id>\d+)/get`, ct.ReadUser)
+	r.NewRoute("GET", `/user/(?P<id>\d+)/get`, ct.ReadUser, AdminOnly())
 	r.NewRoute("GET", `/users/get`, ct.ReadUsers)
 	r.NewRoute("PATCH", `/user/(?P<id>\d+)/update`, ct.UpdateUser)
 	r.NewRoute("DELETE", `/user/(?P<id>\d+)/delete`, ct.DeleteUser)
@@ -128,7 +128,7 @@ func main() {
 	r.NewRoute("GET", `/comment/(?P<id>\d+)`, ct.ReadComment)
 	r.NewRoute("PATCH", `/comment/(?P<id>\d+)`, ct.UpdateComment)
 	r.NewRoute("DELETE", `/comment/(?P<id>\d+)`, ct.DeleteComment)
-	r.NewRoute("GET", `/comments/(?P<id>\d+)`, ct.ReadComments)
+	r.NewRoute("GET", `/comments/(?P<id>\d+)`, ct.ReadComments, AdminOnly())
 
 	// Login
 	r.NewRoute("GET", `/login`, ct.Login)
