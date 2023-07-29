@@ -55,7 +55,7 @@ func main() {
 	r.NewRoute("GET", `/comments/(?P<id>\d+)`, ct.ReadComments)
 
 	// Login
-	r.NewRoute("GET", `/login`, ct.Login)
+	r.NewRoute("POST", `/login`, ct.Login)
 	r.NewRoute("GET", `/logout/(?P<id>\d+)`, ct.LogOut)
 	r.NewRoute("GET", `/login/google`, ct.GoogleLogin)
 	r.NewRoute("GET", `/login/google/callback`, ct.GoogleCallback)
