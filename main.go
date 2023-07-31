@@ -37,6 +37,8 @@ func main() {
 	r.NewRoute("GET", `/users/get`, ct.ReadUsers)
 	r.NewRoute("PATCH", `/user/(?P<id>\d+)/update`, ct.UpdateUser)
 	r.NewRoute("DELETE", `/user/(?P<id>\d+)/delete`, ct.DeleteUser)
+	r.NewRoute("GET", `/user/(?P<id>\d+)/liked`, ct.ReadUserLikedPosts)
+	r.NewRoute("GET", `/user/(?P<id>\d+)/disliked`, ct.ReadUserDislikedPosts)
 
 	// Post
 	r.NewRoute("POST", `/post`, ct.CreatePost)
@@ -53,6 +55,22 @@ func main() {
 	r.NewRoute("PATCH", `/comment/(?P<id>\d+)`, ct.UpdateComment)
 	r.NewRoute("DELETE", `/comment/(?P<id>\d+)`, ct.DeleteComment)
 	r.NewRoute("GET", `/comments/(?P<id>\d+)`, ct.ReadComments)
+
+	// Like
+	r.NewRoute("POST", `/post/(?P<id>\d+)/like`, ct.LikePost)
+	r.NewRoute("POST", `/post/(?P<id>\d+)/unlike`, ct.UnlikePost)
+	r.NewRoute("POST", `/comment/(?P<id>\d+)/like`, ct.LikeComment)
+	r.NewRoute("POST", `/comment/(?P<id>\d+)/unlike`, ct.UnlikeComment)
+
+	// Dislike
+	r.NewRoute("POST", `/post/(?P<id>\d+)/dislike`, ct.DislikePost)
+	r.NewRoute("POST", `/post/(?P<id>\d+)/undislike`, ct.UndislikePost)
+	r.NewRoute("POST", `/comment/(?P<id>\d+)/dislike`, ct.DislikeComment)
+	r.NewRoute("POST", `/comment/(?P<id>\d+)/undislike`, ct.UndislikeComment)
+
+	// Temp
+	r.NewRoute("GET", `/likes`, ct.Temp_getLikes)
+	r.NewRoute("GET", `/dislikes`, ct.Temp_getDislikes)
 
 	// Login
 	r.NewRoute("POST", `/login`, ct.Login)

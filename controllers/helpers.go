@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"encoding/json"
-	"forum/database"
 	"net/http"
+
+	"forum/database"
+	"forum/session"
 )
 
 func returnMessageJSON(w http.ResponseWriter, message string, httpCode int, status string) {
@@ -12,4 +14,18 @@ func returnMessageJSON(w http.ResponseWriter, message string, httpCode int, stat
 		Status:  status,
 		Message: message,
 	})
+}
+
+func checkForSessionToken(r *http.Request) (*http.Cookie, bool) {
+	sessionToken, err := r.Cookie("session_token")
+	if err != nil {
+		return nil, false
+	}
+
+	return sessionToken, true
+}
+
+func checkIfUserLoggedin(sessionToken *http.Cookie) bool {
+	sessionData := session.SessionStorage.GetSession(sessionToken.Value)
+	return sessionData.UserId != 0
 }

@@ -57,3 +57,15 @@ type UpdateUserRequest struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 }
+
+type Like struct {
+	PostId    int    `json:"postId"`
+	CommentId int    `json:"commentId"`
+	Username  string `json:"username"`
+}
+
+type Dislike struct {
+	PostId    int    `json:"postId"`
+	CommentId int    `json:"commentId"`
+	Username  string `json:"username"`
+}
