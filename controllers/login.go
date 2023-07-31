@@ -13,13 +13,51 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {
-	// This line is assigning a fixed user ID for testing purposes.
-	// You might want to modify this logic to authenticate the user properly.
-	userID := 1 // test user ID
-	login.AddLogin(w, userID)
+	var login database.UserInfo
+
+	err := json.NewDecoder(r.Body).Decode(&login)
+	if err != nil {
+		returnMessageJSON(w, "Invalid request body", http.StatusBadRequest, "error")
+		return
+	}
+	login.Email = strings.TrimSpace(login.Email)
+	login.Password = strings.TrimSpace(login.Password)
+
+	userId, err := validation.GetUserID(database.DB, login.Email)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if userId == 0 {
+		returnMessageJSON(w, "incorrect login or password", http.StatusBadRequest, "error")
+		return
+	}
+
+	userPassword, err := database.GetUserPassword(userId)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// Check if the entered password matches the stored hashed password
+	err = bcrypt.CompareHashAndPassword([]byte(userPassword.Password), []byte(login.Password))
+	if err != nil {
+		returnMessageJSON(w, "incorrect login or password", http.StatusBadRequest, "error")
+		return
+	}
+
+	token := session.SessionStorage.CreateSession(userId)
+	session.SessionStorage.SetCookie(token, w)
+
+	returnMessageJSON(w, "Login successful", http.StatusOK, "success")
 }
 
 func LogOut(w http.ResponseWriter, r *http.Request) {

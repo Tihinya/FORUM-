@@ -59,6 +59,18 @@ func SelectUser(userID int) (*UserInfo, error) {
 	return &user, nil
 }
 
+func GetUserPassword(userID int) (*UserInfo, error) {
+	row := DB.QueryRow("SELECT password FROM users WHERE user_id=?", userID)
+
+	var user UserInfo
+	err := row.Scan(&user.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
 func UpdateUser(userName string, email string, userID int) error {
 	stmt, err := DB.Prepare(`
 		UPDATE users SET
