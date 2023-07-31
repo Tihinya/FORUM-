@@ -50,7 +50,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	// Check if the entered password matches the stored hashed password
 	err = bcrypt.CompareHashAndPassword([]byte(userPassword.Password), []byte(login.Password))
 	if err != nil {
-		returnMessageJSON(w, userPassword.Password+" "+login.Password, http.StatusBadRequest, "error")
+		returnMessageJSON(w, "incorrect login or password", http.StatusBadRequest, "error")
 		return
 	}
 
