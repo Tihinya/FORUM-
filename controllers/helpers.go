@@ -29,3 +29,14 @@ func checkIfUserLoggedin(sessionToken *http.Cookie) bool {
 	sessionData := session.SessionStorage.GetSession(sessionToken.Value)
 	return sessionData.UserId != 0
 }
+
+func containsStr(arr []string, str rune) bool {
+	for _, word := range arr {
+		for _, letter := range word {
+			if letter == str {
+				return false
+			}
+		}
+	}
+	return true
+}

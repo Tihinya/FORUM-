@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -86,7 +87,7 @@ func SelectPost(id string) ([]Post, error) {
 }
 
 // GET all posts from posts table
-func SelectAllPosts() ([]Post, error) {
+func SelectAllPosts(categoriesString string) ([]Post, error) {
 	var posts []Post
 
 	rows, err := DB.Query(`
@@ -128,7 +129,9 @@ func SelectAllPosts() ([]Post, error) {
 		post.Comments = fmt.Sprintf("https://localhost:8080/comments/%d", post.Id)
 		post.UserInfo.ProfilePicture, _ = GetAvatar(post.UserInfo.Username)
 
-		posts = append(posts, post)
+		if contains(post.Categories, categoriesString) {
+			posts = append(posts, post)
+		}
 	}
 
 	return posts, nil
@@ -490,4 +493,29 @@ func checkPostOwnership(postId int, username string) bool {
 	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM post WHERE id = ? AND username = ?)", postId, username).Scan(&exists)
 
 	return err == nil && exists
+}
+
+func contains(postArr []string, urlParams string) bool {
+	var found bool
+
+	urlCategories := strings.Split(urlParams, ",")
+
+	if len(urlParams) == 0 {
+		return true
+	}
+
+	for j := range urlCategories {
+		for i := range postArr {
+			if urlCategories[j] == postArr[i] {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return false
+		}
+		found = false
+	}
+
+	return true
 }
