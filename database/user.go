@@ -172,6 +172,39 @@ func ReadUserDislikedPosts(userID int) ([]string, error) {
 	return posts, nil
 }
 
+func ReadUserCreatedPosts(userID int) ([]string, error) {
+	var posts []string
+
+	username, err := GetUsername(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := DB.Query(`
+		SELECT id FROM post WHERE Username = ?
+	`, username)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var post Post
+
+		err = rows.Scan(&post.Id)
+		if err != nil {
+			return nil, err
+		}
+
+		if post.Id != 0 {
+			post := "https://localhost:8080/post/" + fmt.Sprint(post.Id)
+			posts = append(posts, post)
+		}
+	}
+
+	return posts, nil
+}
+
 func GetUsername(userID int) (string, error) {
 	var username string
 
