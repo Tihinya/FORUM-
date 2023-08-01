@@ -47,6 +47,11 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !containsStr(post.Categories, ',') {
+		returnMessageJSON(w, "Post creation failed, the post categories cannot contain a comma", http.StatusBadRequest, "error")
+		return
+	}
+
 	post.CreationDate = time.Now()
 	post.UserInfo.Username = username
 	post.UserInfo.ProfilePicture = "https://example.com/avatar.png"
@@ -86,7 +91,9 @@ func ReadPost(w http.ResponseWriter, r *http.Request) {
 func ReadPosts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	posts, err := database.SelectAllPosts()
+	categories := r.URL.Query().Get("categories")
+
+	posts, err := database.SelectAllPosts(categories)
 	if err != nil {
 		log.Println(err)
 		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
@@ -136,6 +143,11 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 
 	if len(post.Content) == 0 {
 		returnMessageJSON(w, "Post updating failed, the post content cannot be empty", http.StatusBadRequest, "error")
+		return
+	}
+
+	if !containsStr(post.Categories, ',') {
+		returnMessageJSON(w, "Post updating failed, the post categories cannot contain a comma", http.StatusBadRequest, "error")
 		return
 	}
 
