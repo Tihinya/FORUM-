@@ -16,6 +16,8 @@ func ExampleMiddleware() router.Middleware {
 			// Your middleware logic here
 			fmt.Println("Example middleware executed 1")
 
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+
 			// Call the next middleware/handler in the chain
 			next.ServeHTTP(w, r)
 		})
