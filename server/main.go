@@ -31,6 +31,13 @@ func main() {
 	// middleware usage example
 	r.AddGlobalMiddleware(ExampleMiddleware())
 
+	http.HandleFunc("/", r.ServeWithCORS(router.CORS{
+		Origin:      "http://localhost:3000", // Add your frontend domain here
+		Methods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		Headers:     []string{"Content-Type", "Authorization"},
+		Credentials: true,
+	}))
+
 	// User
 	r.NewRoute("POST", `/user/create`, ct.CreateUser)
 	r.NewRoute("GET", `/user/(?P<id>\d+)/get`, ct.ReadUser)
@@ -82,7 +89,6 @@ func main() {
 	r.NewRoute("GET", `/login/github/callback`, ct.GithubCallback)
 
 	r.NewRoute("GET", `/login/github/redirect`, ct.GithubCallbackRedirect)
-	http.HandleFunc("/", r.Serve)
 
 	log.Println("Ctrl + Click on the link: https://localhost:" + config.Config.Port)
 	log.Println("To stop the server press `Ctrl + C`")
