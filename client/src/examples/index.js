@@ -3,7 +3,9 @@ import Gachi, {
 	useEffect,
 	useNavigate,
 	useState,
-} 
+}
+
+// Add hover-over date to get full creation date
 
 from "../core/framework.ts"
 import { importCss } from "../modules/cssLoader.js"
@@ -14,7 +16,7 @@ const container = document.getElementsByClassName("main__container")[0]
 
 function GetPosts() {
 	const [posts, setPosts] = useState([])
-	
+
 	useEffect(() => {
 		// Make a GET request to fetch user data
 		fetch("https://localhost:8080/posts")
@@ -26,6 +28,11 @@ function GetPosts() {
 	return (
 		<div className="post__container">
 		{posts.map((post) => {
+			const creationDate = new Date(post.creation_date)
+			const hoursSinceCreation = (Date.now() - creationDate) / 1000 / 60 / 60
+
+			post.creation_date = convertTime(hoursSinceCreation)
+
 			return (
 				<div className="post__box">
 				<div className="post__header">
@@ -37,7 +44,7 @@ function GetPosts() {
 					</div>
 					<div className="user__info_name">
 					<p className="name">{post.user_info.username}</p>
-					<p className="date">{post.creation_date + "  soon normal datetime"}</p>
+					<p className="date">{post.creation_date}</p>
 					</div>
 				</div>
 				</div>
@@ -71,6 +78,25 @@ function GetPosts() {
 		})}
 		</div>
 	)
+}
+
+function convertTime(timeSinceCreation) {
+	switch (true) {
+		case (timeSinceCreation < 1):
+			return Math.floor(timeSinceCreation * 60) + " minutes ago"
+		case (timeSinceCreation < 24):
+			return Math.floor(timeSinceCreation) + " hours ago"
+		case (timeSinceCreation < 168):
+			return Math.floor(timeSinceCreation / 24) + " days ago"
+		case (timeSinceCreation < 720):
+			return Math.floor(timeSinceCreation / 24 / 7) + " weeks ago"
+		case (timeSinceCreation < 8760):
+			return Math.floor(timeSinceCreation / 24 / 30) + " months ago"
+		case (timeSinceCreation > 8760):
+			return Math.floor(timeSinceCreation / 24 / 365) + " years ago"
+		default:
+			return null
+	}
 }
 
 Gachi.render(<GetPosts />, container)
