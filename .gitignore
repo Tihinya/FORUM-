@@ -21,3 +21,8 @@
 # Go workspace file
 go.work
 
+.vscode
+
+dist 
+client/node_modules
+package-lock.json
