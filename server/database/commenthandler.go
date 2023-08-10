@@ -227,6 +227,14 @@ func getPostCommentIds(postId int) ([]int, error) {
 	return comments, nil
 }
 
+func getCommentsCount(postId int) int {
+	var count int
+
+	DB.QueryRow(`SELECT COUNT(*) FROM comment WHERE post_id=?`, postId).Scan(&count)
+
+	return count
+}
+
 // Checks if comment with given ID exists in DB
 func checkIfCommentExist(commentId int) bool {
 	var exists bool

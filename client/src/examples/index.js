@@ -14,11 +14,19 @@ importCss("index.css")
 
 const container = document.getElementsByClassName("main__container")[0]
 
-function GetPosts() {
+function LikePost(type) {
+	if (type == "like") {
+		console.log(like)
+	} else if (type == "dislike") {
+		console.log("dislike")
+	}
+}
+
+function PostContainer() {
 	const [posts, setPosts] = useState([])
 
 	useEffect(() => {
-		// Make a GET request to fetch user data
+		// Make a GET request to fetch post data
 		fetch("https://localhost:8080/posts")
 			.then((response) => response.json())
 			.then((data) => setPosts(data))
@@ -28,10 +36,7 @@ function GetPosts() {
 	return (
 		<div className="post__container">
 		{posts.map((post) => {
-			const creationDate = new Date(post.creation_date)
-			const hoursSinceCreation = (Date.now() - creationDate) / 1000 / 60 / 60
-
-			post.creation_date = convertTime(hoursSinceCreation)
+			post.creation_date = convertTime(new Date(post.creation_date))
 
 			return (
 				<div className="post__box">
@@ -44,7 +49,7 @@ function GetPosts() {
 					</div>
 					<div className="user__info_name">
 					<p className="name">{post.user_info.username}</p>
-					<p className="date">{post.creation_date}</p>
+					<p className="date" key={post.creation_date}>{post.creation_date}</p>
 					</div>
 				</div>
 				</div>
@@ -66,8 +71,8 @@ function GetPosts() {
 					<a href="/src/html/post-comment.html"
 					><img src="/src/img/message-square.svg"
 					/></a>
-					<p>{"post.comments.length brokie"}</p>
-					<img src="/src/img/thumbs-up.svg" />
+					<p>{post.comment_count}</p>
+					<img onClick={() => LikePost("like")} src="/src/img/thumbs-up.svg" />
 					<p>{post.likes}</p>
 					<img src="/src/img/thumbs-down.svg" />
 					<p>{post.dislikes}</p>
@@ -77,28 +82,42 @@ function GetPosts() {
 			)
 		})}
 		</div>
+		
 	)
 }
 
-function convertTime(timeSinceCreation) {
+function App() {
+	return (
+		<PostContainer />
+	)
+}
+
+function convertTime(creationDate) {
+	const timeSinceCreation = (Date.now() - creationDate) / 1000 / 60 / 60
 	switch (true) {
 		case (timeSinceCreation < 1):
-			return Math.floor(timeSinceCreation * 60) + " minutes ago"
+			const minutes = Math.floor(timeSinceCreation * 60)
+			return `${minutes} minute${minutes == 1 ? "" : "s"} ago`
 		case (timeSinceCreation < 24):
-			return Math.floor(timeSinceCreation) + " hours ago"
+			const hours = Math.floor(timeSinceCreation)
+			return `${hours} hour${hours == 1 ? "" : "s"} ago`
 		case (timeSinceCreation < 168):
-			return Math.floor(timeSinceCreation / 24) + " days ago"
+			const days = Math.floor(timeSinceCreation / 24)
+			return `${days} day${days == 1 ? "" : "s"} ago`
 		case (timeSinceCreation < 720):
-			return Math.floor(timeSinceCreation / 24 / 7) + " weeks ago"
+			const weeks = Math.floor(timeSinceCreation / 24 / 7)
+			return `${weeks} week${weeks == 1 ? "" : "s"} ago`
 		case (timeSinceCreation < 8760):
-			return Math.floor(timeSinceCreation / 24 / 30) + " months ago"
+			const months = Math.floor(timeSinceCreation / 24 / 30)
+			return `${months} month${months == 1 ? "" : "s"} ago`
 		case (timeSinceCreation > 8760):
-			return Math.floor(timeSinceCreation / 24 / 365) + " years ago"
+			const years = Math.floor(timeSinceCreation / 24 / 365)
+			return `${years} year${years == 1 ? "" : "s"} ago`
 		default:
 			return null
 	}
 }
 
-Gachi.render(<GetPosts />, container)
+Gachi.render(<App />, container)
 
 
