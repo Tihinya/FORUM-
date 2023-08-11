@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"net/http"
+
 	"forum/config"
 	ct "forum/controllers"
 	"forum/database"
 	"forum/router"
-	"log"
-	"net/http"
 )
 
 func ExampleMiddleware() router.Middleware {
@@ -16,7 +17,8 @@ func ExampleMiddleware() router.Middleware {
 			// Your middleware logic here
 			fmt.Println("Example middleware executed 1")
 
-			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
 
 			// Call the next middleware/handler in the chain
 			next.ServeHTTP(w, r)
@@ -25,7 +27,6 @@ func ExampleMiddleware() router.Middleware {
 }
 
 func main() {
-
 	r := router.NewRouter()
 
 	database.CreateTables()

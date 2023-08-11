@@ -12,16 +12,9 @@ import { importCss } from "../modules/cssLoader.js"
 import Button from "./button.jsx"
 importCss("index.css")
 
-function LikePost(type) {
-	if (type == "like") {
-		console.log(like)
-	} else if (type == "dislike") {
-		console.log("dislike")
-	}
-}
-
 export function PostContainer() {
 	const [posts, setPosts] = useState([])
+	const [likes, setLikes] = useState(0)
 
 	useEffect(() => {
 		// Make a GET request to fetch post data
@@ -30,6 +23,34 @@ export function PostContainer() {
 			.then((data) => setPosts(data))
 			.catch((error) => console.error("Error fetching posts:", error))
 	}, [])
+
+	const handleLike = async (type, postId) => {
+		try {
+			console.log(postId, type)
+			const response = await fetch(`https://localhost:8080/post/${postId}/${type}`, {
+                method: 'POST',
+                credentials: 'include',
+            });
+
+			const data = await response.json();
+			console.log(data)
+
+			setPosts(prevPosts => {
+				return prevPosts.map(post => {
+					if (post.id === postId) {
+						if (type === 'like') {
+							return { ...post, likes: post.likes + 1 };
+						} else {
+							return { ...post, dislikes: post.dislikes + 1 };
+						}
+					}
+					return post;
+				});
+			});
+		} catch {
+			console.error(`Error updating post like/dislike`)
+		}
+	}
 
 	return (
 		<div className="post__container">
@@ -70,17 +91,16 @@ export function PostContainer() {
 					><img src="/src/img/message-square.svg"
 					/></a>
 					<p>{post.comment_count}</p>
-					<img onClick={() => LikePost("like")} src="/src/img/thumbs-up.svg" />
-					<p>{post.likes}</p>
-					<img src="/src/img/thumbs-down.svg" />
-					<p>{post.dislikes}</p>
+					<img src="/src/img/thumbs-up.svg" />
+					<p onClick={() => handleLike("like", post.id)}>{post.likes}</p>
+					<img  src="/src/img/thumbs-down.svg" />
+					<p onClick={() => handleLike("dislike", post.id)}>{post.dislikes}</p>
 				</div>
 				</div>
 			</div>
 			)
 		})}
 		</div>
-		
 	)
 }
 
