@@ -2,14 +2,15 @@ package controllers
 
 import (
 	"encoding/json"
+	"log"
+	"net/http"
+	"strings"
+
 	"forum/database"
 	"forum/login"
 	"forum/router"
 	"forum/session"
 	"forum/validation"
-	"log"
-	"net/http"
-	"strings"
 )
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
@@ -89,7 +90,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//set session
+	// set session
 	token := session.SessionStorage.CreateSession(id)
 	session.SessionStorage.SetCookie(token, w)
 
@@ -120,7 +121,6 @@ func ReadUser(w http.ResponseWriter, r *http.Request) {
 func ReadUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	users, err := database.SelectAllUsers()
-
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -210,13 +210,6 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 func ReadUserLikedPosts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	userID, err := router.GetFieldInt(r, "id")
-	if err != nil {
-		log.Println(err)
-		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
-		return
-	}
-
 	// Authentication here
 	sessionToken, sessionTokenFound := checkForSessionToken(r)
 	if !sessionTokenFound {
@@ -231,12 +224,7 @@ func ReadUserLikedPosts(w http.ResponseWriter, r *http.Request) {
 
 	sessionUserID := session.SessionStorage.GetSession(sessionToken.Value).UserId
 
-	if sessionUserID != userID {
-		returnMessageJSON(w, "You are not authorized to view this information", http.StatusInternalServerError, "unauthorized")
-		return
-	}
-
-	posts, err := database.ReadUserLikedPosts(userID)
+	posts, err := database.ReadUserLikedPosts(sessionUserID)
 	if err != nil {
 		log.Println(err)
 		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
@@ -249,13 +237,6 @@ func ReadUserLikedPosts(w http.ResponseWriter, r *http.Request) {
 func ReadUserDislikedPosts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	userID, err := router.GetFieldInt(r, "id")
-	if err != nil {
-		log.Println(err)
-		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
-		return
-	}
-
 	// Authentication here
 	sessionToken, sessionTokenFound := checkForSessionToken(r)
 	if !sessionTokenFound {
@@ -270,12 +251,7 @@ func ReadUserDislikedPosts(w http.ResponseWriter, r *http.Request) {
 
 	sessionUserID := session.SessionStorage.GetSession(sessionToken.Value).UserId
 
-	if sessionUserID != userID {
-		returnMessageJSON(w, "You are not authorized to view this information", http.StatusInternalServerError, "unauthorized")
-		return
-	}
-
-	posts, err := database.ReadUserDislikedPosts(userID)
+	posts, err := database.ReadUserDislikedPosts(sessionUserID)
 	if err != nil {
 		log.Println(err)
 		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
@@ -288,13 +264,6 @@ func ReadUserDislikedPosts(w http.ResponseWriter, r *http.Request) {
 func ReadUserCreatedPosts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	userID, err := router.GetFieldInt(r, "id")
-	if err != nil {
-		log.Println(err)
-		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
-		return
-	}
-
 	// Authentication here
 	sessionToken, sessionTokenFound := checkForSessionToken(r)
 	if !sessionTokenFound {
@@ -309,12 +278,7 @@ func ReadUserCreatedPosts(w http.ResponseWriter, r *http.Request) {
 
 	sessionUserID := session.SessionStorage.GetSession(sessionToken.Value).UserId
 
-	if sessionUserID != userID {
-		returnMessageJSON(w, "You are not authorized to view this information", http.StatusInternalServerError, "unauthorized")
-		return
-	}
-
-	posts, err := database.ReadUserCreatedPosts(userID)
+	posts, err := database.ReadUserCreatedPosts(sessionUserID)
 	if err != nil {
 		log.Println(err)
 		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")

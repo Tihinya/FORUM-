@@ -14,42 +14,93 @@ importCss("index.css")
 
 export function PostContainer() {
 	const [posts, setPosts] = useState([])
+	const [likedPosts, setLikedPosts] = useState([])
+	const [dislikedPosts, setDislikedPosts] = useState([])
+
+	// For displaying liked icon, if the post is already liked (TODO)
+	const fetchLikedPosts = () => {
+		fetch("https://localhost:8080/user/liked", {
+			credentials: 'include'
+		})
+			.then(response => response.json())
+			.then(data => setLikedPosts(data))
+			.catch(error => console.error("Error fetching liked posts:", error));
+	}
+
+	const fetchDislikedPosts = () => {
+		fetch("https://localhost:8080/user/disliked", {
+			credentials: 'include'
+		})
+			.then(response => response.json())
+			.then(data => setDislikedPosts(data))
+			.catch(error => console.error("Error fetching liked posts:", error));
+	}
 
 	useEffect(() => {
 		// Make a GET request to fetch post data
-		fetch("https://localhost:8080/posts")
-			.then((response) => response.json())
-			.then((data) => setPosts(data))
-			.catch((error) => console.error("Error fetching posts:", error))
+		const fetchPosts = () => {
+			fetch("https://localhost:8080/posts")
+				.then(response => response.json())
+				.then(data => setPosts(data))
+				.catch(error => console.error("Error fetching posts:", error));
+		};
+
+		fetchPosts()
+		fetchDislikedPosts()
+		fetchLikedPosts()
 	}, [])
 
 	const handleLike = async (type, postId) => {
 		try {
-			console.log(postId, type)
-			const response = await fetch(`https://localhost:8080/post/${postId}/${type}`, {
-                method: 'POST',
-                credentials: 'include',
-            });
-
-			const data = await response.json();
-
-			if (response.ok) {
-				setPosts(prevPosts => {
-					return prevPosts.map(post => {
-						console.log("Before update:", JSON.stringify(prevPosts));
-						if (post.id === postId) {
-							if (type === 'like') {
-								return { ...post, likes: post.likes + 1 };
-							} else {
-								return { ...post, dislikes: post.dislikes + 1 };
-							}
-						}
-						return post;
-					});
+			if (!likedPosts.includes(postId) && !dislikedPosts.includes(postId)) {
+				console.log("LUL")
+				const response = await fetch(`https://localhost:8080/post/${postId}/${type}`, {
+					method: 'POST',
+					credentials: 'include',
 				});
+	
+				if (response.ok) {
+					setPosts(prevPosts => {
+						return prevPosts.map(post => {
+							if (post.id === postId) {
+								if (type === 'like') {
+									return { ...post, likes: post.likes + 1 };
+								} else {
+									return { ...post, dislikes: post.dislikes + 1 };
+								}
+							}
+							return post;
+						});
+					});
+					fetchLikedPosts()
+					fetchDislikedPosts()
+				}
+			} else {
+				console.log("PAO")
+				const response = await fetch(`https://localhost:8080/post/${postId}/un${type}`, {
+					method: 'POST',
+					credentials: 'include',
+				});
+	
+				if (response.ok) {
+					setPosts(prevPosts => {
+						return prevPosts.map(post => {
+							if (post.id === postId) {
+								if (type === 'like') {
+									return { ...post, likes: post.likes - 1 };
+								} else {
+									return { ...post, dislikes: post.dislikes - 1 };
+								}
+							}
+							return post;
+						});
+					});
+				fetchLikedPosts()
+				fetchDislikedPosts()
+				}
 			}
 		} catch {
-			console.error(`Error updating post like/dislike`)
+			console.error(`You are not logged in`)
 		}
 	}
 

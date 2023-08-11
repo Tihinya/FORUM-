@@ -1,7 +1,5 @@
 package database
 
-import "fmt"
-
 func CreateUser(user UserInfo) (int, error) {
 	sqlStmt, err := DB.Prepare(`INSERT INTO users(
 		email,
@@ -87,6 +85,7 @@ func UpdateUser(userName string, email string, userID int) error {
 	}
 	return nil
 }
+
 func DeleteUser(userID int) error {
 	stmt, err := DB.Prepare(`
 		DELETE FROM users
@@ -104,8 +103,8 @@ func DeleteUser(userID int) error {
 	return nil
 }
 
-func ReadUserLikedPosts(userID int) ([]string, error) {
-	var posts []string
+func ReadUserLikedPosts(userID int) ([]int, error) {
+	posts := make([]int, 0)
 
 	username, err := GetUsername(userID)
 	if err != nil {
@@ -116,7 +115,6 @@ func ReadUserLikedPosts(userID int) ([]string, error) {
 		SELECT PostId, CommentId
 		FROM like WHERE Username = ?
 	`, username)
-
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +128,7 @@ func ReadUserLikedPosts(userID int) ([]string, error) {
 		}
 
 		if like.PostId != 0 {
-			post := "https://localhost:8080/post/" + fmt.Sprint(like.PostId)
+			post := like.PostId
 			posts = append(posts, post)
 		}
 	}
@@ -138,8 +136,8 @@ func ReadUserLikedPosts(userID int) ([]string, error) {
 	return posts, nil
 }
 
-func ReadUserDislikedPosts(userID int) ([]string, error) {
-	var posts []string
+func ReadUserDislikedPosts(userID int) ([]int, error) {
+	posts := make([]int, 0)
 
 	username, err := GetUsername(userID)
 	if err != nil {
@@ -150,7 +148,6 @@ func ReadUserDislikedPosts(userID int) ([]string, error) {
 		SELECT PostId, CommentId
 		FROM dislike WHERE Username = ?
 	`, username)
-
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +161,7 @@ func ReadUserDislikedPosts(userID int) ([]string, error) {
 		}
 
 		if dislike.PostId != 0 {
-			post := "https://localhost:8080/post/" + fmt.Sprint(dislike.PostId)
+			post := dislike.PostId
 			posts = append(posts, post)
 		}
 	}
@@ -172,8 +169,8 @@ func ReadUserDislikedPosts(userID int) ([]string, error) {
 	return posts, nil
 }
 
-func ReadUserCreatedPosts(userID int) ([]string, error) {
-	var posts []string
+func ReadUserCreatedPosts(userID int) ([]int, error) {
+	posts := make([]int, 0)
 
 	username, err := GetUsername(userID)
 	if err != nil {
@@ -183,7 +180,6 @@ func ReadUserCreatedPosts(userID int) ([]string, error) {
 	rows, err := DB.Query(`
 		SELECT id FROM post WHERE Username = ?
 	`, username)
-
 	if err != nil {
 		return nil, err
 	}
@@ -197,7 +193,7 @@ func ReadUserCreatedPosts(userID int) ([]string, error) {
 		}
 
 		if post.Id != 0 {
-			post := "https://localhost:8080/post/" + fmt.Sprint(post.Id)
+			post := post.Id
 			posts = append(posts, post)
 		}
 	}
