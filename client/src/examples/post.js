@@ -14,7 +14,6 @@ importCss("index.css")
 
 export function PostContainer() {
 	const [posts, setPosts] = useState([])
-	const [likes, setLikes] = useState(0)
 
 	useEffect(() => {
 		// Make a GET request to fetch post data
@@ -33,20 +32,22 @@ export function PostContainer() {
             });
 
 			const data = await response.json();
-			console.log(data)
 
-			setPosts(prevPosts => {
-				return prevPosts.map(post => {
-					if (post.id === postId) {
-						if (type === 'like') {
-							return { ...post, likes: post.likes + 1 };
-						} else {
-							return { ...post, dislikes: post.dislikes + 1 };
+			if (response.ok) {
+				setPosts(prevPosts => {
+					return prevPosts.map(post => {
+						console.log("Before update:", JSON.stringify(prevPosts));
+						if (post.id === postId) {
+							if (type === 'like') {
+								return { ...post, likes: post.likes + 1 };
+							} else {
+								return { ...post, dislikes: post.dislikes + 1 };
+							}
 						}
-					}
-					return post;
+						return post;
+					});
 				});
-			});
+			}
 		} catch {
 			console.error(`Error updating post like/dislike`)
 		}
@@ -55,7 +56,6 @@ export function PostContainer() {
 	return (
 		<div className="post__container">
 		{posts.map((post) => {
-			post.creation_date = convertTime(new Date(post.creation_date))
 
 			return (
 				<div className="post__box">
@@ -68,7 +68,7 @@ export function PostContainer() {
 					</div>
 					<div className="user__info_name">
 					<p className="name">{post.user_info.username}</p>
-					<p className="date" key={post.creation_date}>{post.creation_date}</p>
+					<p className="date">{convertTime(new Date(post.creation_date))}</p>
 					</div>
 				</div>
 				</div>
