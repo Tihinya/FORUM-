@@ -9,10 +9,32 @@ import Gachi, {
 
 from "../core/framework.ts"
 import { importCss } from "../modules/cssLoader.js"
+import Button from "./button.jsx"
 importCss("index.css")
 
-export function PostContainer() {
+export function PostContainerAuth() {
 	const [posts, setPosts] = useState([])
+	const [likedPosts, setLikedPosts] = useState([])
+	const [dislikedPosts, setDislikedPosts] = useState([])
+
+	// For displaying liked icon, if the post is already liked (TODO)
+	const fetchLikedPosts = () => {
+		fetch("https://localhost:8080/user/liked", {
+			credentials: 'include'
+		})
+			.then(response => response.json())
+			.then(data => setLikedPosts(data))
+			.catch(error => console.error("Error fetching liked posts:", error));
+	}
+
+	const fetchDislikedPosts = () => {
+		fetch("https://localhost:8080/user/disliked", {
+			credentials: 'include'
+		})
+			.then(response => response.json())
+			.then(data => setDislikedPosts(data))
+			.catch(error => console.error("Error fetching liked posts:", error));
+	}
 
 	// Initialize posts/likes/dislikes upon page load
 	useEffect(() => {
@@ -25,7 +47,61 @@ export function PostContainer() {
 		};
 
 		fetchPosts()
+		fetchDislikedPosts()
+		fetchLikedPosts()
 	}, [])
+
+	const handleLike = async (type, postId) => {
+		try {
+			if (!likedPosts.includes(postId) && !dislikedPosts.includes(postId)) {
+				const response = await fetch(`https://localhost:8080/post/${postId}/${type}`, {
+					method: 'POST',
+					credentials: 'include',
+				});
+	
+				if (response.ok) {
+					setPosts(prevPosts => {
+						return prevPosts.map(post => {
+							if (post.id === postId) {
+								if (type === 'like') {
+									return { ...post, likes: post.likes + 1 };
+								} else {
+									return { ...post, dislikes: post.dislikes + 1 };
+								}
+							}
+							return post;
+						});
+					});
+					fetchLikedPosts()
+					fetchDislikedPosts()
+				}
+			} else {
+				const response = await fetch(`https://localhost:8080/post/${postId}/un${type}`, {
+					method: 'POST',
+					credentials: 'include',
+				});
+	
+				if (response.ok) {
+					setPosts(prevPosts => {
+						return prevPosts.map(post => {
+							if (post.id === postId) {
+								if (type === 'like') {
+									return { ...post, likes: post.likes - 1 };
+								} else {
+									return { ...post, dislikes: post.dislikes - 1 };
+								}
+							}
+							return post;
+						});
+					});
+				fetchLikedPosts()
+				fetchDislikedPosts()
+				}
+			}
+		} catch {
+			console.error(`You are not logged in`)
+		}
+	}
 
 	return (
 		<div className="post__container">
@@ -66,9 +142,9 @@ export function PostContainer() {
 					/></a>
 					<p>{post.comment_count}</p>
 					<img src="/src/img/thumbs-up.svg" />
-					<p>{post.likes}</p>
+					<p onClick={() => handleLike("like", post.id)}>{post.likes}</p>
 					<img  src="/src/img/thumbs-down.svg" />
-					<p>{post.dislikes}</p>
+					<p onClick={() => handleLike("dislike", post.id)}>{post.dislikes}</p>
 				</div>
 				</div>
 			</div>
