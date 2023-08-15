@@ -63,6 +63,9 @@ body {
 
   text-decoration: none;
   color: var(--text-color-black);
+
+  user-select: none;
+  cursor: pointer;
 }
 
 .search__bar {
@@ -672,13 +675,28 @@ body {
   gap: 12px;
 }
 
+
 .profile-popup {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: -40px;
 
   cursor: pointer;
 }
+
+.profile-popup select {
+  justify-content: center;
+  padding: 3px 0px 3px 0px;
+  all: initial;
+
+  background-position: center;
+  background-size: 20px 20px;
+  background-repeat: no-repeat;
+  background-image: url("../img/arrow-down.svg");
+
+}
+
 
 .profile-nav-menu {
   display: none;

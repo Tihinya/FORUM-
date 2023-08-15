@@ -4,35 +4,35 @@ import Gachi, {
 	useNavigate,
 	useState,
 } from "../core/framework.ts"
+import { Router, Route } from "/src/components/router.ts"
 import { importCss } from "../modules/cssLoader.js"
-import Button from "./button.jsx"
-importCss("./index.css")
+import Header from "./components/header/header.jsx"
+import Login from "./components/login/login.jsx"
+import Registration from "./components/registration/registration.jsx"
+import Posts from "./components/posts/posts.jsx"
+import ProfilePage from "./components/profile-page/profilePage.jsx"
+importCss("./styles/index.css")
 
 const container = document.getElementById("root")
 
-function App() {
-	const [users, setUsers] = useState([])
-
-	useEffect(() => {
-		// Make a GET request to fetch user data
-		fetch("https://localhost:8080/users/get")
-			.then((response) => response.json())
-			.then((data) => setUsers(data))
-			.catch((error) => console.error("Error fetching users:", error))
-	}, [])
-
+function Home() {
 	return (
 		<div>
-			<h1>User List</h1>
-			<ul>
-				{users.map((user) => (
-					<li key={user.id}>
-						<p>Username: {user.username}</p>
-						<p>Email: {user.email}</p>
-					</li>
-				))}
-			</ul>
+			<Header />
+			<Posts />
 		</div>
+	)
+}
+
+function App() {
+	return (
+		<Router>
+			<Route path="/" element={<Home />} />
+			<Route path="/login" element={<Login />} />
+			<Route path="/registration" element={<Registration />} />
+			<Route path="/profile-page" element={<ProfilePage />} />
+			<Route path="/internal-error" element={<h1>Error 500</h1>} />
+		</Router>
 	)
 }
 

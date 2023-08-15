@@ -24,6 +24,7 @@
 	"homepage": "https://github.com/Zewasik/Gachi.js#readme",
 	"type": "module",
 	"dependencies": {
+		"cors": "^2.8.5",
 		"express": "^4.18.2",
 		"node": "18.16"
 	},
@@ -32,7 +33,9 @@
 		"@babel/plugin-transform-react-jsx": "^7.22.5",
 		"@babel/preset-typescript": "^7.22.5",
 		"babel-loader": "^9.1.3",
+		"css-loader": "^6.8.1",
 		"html-webpack-plugin": "^5.5.3",
+		"style-loader": "^3.3.3",
 		"ts-loader": "^9.4.4",
 		"typescript": "^5.1.6",
 		"webpack": "^5.88.2",
