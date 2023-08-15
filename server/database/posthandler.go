@@ -39,7 +39,7 @@ func CreatePost(post Post) error {
 }
 
 func SelectPost(id string) ([]Post, error) {
-	var posts []Post
+	posts := make([]Post, 0)
 
 	rows, err := DB.Query(`
 		SELECT post.id, post.title, post.content,
@@ -89,7 +89,7 @@ func SelectPost(id string) ([]Post, error) {
 
 // GET all posts from posts table
 func SelectAllPosts(categoriesString string) ([]Post, error) {
-	var posts []Post
+	posts := make([]Post, 0)
 
 	rows, err := DB.Query(`
 		SELECT post.id, post.title, post.content,
@@ -236,6 +236,8 @@ func UpdatePost(post Post, postID int, username string) (bool, error) {
 }
 
 func getCategories(post Post) ([]string, error) {
+	categories := make([]string, 0)
+
 	categoryRows, err := DB.Query(`
 		SELECT category FROM category
 		INNER JOIN post_category ON category.id = post_category.category_id
@@ -254,8 +256,10 @@ func getCategories(post Post) ([]string, error) {
 			return nil, err
 		}
 
-		post.Categories = append(post.Categories, category)
+		categories = append(post.Categories, category)
 	}
+
+	post.Categories = categories
 
 	return post.Categories, nil
 }
