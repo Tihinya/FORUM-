@@ -30,15 +30,15 @@ export default function Login() {
 			const resultInJson = await loginRequest(formData)
 
 			if (resultInJson.status === "success") {
-				console.log("Registration successful:", resultInJson.message)
+				console.log("Login successful:", resultInJson.message)
 				localStorage.setItem("id", resultInJson.id)
 				navigate("/")
 			} else if (resultInJson.status === "error") {
-				console.error("Registration error:", resultInJson.message)
+				console.error("Login error:", resultInJson.message)
 				setErrorArr([...errorArr, resultInJson.message])
 			}
 		} catch (error) {
-			console.error("Error during registration:", error)
+			console.error("Error during login:", error)
 			setErrorArr([...errorArr, error.message])
 		}
 	}

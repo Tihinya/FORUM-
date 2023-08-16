@@ -110,7 +110,7 @@ export default function Registation() {
 							<button
 								className="sign__button"
 								type="submit"
-								onClick={() => navigate("/login")}
+								// onClick={() => navigate("/login")}
 							>
 								Sign Up
 							</button>

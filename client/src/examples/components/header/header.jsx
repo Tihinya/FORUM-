@@ -5,16 +5,20 @@ import Gachi, {
 } from "../../../core/framework"
 import DropdownMenu from "./dropdown"
 
+function isLogin(id) {
+	return id !== null
+}
+
 export default function Header() {
 	const navigate = useNavigate()
-	const isLogin = false
+	const isLoggin = isLogin(localStorage.getItem("id"))
 	return (
 		<div className="header">
 			<div className="header__logo">
 				<p>Cartel Forum</p>
 			</div>
 			<input className="search__bar" placeholder="Search in progres..." />
-			{!isLogin ? (
+			{!isLoggin ? (
 				<>
 					<a
 						className="sign__button"

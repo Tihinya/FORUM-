@@ -59,7 +59,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(database.LoginResponse{
 		Status:  "success",
-		Message: "User deleted successfully",
+		Message: "User logined successfully",
 		ID:      userId,
 	})
 }
