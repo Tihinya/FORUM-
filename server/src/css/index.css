@@ -341,6 +341,7 @@ body {
   .post__info {
     flex-direction: column;
   }
+
   .nav__menu {
     position: unset;
     width: 65%;
@@ -599,6 +600,7 @@ body {
   .input-fields {
     width: 50%;
   }
+
   .big_part_content p {
     font-size: 24px;
   }
@@ -618,6 +620,7 @@ body {
   .small_part_content h6 {
     font-size: 2.5vw;
   }
+
   .auth {
     gap: 15%;
   }

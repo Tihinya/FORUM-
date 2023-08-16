@@ -54,6 +54,13 @@ type Response struct {
 	Status  string `json:"status"`
 	Message string `json:"message,omitempty"`
 }
+
+type LoginResponse struct {
+	Status  string `json:"status"`
+	Message string `json:"message,omitempty"`
+	ID      int    `json:"id"`
+}
+
 type UpdateUserRequest struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`

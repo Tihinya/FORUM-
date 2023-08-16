@@ -30,6 +30,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	register.Username = strings.TrimSpace(register.Username)
 	register.Email = strings.TrimSpace(register.Email)
 	register.Password = strings.TrimSpace(register.Password)
+	register.PasswordConfirmation = strings.TrimSpace(register.PasswordConfirmation)
 
 	if register.Username == "" {
 		w.WriteHeader(http.StatusBadRequest)

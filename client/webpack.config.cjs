@@ -40,7 +40,7 @@ module.exports = {
 	},
 	plugins: [
 		new HtmlWebpackPlugin({
-			template: path.resolve(__dirname, "src/examples/html/main-page.html"), // Path to your HTML template
+			template: path.resolve(__dirname, "src/examples/index.html"), // Path to your HTML template
 			filename: "index.html", // Output HTML file name
 		}),
 	],

@@ -63,6 +63,9 @@ body {
 
   text-decoration: none;
   color: var(--text-color-black);
+
+  user-select: none;
+  cursor: pointer;
 }
 
 .search__bar {
@@ -341,6 +344,7 @@ body {
   .post__info {
     flex-direction: column;
   }
+
   .nav__menu {
     position: unset;
     width: 65%;
@@ -599,6 +603,7 @@ body {
   .input-fields {
     width: 50%;
   }
+
   .big_part_content p {
     font-size: 24px;
   }
@@ -618,6 +623,7 @@ body {
   .small_part_content h6 {
     font-size: 2.5vw;
   }
+
   .auth {
     gap: 15%;
   }
@@ -669,13 +675,28 @@ body {
   gap: 12px;
 }
 
+
 .profile-popup {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: -40px;
 
   cursor: pointer;
 }
+
+.profile-popup select {
+  justify-content: center;
+  padding: 3px 0px 3px 0px;
+  all: initial;
+
+  background-position: center;
+  background-size: 20px 20px;
+  background-repeat: no-repeat;
+  background-image: url("../img/arrow-down.svg");
+
+}
+
 
 .profile-nav-menu {
   display: none;

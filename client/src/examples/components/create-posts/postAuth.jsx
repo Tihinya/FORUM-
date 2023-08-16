@@ -7,13 +7,11 @@ import Gachi, {
 
 // Add hover-over date to get full creation date
 
-from "../core/framework.ts"
-import { importCss } from "../modules/cssLoader.js"
-import { convertTime } from "./helpers.js"
-import Button from "./button.jsx"
-importCss("index.css")
+from "../../../core/framework.ts"
+import { importCss } from "../../../modules/cssLoader.js"
+import { convertTime } from "../../additional-funcitons/postTime.jsx"
 
-export function PostContainerAuth() {
+export function PostsAuth() {
 	const [posts, setPosts] = useState([])
 	const [likedPosts, setLikedPosts] = useState([])
 	const [dislikedPosts, setDislikedPosts] = useState([])
@@ -70,7 +68,7 @@ export function PostContainerAuth() {
 				console.error(response.status, response.statusText, "-", errorData.message)
 			}
 		} catch {
-			console.error(response.status, response.statusText, "-", errorData.message)
+			console.error(error)
 		}
 	}
 
@@ -100,7 +98,7 @@ export function PostContainerAuth() {
 					fetchLikedPosts()
 					fetchDislikedPosts()
 				} else {
-					console.error(error)
+					console.error(response.status, response.statusText, "-", errorData.message)
 				}
 			} else {
 				const response = await fetch(`https://localhost:8080/post/${postId}/un${type}`, {
@@ -130,7 +128,7 @@ export function PostContainerAuth() {
 				}
 			}
 		} catch {
-			console.error(response.status, response.statusText, "-", errorData.message)
+			console.error(error)
 		}
 	}
 
