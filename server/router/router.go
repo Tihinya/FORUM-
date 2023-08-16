@@ -72,7 +72,7 @@ func (r *router) Serve(w http.ResponseWriter, req *http.Request) {
 func (r *router) ServeWithCORS(c CORS) http.HandlerFunc {
 	headers := make(map[string]string)
 	if c.Origin != "" {
-		headers["Access-Control-Allow-Origin"] = "*"
+		headers["Access-Control-Allow-Origin"] = c.Origin
 	}
 	if len(c.Methods) > 0 {
 		headers["Access-Control-Allow-Methods"] = strings.Join(c.Methods, ", ")

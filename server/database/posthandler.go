@@ -256,12 +256,10 @@ func getCategories(post Post) ([]string, error) {
 			return nil, err
 		}
 
-		categories = append(post.Categories, category)
+		categories = append(categories, category)
 	}
 
-	post.Categories = categories
-
-	return post.Categories, nil
+	return categories, nil
 }
 
 func updateCategories(post Post, postId int) error {

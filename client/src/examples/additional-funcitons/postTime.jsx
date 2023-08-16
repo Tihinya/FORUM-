@@ -1,5 +1,5 @@
 export function convertTime(creationDate) {
-	const timeSinceCreation = (Date.now() - creationDate) / 1000 / 60 / 60
+	const timeSinceCreation = (Date.now() - new Date(creationDate)) / 1000 / 60 / 60
 	switch (true) {
 		case (timeSinceCreation < 1):
 			const minutes = Math.floor(timeSinceCreation * 60)

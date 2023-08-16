@@ -24,23 +24,24 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Authentication here
-	// sessionToken, sessionTokenFound := checkForSessionToken(r)
-	// if !sessionTokenFound {
-	// 	returnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
-	// 	return
-	// }
+	/* sessionToken, sessionTokenFound := checkForSessionToken(r)
+	if !sessionTokenFound {
+		returnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
+		return
+	}
 
-	// if !checkIfUserLoggedin(sessionToken) {
-	// 	returnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
-	// 	return
-	// }
+	if !checkIfUserLoggedin(sessionToken) {
+		returnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
+		return
+	}
 
-	// userID := session.SessionStorage.GetSession(sessionToken.Value).UserId
-	// username, err := database.GetUsername(userID)
-	// if err != nil {
-	// 	returnMessageJSON(w, "You are not logged in", http.StatusInternalServerError, "unauthorized")
-	// 	return
-	// }
+	userID := session.SessionStorage.GetSession(sessionToken.Value).UserId
+	username, err := database.GetUsername(userID)
+	if err != nil {
+		returnMessageJSON(w, "You are not logged in", http.StatusInternalServerError, "unauthorized")
+		return
+	}
+	*/
 
 	if len(post.Title) == 0 || len(post.Content) == 0 {
 		returnMessageJSON(w, "Post creation failed, the post content or title can not be empty", http.StatusBadRequest, "error")
@@ -53,7 +54,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	post.CreationDate = time.Now()
-	// post.UserInfo.Username = username
+	post.UserInfo.Username = "testUser"
 	post.UserInfo.ProfilePicture = "https://example.com/avatar.png"
 
 	err = database.CreatePost(post)

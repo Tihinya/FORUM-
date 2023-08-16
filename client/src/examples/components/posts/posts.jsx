@@ -5,6 +5,8 @@ import Gachi, {
 	useEffect,
 } from "../../../core/framework"
 
+import { convertTime } from "../../additional-funcitons/postTime"
+
 export default function Posts() {
 	const navigate = useNavigate()
 
@@ -33,8 +35,8 @@ export default function Posts() {
 								</a>
 							</div>
 							<div className="user__info_name">
-								<p className="name">{post.username}</p>
-								<p className="date">{post.creation_date}</p>
+								<p className="name">{post.user_info.username}</p>
+								<p className="date">{convertTime(post.creation_date)}</p>
 							</div>
 						</div>
 					</div>
