@@ -142,8 +142,6 @@ export function PostsAuth() {
 
 	const handleLike = async (type, postId) => {
 		try {
-			console.log(postCategories)
-			console.log(categories)
 			if (!likedPosts.includes(postId) && !dislikedPosts.includes(postId)) {
 				const response = await fetch(`https://localhost:8080/post/${postId}/${type}`, {
 					method: 'POST',
