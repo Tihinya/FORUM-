@@ -63,6 +63,9 @@ body {
 
   text-decoration: none;
   color: var(--text-color-black);
+
+  user-select: none;
+  cursor: pointer;
 }
 
 .search__bar {
@@ -672,13 +675,28 @@ body {
   gap: 12px;
 }
 
+
 .profile-popup {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: -40px;
 
   cursor: pointer;
 }
+
+.profile-popup select {
+  justify-content: center;
+  padding: 3px 0px 3px 0px;
+  all: initial;
+
+  background-position: center;
+  background-size: 20px 20px;
+  background-repeat: no-repeat;
+  background-image: url("../img/arrow-down.svg");
+
+}
+
 
 .profile-nav-menu {
   display: none;
@@ -1017,4 +1035,48 @@ body {
 .nav-link {
   text-decoration: none;
   color: var(--text-color-black);
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+  justify-content: center;
+  padding: 3px 0px 3px 0px;
+  all: initial;
+
+  background-position: center;
+  background-size: 20px 20px;
+  background-repeat: no-repeat;
+  background-image: url("../img/arrow-down.svg");
+
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.dropdown-button {
+  background-color: #f9f9f9;
+  border: none;
+  color: black;
+  padding: 10px 20px;
+  text-align: left;
+  text-decoration: none;
+  display: block;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.dropdown-button:hover {
+  background-color: #ddd;
 }

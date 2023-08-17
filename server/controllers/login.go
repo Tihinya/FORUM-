@@ -57,7 +57,11 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	token := session.SessionStorage.CreateSession(userId)
 	session.SessionStorage.SetCookie(token, w)
 
-	returnMessageJSON(w, "Login successful", http.StatusOK, "success")
+	json.NewEncoder(w).Encode(database.LoginResponse{
+		Status:  "success",
+		Message: "User logined successfully",
+		ID:      userId,
+	})
 }
 
 func LogOut(w http.ResponseWriter, r *http.Request) {
