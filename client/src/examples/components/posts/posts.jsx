@@ -18,7 +18,7 @@ export default function Posts() {
 				.then((response) => response.json())
 				.then((data) => setPosts(data))
 				.catch((error) => console.error("Error fetching users:", error))
-		}, 1000)
+		}, 10000)
 
 		return () => clearInterval(interval)
 	}, [])

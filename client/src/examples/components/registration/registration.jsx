@@ -93,15 +93,15 @@ export default function Registation() {
 									name="password"
 									className="input-design"
 									placeholder="Password"
-									type="text"
+									type="password"
 									value={formData.password}
 									onChange={handleInputChange}
 								/>
 								<input
-									name="passwordConfirmation"
+									name="password_confirmation"
 									className="input-design"
 									placeholder="Repeat Password"
-									type="text"
+									type="password"
 									value={formData.password_confirmation}
 									onChange={handleInputChange}
 								/>
@@ -110,7 +110,7 @@ export default function Registation() {
 							<button
 								className="sign__button"
 								type="submit"
-								onClick={() => navigate("/login")}
+								// onClick={() => navigate("/login")}
 							>
 								Sign Up
 							</button>

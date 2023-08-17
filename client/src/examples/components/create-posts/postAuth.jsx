@@ -14,6 +14,9 @@ importCss("./components/create-posts/threadTab.css")
 
 export function PostsAuth() {
 	const [posts, setPosts] = useState([])
+	const [comments, setComments] = useState([])
+	const [categories, setCategories] = useState([])
+	const [postCategories, setPostCategories] = useState([])
 	const [likedPosts, setLikedPosts] = useState([])
 	const [dislikedPosts, setDislikedPosts] = useState([])
 	const [threadClicked, setThreadClicked] = useState(false)
@@ -46,6 +49,20 @@ export function PostsAuth() {
 			.then(data => setPosts(data))
 			.catch(error => console.error("Error fetching posts:", error));
 	}
+
+	const fetchPostCategories = () => {
+		fetch("https://localhost:8080/postcategories")
+		.then(response => response.json())
+		.then(data => arrayPostCategories(data))
+		.catch(error => console.error("Error fetching posts:", error))
+	}
+
+	const fetchCategories = () => {
+		fetch("https://localhost:8080/categories")
+		.then(response => response.json())
+		.then(data => arrayCategories(data))
+		.catch(error => console.error("Error fetching posts:", error))
+	}
 	
 	const handleThreadButtonClick = () => {
 		if (!threadClicked) {
@@ -55,12 +72,23 @@ export function PostsAuth() {
 		}
 	}
 
-	const toggleCategory = (category) => {
+	const selectCategory = (category) => {
 		if (selectedCategories.includes(category)) {
 			setSelectedCategories(prevCategories => prevCategories.filter(cat => cat !== category))
 		} else {
 			setSelectedCategories(prevCategories => [...prevCategories, category])
 		}
+	}
+
+	const arrayCategories = (categoryObj) => {
+		const resultCategories = categoryObj.map(category => category.category)
+		setCategories(resultCategories)
+	}
+
+	const arrayPostCategories = (postCategoryObj) => {
+		const resultPostCategories = postCategoryObj.map(postCategory => postCategory.CategoryId)
+
+		setPostCategories(resultPostCategories)
 	}
 
 	function handleSubmit(e) {
@@ -76,6 +104,8 @@ export function PostsAuth() {
 	// Initialize posts/likes/dislikes upon page load
 	useEffect(() => {
 		fetchPosts()
+		fetchCategories()
+		fetchPostCategories()
 		fetchDislikedPosts()
 		fetchLikedPosts()
 	}, [])
@@ -109,6 +139,7 @@ export function PostsAuth() {
 
 	const handleLike = async (type, postId) => {
 		try {
+			console.log(postCategories)
 			if (!likedPosts.includes(postId) && !dislikedPosts.includes(postId)) {
 				const response = await fetch(`https://localhost:8080/post/${postId}/${type}`, {
 					method: 'POST',
@@ -187,22 +218,12 @@ export function PostsAuth() {
 				rows={10}
               />
               <div className="thread-tags">
+			  {categories.slice(0, 5).map((category) => (
 				<p 
-				className={`thread-subject ${selectedCategories.includes("UX/UI") ? "active" : ""}`} 
-				onClick={() => toggleCategory("UX/UI")}
-				>UX/UI</p>
-				<p 
-				className={`thread-subject ${selectedCategories.includes("Cybersecurity") ? "active" : ""}`} 
-				onClick={() => toggleCategory("Cybersecurity")}
-				>Cybersecurity</p>
-				<p 
-				className={`thread-subject ${selectedCategories.includes("JS") ? "active" : ""}`} 
-				onClick={() => toggleCategory("JS")}
-				>JS</p>
-				<p 
-				className={`thread-subject ${selectedCategories.includes("Wisdom") ? "active" : ""}`} 
-				onClick={() => toggleCategory("Wisdom")}
-				>Wisdom</p>
+				className={`thread-subject ${selectedCategories.includes(category) ? "active" : ""}`} 
+				onClick={() => selectCategory(category)}
+				>{category}</p>
+			  ))}
               </div>
             </div>
             <div className="create-post-button">
@@ -238,10 +259,10 @@ export function PostsAuth() {
 							))}
 						</div>
 						<div className="post__likes">
-							<a onClick={() => navigate("/post-comment")}>
+							<a onClick={() => navigate(`/post-comment`)}>
 								<img src="../img/message-square.svg" />
 							</a>
-							<p>3</p>
+							<p onClick={() => navigate("/post-comment")}>{post.comment_count}</p>
 							<img onClick={() => handleLike("like", post.id)} src="../img/thumbs-up.svg" />
 							<p onClick={() => handleLike("like", post.id)}>{post.likes}</p>
 							<img onClick={() => handleLike("dislike", post.id)} src="../img/thumbs-down.svg" />

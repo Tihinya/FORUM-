@@ -34,6 +34,15 @@ function HomeAuth() {
 	)
 }
 
+function HomeCommentAuth() {
+	return (
+		<div>
+			<Header />
+			<CommenthAuth />
+		</div>
+	)
+}
+
 function App() {
 	return (
 		<Router>
@@ -43,6 +52,7 @@ function App() {
 			<Route path="/registration" element={<Registration />} />
 			<Route path="/profile-page" element={<ProfilePage />} />
 			<Route path="/internal-error" element={<h1>Error 500</h1>} />
+			<Route path="/page-comments" element={<HomeCommentAuth />} />
 		</Router>
 	)
 }

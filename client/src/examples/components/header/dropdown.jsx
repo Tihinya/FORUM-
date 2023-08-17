@@ -8,26 +8,27 @@ import Gachi, {
 const DropdownMenu = () => {
 	const navigate = useNavigate()
 
-	const [selectedOption, setSelectedOption] = useState("") // To keep track of the selected option
+	// const [selectedOption, setSelectedOption] = useState("") // To keep track of the selected option
 
-	const handleOptionChange = (event) => {
-		setSelectedOption(event.target.value)
-	}
+	// const handleOptionChange = (event) => {
+	// 	setSelectedOption(event.target.value)
+	// }
 
 	return (
-		<div className="profile-popup">
-			<select value={selectedOption} onChange={handleOptionChange}>
-				<option value="option1">Logined as {}</option>
-				<option
-					value="option2"
-					onClick={() => navigate("/profile-page")}
+		<div className="dropdown">
+			<button className="dropdown-button"></button>
+			<div className="dropdown-content">
+				<button>Button 1</button>
+				<button>Button 2</button>
+				<button
+					onClick={() => {
+						localStorage.removeItem("id")
+						navigate("/login")
+					}}
 				>
-					Personal Cabinet
-				</option>
-				<option value="option3" onClick={() => navigate("/")}>
-					Logout
-				</option>
-			</select>
+					Button 3
+				</button>
+			</div>
 		</div>
 	)
 }
