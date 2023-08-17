@@ -9,7 +9,8 @@ import Gachi, {
 
 from "../../../core/framework.ts"
 import { importCss } from "../../../modules/cssLoader.js"
-import { convertTime } from "../../additional-funcitons/postTime.jsx"
+import { convertTime } from "../../additional-funcitons/post.jsx"
+import { sendPostId } from "../comments/commentsAuth.jsx"
 importCss("./components/create-posts/threadTab.css")
 
 export function PostsAuth() {
@@ -21,6 +22,7 @@ export function PostsAuth() {
 	const [selectedCategories, setSelectedCategories] = useState([])
 	const [threadTitleValue, setThreadTitleValue] = useState("")
 	const [threadContentValue, setThreadContentValue] = useState("")
+	const navigate = useNavigate()
 
 	// For displaying liked icon, if the post is already liked (TODO)
 	const fetchLikedPosts = () => {
@@ -201,7 +203,6 @@ export function PostsAuth() {
 	}
 
 	return (
-		
 		<div className="post__container">
 		<form onSubmit={handleSubmit} className="add-thread">
           <div className="thread-button" id="add-a-thread" onClick={handleThreadButtonClick}>+</div>
@@ -261,10 +262,16 @@ export function PostsAuth() {
 							))}
 						</div>
 						<div className="post__likes">
-							<a onClick={() => navigate(`/post-comment`)}>
+							<a onClick={() => {
+								sendPostId(post.id)
+								navigate(`/comments-authorized`)
+							}}>
 								<img src="../img/message-square.svg" />
 							</a>
-							<p onClick={() => navigate("/post-comment")}>{post.comment_count}</p>
+							<p onClick={() => {
+								sendPostId(post.id)
+								navigate(`/comments-authorized`)
+							}}>{post.comment_count}</p>
 							<img onClick={() => handleLike("like", post.id)} src="../img/thumbs-up.svg" />
 							<p onClick={() => handleLike("like", post.id)}>{post.likes}</p>
 							<img onClick={() => handleLike("dislike", post.id)} src="../img/thumbs-down.svg" />

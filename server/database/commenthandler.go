@@ -31,7 +31,7 @@ func CreateCommentRow(comment Comment, postId int) (bool, error) {
 }
 
 func SelectComment(commentId int) ([]Comment, error) {
-	var comments []Comment
+	comments := make([]Comment, 0)
 
 	rows, err := DB.Query("SELECT * FROM comment where id = ?", commentId)
 	if err != nil {
@@ -69,7 +69,7 @@ func SelectComment(commentId int) ([]Comment, error) {
 
 // GET all comments from comments table
 func SelectAllComments(id int) ([]Comment, error) {
-	var comments []Comment
+	comments := make([]Comment, 0)
 
 	rows, err := DB.Query("SELECT * FROM comment where post_id = ?", id)
 	if err != nil {
