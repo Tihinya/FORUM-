@@ -14,9 +14,7 @@ importCss("./components/create-posts/threadTab.css")
 
 export function PostsAuth() {
 	const [posts, setPosts] = useState([])
-	const [comments, setComments] = useState([])
 	const [categories, setCategories] = useState([])
-	const [postCategories, setPostCategories] = useState([])
 	const [likedPosts, setLikedPosts] = useState([])
 	const [dislikedPosts, setDislikedPosts] = useState([])
 	const [threadClicked, setThreadClicked] = useState(false)
@@ -50,18 +48,20 @@ export function PostsAuth() {
 			.catch(error => console.error("Error fetching posts:", error));
 	}
 
-	const fetchPostCategories = () => {
-		fetch("https://localhost:8080/postcategories")
-		.then(response => response.json())
-		.then(data => arrayPostCategories(data))
-		.catch(error => console.error("Error fetching posts:", error))
-	}
-
-	const fetchCategories = () => {
-		fetch("https://localhost:8080/categories")
-		.then(response => response.json())
-		.then(data => arrayCategories(data))
-		.catch(error => console.error("Error fetching posts:", error))
+	const fetchCategoriesAndPostCategories = () => {
+		Promise.all([
+			fetch("https://localhost:8080/categories"),
+			fetch("https://localhost:8080/postcategories"),
+		])
+		.then(([categoriesResponse, postCategoriesResponse]) => {
+			return Promise.all([categoriesResponse.json(), postCategoriesResponse.json()])
+		})
+		.then(([categoriesData, postCategoriesData]) => {
+			sortCategories(categoriesData, postCategoriesData)
+		})
+		.catch(error => {
+			console.error("Error fetching data:", error)
+		})
 	}
 	
 	const handleThreadButtonClick = () => {
@@ -80,15 +80,19 @@ export function PostsAuth() {
 		}
 	}
 
-	const arrayCategories = (categoryObj) => {
-		const resultCategories = categoryObj.map(category => category.category)
-		setCategories(resultCategories)
-	}
+	const sortCategories = (categoryObj, postCategoryObj) => {
+		const arrayedPostCategories = postCategoryObj.map(postCategory => postCategory.CategoryId)
+		const countedPostCategories = arrayedPostCategories.reduce(function (obj, val) {
+			obj[val] = (obj[val] || 0) + 1; return obj
+		}, {} )
+		const ascendingCategories = Object.keys(countedPostCategories).sort((a, b) => countedPostCategories[b] - countedPostCategories[a])
+		
+		const popularCategories = ascendingCategories.map(id => {
+			const category = categoryObj.find(category => category.id == id)
+			return category.category
+		})
 
-	const arrayPostCategories = (postCategoryObj) => {
-		const resultPostCategories = postCategoryObj.map(postCategory => postCategory.CategoryId)
-
-		setPostCategories(resultPostCategories)
+		setCategories(popularCategories)
 	}
 
 	function handleSubmit(e) {
@@ -104,8 +108,7 @@ export function PostsAuth() {
 	// Initialize posts/likes/dislikes upon page load
 	useEffect(() => {
 		fetchPosts()
-		fetchCategories()
-		fetchPostCategories()
+		fetchCategoriesAndPostCategories()
 		fetchDislikedPosts()
 		fetchLikedPosts()
 	}, [])
@@ -140,6 +143,7 @@ export function PostsAuth() {
 	const handleLike = async (type, postId) => {
 		try {
 			console.log(postCategories)
+			console.log(categories)
 			if (!likedPosts.includes(postId) && !dislikedPosts.includes(postId)) {
 				const response = await fetch(`https://localhost:8080/post/${postId}/${type}`, {
 					method: 'POST',
