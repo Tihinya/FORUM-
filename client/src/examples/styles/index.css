@@ -96,7 +96,7 @@ body {
 
   padding: 12px;
 
-  width: 10%;
+  width: 13%;
   border-radius: 15px;
   box-shadow: inset -2px -2px 2px rgba(165, 187, 255, 0.5),
     inset 2px 2px 2px rgba(0, 0, 0, 0.25);
@@ -922,7 +922,7 @@ body {
 
 .add-thread {
   position: relative;
-
+  margin-top: 2%;
   box-sizing: border-box;
   background: var(--background-color);
   box-shadow: -2px -2px 4px rgba(255, 255, 255, 0.7),
@@ -1012,10 +1012,6 @@ body {
 
 .thread-subject:hover {
   background-color: #c2c2c2;
-}
-
-.thread-subject-active {
-  background-color: var(--button-color-orange);
 }
 
 .create-post-button {

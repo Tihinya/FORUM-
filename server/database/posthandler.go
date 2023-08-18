@@ -39,7 +39,7 @@ func CreatePost(post Post) error {
 }
 
 func SelectPost(id string) ([]Post, error) {
-	var posts []Post
+	posts := make([]Post, 0)
 
 	rows, err := DB.Query(`
 		SELECT post.id, post.title, post.content,
@@ -78,6 +78,7 @@ func SelectPost(id string) ([]Post, error) {
 		post.Dislikes, _ = getPostDislikes(post.Id)
 
 		post.Comments = fmt.Sprintf("https://localhost:8080/comments/%d", post.Id)
+		post.CommentCount = getCommentsCount(post.Id)
 		post.UserInfo.ProfilePicture, _ = GetAvatar(post.UserInfo.Username)
 
 		posts = append(posts, post)
@@ -88,7 +89,7 @@ func SelectPost(id string) ([]Post, error) {
 
 // GET all posts from posts table
 func SelectAllPosts(categoriesString string) ([]Post, error) {
-	var posts []Post
+	posts := make([]Post, 0)
 
 	rows, err := DB.Query(`
 		SELECT post.id, post.title, post.content,
@@ -127,6 +128,7 @@ func SelectAllPosts(categoriesString string) ([]Post, error) {
 		post.Dislikes, _ = getPostDislikes(post.Id)
 
 		post.Comments = fmt.Sprintf("https://localhost:8080/comments/%d", post.Id)
+		post.CommentCount = getCommentsCount(post.Id)
 		post.UserInfo.ProfilePicture, _ = GetAvatar(post.UserInfo.Username)
 
 		if contains(post.Categories, categoriesString) {
@@ -234,6 +236,8 @@ func UpdatePost(post Post, postID int, username string) (bool, error) {
 }
 
 func getCategories(post Post) ([]string, error) {
+	categories := make([]string, 0)
+
 	categoryRows, err := DB.Query(`
 		SELECT category FROM category
 		INNER JOIN post_category ON category.id = post_category.category_id
@@ -252,10 +256,10 @@ func getCategories(post Post) ([]string, error) {
 			return nil, err
 		}
 
-		post.Categories = append(post.Categories, category)
+		categories = append(categories, category)
 	}
 
-	return post.Categories, nil
+	return categories, nil
 }
 
 func updateCategories(post Post, postId int) error {

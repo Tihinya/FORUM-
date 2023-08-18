@@ -5,6 +5,9 @@ import Gachi, {
 	useEffect,
 } from "../../../core/framework"
 
+import { convertTime } from "../../additional-funcitons/post.jsx"
+import { sendPostId } from "../comments/comments"
+
 export default function Posts() {
 	const navigate = useNavigate()
 
@@ -16,14 +19,16 @@ export default function Posts() {
 				.then((response) => response.json())
 				.then((data) => setPosts(data))
 				.catch((error) => console.error("Error fetching users:", error))
-		}, 10000)
+		}, 1000)
 
 		return () => clearInterval(interval)
 	}, [])
 
 	return (
 		<div className="post__container">
-			{posts.map((post) => (
+			{posts
+				.sort((a, b) => new Date(b.creation_date) - new Date(a.creation_date))
+				.map((post) => (
 				<div className="post__box">
 					<div className="post__header">
 						<div className="user__info">
@@ -33,8 +38,8 @@ export default function Posts() {
 								</a>
 							</div>
 							<div className="user__info_name">
-								<p className="name">{post.username}</p>
-								<p className="date">{post.creation_date}</p>
+								<p className="name">{post.user_info.username}</p>
+								<p className="date">{convertTime(post.creation_date)}</p>
 							</div>
 						</div>
 					</div>
@@ -49,10 +54,16 @@ export default function Posts() {
 							))}
 						</div>
 						<div className="post__likes">
-							<a onClick={() => navigate("/post-comment")}>
+							<a onClick={() => {
+								sendPostId(post.id)
+								navigate(`/comments`)
+							}}>
 								<img src="../img/message-square.svg" />
 							</a>
-							<p>3</p>
+							<p onClick={() => {
+								sendPostId(post.id)
+								navigate(`/comments`)
+							}}>{post.comment_count}</p>
 							<img src="../img/thumbs-up.svg" />
 							<p>{post.likes}</p>
 							<img src="../img/thumbs-down.svg" />

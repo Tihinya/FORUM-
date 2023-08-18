@@ -10,6 +10,7 @@ type Post struct {
 	CreationDate time.Time    `json:"creation_date"`
 	Likes        int          `json:"likes"`
 	Dislikes     int          `json:"dislikes"`
+	CommentCount int          `json:"comment_count"`
 	Comments     string       `json:"comments"`
 	Categories   []string     `json:"categories"`
 	LastEdited   *time.Time   `json:"last_edited"`
