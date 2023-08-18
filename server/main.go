@@ -32,7 +32,7 @@ func main() {
 	r.AddGlobalMiddleware(ExampleMiddleware())
 
 	http.HandleFunc("/", r.ServeWithCORS(router.CORS{
-		Origin:      "http://localhost:3000", // Add your frontend domain here
+		Origin:      "http://localhost:3000",
 		Methods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		Headers:     []string{"Content-Type", "Authorization"},
 		Credentials: true,
