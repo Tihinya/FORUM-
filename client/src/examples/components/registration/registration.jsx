@@ -67,8 +67,8 @@ export default function Registation() {
 					<div className="big_part_content">
 						<p>Sign Up</p>
 						<div className="auth">
-							<img src="/src/img/git.svg" />
-							<img src="/src/img/goggle.svg" />
+							<img src="../img/git.svg" />
+							<img src="../img/goggle.svg" />
 						</div>
 						<h3>Sign in for better experience!</h3>
 						<form className="form" onSubmit={handleSubmit}>
