@@ -14,6 +14,8 @@ import ProfilePage from "./components/profile-page/profilePage.jsx"
 import { PostsAuth } from "./components/create-posts/postAuth.jsx"
 import { CommentAuth } from "./components/comments/commentsAuth.jsx"
 import { Comment } from "./components/comments/comments.jsx"
+// import MainPage from "./components/pages/mainpage.jsx"
+// import DropdownMenu from "./components/header/dropdown.jsx"
 importCss("./styles/index.css")
 
 const container = document.getElementById("root")
@@ -58,8 +60,8 @@ function App() {
 	return (
 		<Router>
 			<Route path="/" element={<Home />} />
-			<Route path="/authorized" 	element={<HomeAuth />} />
-			<Route path="/login" 		element={<Login />} />
+			<Route path="/authorized" element={<HomeAuth />} />
+			<Route path="/login" element={<Login />} />
 			<Route path="/registration" element={<Registration />} />
 			<Route path="/profile-page" element={<ProfilePage />} />
 			<Route path="/internal-error" element={<h1>Error 500</h1>} />
