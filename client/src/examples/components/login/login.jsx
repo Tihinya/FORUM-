@@ -32,7 +32,7 @@ export default function Login() {
 			if (resultInJson.status === "success") {
 				console.log("Login successful:", resultInJson.message)
 				localStorage.setItem("id", resultInJson.id)
-				navigate("/")
+				navigate("/authorized")
 			} else if (resultInJson.status === "error") {
 				console.error("Login error:", resultInJson.message)
 				setErrorArr([...errorArr, resultInJson.message])

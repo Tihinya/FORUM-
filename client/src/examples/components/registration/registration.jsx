@@ -8,7 +8,7 @@ import { registrationRequest } from "../../additional-funcitons/authorization"
 
 export default function Registation() {
 	const navigate = useNavigate()
-	// const [errorArr, setErrorArr] = useState([])
+	const [errorArr, setErrorArr] = useState([])
 
 	const [formData, setFormData] = useState({
 		email: "",
@@ -33,11 +33,15 @@ export default function Registation() {
 
 			if (resultInJson.status === "success") {
 				console.log("Registration successful:", resultInJson.message)
+				localStorage.setItem("id", resultInJson.id)
+				navigate("/")
 			} else if (resultInJson.status === "error") {
 				console.error("Registration error:", resultInJson.message)
+				setErrorArr([...errorArr, resultInJson.message])
 			}
 		} catch (error) {
 			console.error("Error during registration:", error)
+			setErrorArr([...errorArr, error.message])
 		}
 	}
 
@@ -67,8 +71,8 @@ export default function Registation() {
 					<div className="big_part_content">
 						<p>Sign Up</p>
 						<div className="auth">
-							<img src="/src/img/git.svg" />
-							<img src="/src/img/goggle.svg" />
+							<img src="../img/git.svg" />
+							<img src="../img/goggle.svg" />
 						</div>
 						<h3>Sign in for better experience!</h3>
 						<form className="form" onSubmit={handleSubmit}>
@@ -107,11 +111,7 @@ export default function Registation() {
 								/>
 							</div>
 							{/* <ErrorWindow errorArr={errorArr} /> */}
-							<button
-								className="sign__button"
-								type="submit"
-								// onClick={() => navigate("/login")}
-							>
+							<button className="sign__button" type="submit">
 								Sign Up
 							</button>
 						</form>
