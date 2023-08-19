@@ -22,7 +22,7 @@ export function CommentAuth() {
     const [commentValue, setCommentValue] = useState("")
 
     const fetchLikedPosts = () => {
-		fetch("https://localhost:8080/user/liked", {
+		fetch("http://localhost:8080/user/liked", {
 			credentials: 'include'
 		})
 			.then(response => response.json())
@@ -31,7 +31,7 @@ export function CommentAuth() {
 	}
 
 	const fetchDislikedPosts = () => {
-		fetch("https://localhost:8080/user/disliked", {
+		fetch("http://localhost:8080/user/disliked", {
 			credentials: 'include'
 		})
 			.then(response => response.json())
@@ -40,14 +40,14 @@ export function CommentAuth() {
 	}
 	
 	const fetchPost = () => {
-		fetch(`https://localhost:8080/post/${navigatePostId}`)
+		fetch(`http://localhost:8080/post/${navigatePostId}`)
 			.then(response => response.json())
 			.then(data => setPosts(data))
 			.catch(error => console.error("Error fetching posts:", error));
 	}
 
     const fetchComments = () => {
-		fetch(`https://localhost:8080/comments/${navigatePostId}`)
+		fetch(`http://localhost:8080/comments/${navigatePostId}`)
 			.then(response => response.json())
 			.then(data => setComments(data))
 			.catch(error => console.error("Error fetching posts:", error));
@@ -71,7 +71,7 @@ export function CommentAuth() {
 	}
 
     const createComment = async (content) => {
-        const response = await fetch(`https://localhost:8080/comment/${navigatePostId}`, {
+        const response = await fetch(`http://localhost:8080/comment/${navigatePostId}`, {
 				method: 'POST',
 				credentials: 'include',
 				headers: {
@@ -93,7 +93,7 @@ export function CommentAuth() {
     const handleLike = async (type, postId) => {
 		try {
 			if (!likedPosts.includes(postId) && !dislikedPosts.includes(postId)) {
-				const response = await fetch(`https://localhost:8080/post/${postId}/${type}`, {
+				const response = await fetch(`http://localhost:8080/post/${postId}/${type}`, {
 					method: 'POST',
 					credentials: 'include',
 				});
@@ -119,7 +119,7 @@ export function CommentAuth() {
 					console.error(response.status, response.statusText, "-", errorData.message)
 				}
 			} else {
-				const response = await fetch(`https://localhost:8080/post/${postId}/un${type}`, {
+				const response = await fetch(`http://localhost:8080/post/${postId}/un${type}`, {
 					method: 'POST',
 					credentials: 'include',
 				});

@@ -15,7 +15,7 @@ export default function Posts() {
 
 	useEffect(() => {
 		const interval = () => {
-			fetch("https://localhost:8080/posts")
+			fetch("http://localhost:8080/posts")
 				.then((response) => response.json())
 				.then((data) => setPosts(data))
 				.catch((error) => console.error("Error fetching users:", error))

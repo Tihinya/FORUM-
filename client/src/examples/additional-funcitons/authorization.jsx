@@ -1,5 +1,5 @@
 export async function registrationRequest(formData) {
-	const response = await fetch(`https://localhost:8080/user/create`, {
+	const response = await fetch(`http://localhost:8080/user/create`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
@@ -17,12 +17,13 @@ export async function registrationRequest(formData) {
 }
 
 export async function loginRequest(formData) {
-	const response = await fetch(`https://localhost:8080/login`, {
+	const response = await fetch(`http://localhost:8080/login`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
 		},
 		body: JSON.stringify(formData),
+		credentials: "include",
 	})
 
 	const data = await response.json()

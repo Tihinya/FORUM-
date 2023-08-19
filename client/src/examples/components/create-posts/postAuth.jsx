@@ -22,7 +22,7 @@ export function PostsAuth() {
 
 	// For displaying liked icon, if the post is already liked (TODO)
 	const fetchLikedPosts = () => {
-		fetch("https://localhost:8080/user/liked", {
+		fetch("http://localhost:8080/user/liked", {
 			credentials: "include",
 		})
 			.then((response) => response.json())
@@ -33,7 +33,7 @@ export function PostsAuth() {
 	}
 
 	const fetchDislikedPosts = () => {
-		fetch("https://localhost:8080/user/disliked", {
+		fetch("http://localhost:8080/user/disliked", {
 			credentials: "include",
 		})
 			.then((response) => response.json())
@@ -44,7 +44,7 @@ export function PostsAuth() {
 	}
 
 	const fetchPosts = () => {
-		fetch("https://localhost:8080/posts")
+		fetch("http://localhost:8080/posts")
 			.then((response) => response.json())
 			.then((data) => setPosts(data))
 			.catch((error) => console.error("Error fetching posts:", error))
@@ -52,8 +52,8 @@ export function PostsAuth() {
 
 	const fetchCategoriesAndPostCategories = () => {
 		Promise.all([
-			fetch("https://localhost:8080/categories"),
-			fetch("https://localhost:8080/postcategories"),
+			fetch("http://localhost:8080/categories"),
+			fetch("http://localhost:8080/postcategories"),
 		])
 			.then(([categoriesResponse, postCategoriesResponse]) => {
 				return Promise.all([
@@ -135,7 +135,7 @@ export function PostsAuth() {
 	const createPost = async (title, content, categories) => {
 		// img to be added
 		try {
-			const response = await fetch(`https://localhost:8080/post`, {
+			const response = await fetch(`http://localhost:8080/post`, {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -176,7 +176,7 @@ export function PostsAuth() {
 				!dislikedPosts.includes(postId)
 			) {
 				const response = await fetch(
-					`https://localhost:8080/post/${postId}/${type}`,
+					`http://localhost:8080/post/${postId}/${type}`,
 					{
 						method: "POST",
 						credentials: "include",
@@ -213,7 +213,7 @@ export function PostsAuth() {
 				}
 			} else {
 				const response = await fetch(
-					`https://localhost:8080/post/${postId}/un${type}`,
+					`http://localhost:8080/post/${postId}/un${type}`,
 					{
 						method: "POST",
 						credentials: "include",
