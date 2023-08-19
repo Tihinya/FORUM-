@@ -55,7 +55,7 @@ func (s *Storage) SetCookie(sessionToken string, w http.ResponseWriter) {
 		Name:     "session_token",
 		Value:    sessionToken,
 		Expires:  time.Now().Add(cookieLifeTime),
-		SameSite: http.SameSiteNoneMode,
+		SameSite: http.SameSiteStrictMode,
 		Path:     "/",
 		HttpOnly: true,
 	})
