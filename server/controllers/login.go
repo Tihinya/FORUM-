@@ -29,7 +29,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	login.Email = strings.TrimSpace(login.Email)
 	login.Password = strings.TrimSpace(login.Password)
 
-	userId, err := validation.GetUserID(database.DB, login.Email)
+	userId, err := validation.GetUserIdFromEmail(database.DB, login.Email)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -125,7 +125,7 @@ func GoogleCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := validation.GetUserID(database.DB, googleUser.Email)
+	id, err := validation.GetUserIdFromEmail(database.DB, googleUser.Email)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -194,7 +194,7 @@ func GithubCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check if the user with the GitHub email already exists in the database
-	id, err := validation.GetUserID(database.DB, githubData.Email)
+	id, err := validation.GetUserIdFromEmail(database.DB, githubData.Email)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

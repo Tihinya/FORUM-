@@ -5,7 +5,7 @@ import Gachi, {
 	useEffect,
 } from "../../../core/framework"
 
-import { convertTime } from "../../additional-funcitons/post.jsx"
+import { convertTime } from "../../additional-funcitons/post.js"
 
 export default function Posts() {
 	const navigate = useNavigate()
@@ -60,7 +60,7 @@ export default function Posts() {
 							))}
 						</div>
 						<div className="post__likes">
-							<a onClick={() => navigate("/post-comment")}>
+							<a onClick={() => navigate("/comments-authorized")}>
 								<img src="../img/message-square.svg" />
 							</a>
 							<p>3</p>

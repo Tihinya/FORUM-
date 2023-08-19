@@ -78,7 +78,7 @@ func (r *router) ServeWithCORS(c CORS) http.HandlerFunc {
 		headers["Access-Control-Allow-Methods"] = strings.Join(c.Methods, ", ")
 	}
 	if len(c.Headers) > 0 {
-		headers["Access-Control-Allow-Headers"] = strings.Join(c.Headers, ", ")
+		headers["Access-Control-Allow-Headers"] = strings.Join(c.Headers, ",")
 	}
 	if c.Credentials {
 		headers["Access-Control-Allow-Credentials"] = "true"

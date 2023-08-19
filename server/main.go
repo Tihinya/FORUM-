@@ -82,7 +82,7 @@ func main() {
 
 	// Login
 	r.NewRoute("POST", `/login`, ct.Login)
-	r.NewRoute("GET", `/logout/(?P<id>\d+)`, ct.LogOut)
+	r.NewRoute("GET", `/logout`, ct.LogOut)
 	r.NewRoute("GET", `/login/google`, ct.GoogleLogin)
 	r.NewRoute("GET", `/login/google/callback`, ct.GoogleCallback)
 	r.NewRoute("GET", `/login/github`, ct.GithubLogin)
@@ -92,5 +92,8 @@ func main() {
 
 	log.Println("Ctrl + Click on the link: https://localhost:" + config.Config.Port)
 	log.Println("To stop the server press `Ctrl + C`")
+
+	// http.ListenAndServe(":"+config.Config.Port, nil)
+	// removed for now because of the review
 	log.Fatal(http.ListenAndServeTLS(":"+config.Config.Port, "cert.pem", "key.pem", nil))
 }

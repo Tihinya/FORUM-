@@ -220,7 +220,8 @@ body {
 }
 
 .post__container {
-	margin-left: 20%;
+	margin: 2% 0 2% 20%;
+
 	display: flex;
 	flex-direction: column;
 	padding: 0px 20px;
@@ -255,6 +256,10 @@ body {
 	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25),
 		-2px -2px 4px rgba(255, 255, 255, 0.7);
 	border-radius: 15px;
+}
+
+.post__box_closed {
+	display: none;
 }
 
 .user__info {
@@ -419,6 +424,11 @@ body {
 	cursor: pointer;
 }
 
+.post__likes a {
+	display: flex;
+	padding-top: 2px;
+}
+
 /*------SIGN UP CSS------ */
 
 .main__block {
@@ -550,6 +560,13 @@ body {
 	letter-spacing: 0.1em;
 }
 
+.form {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
 .auth {
 	display: flex;
 	justify-content: center;
@@ -566,6 +583,7 @@ body {
 	display: flex;
 	flex-direction: column;
 	gap: 20px;
+	padding: 20px;
 
 	width: 100%;
 }
@@ -930,6 +948,10 @@ body {
 	z-index: 1;
 }
 
+.add-thread-closed {
+	display: none;
+}
+
 .add-thread input[type="text"] {
 	width: 97%;
 
@@ -1084,7 +1106,8 @@ body {
 }
 
 .hidden-checkbox {
-	display: none; /* Hide the checkbox */
+	display: none;
+	/* Hide the checkbox */
 }
 
 .thread-subject.active:hover {
@@ -1102,4 +1125,25 @@ body {
 
 	user-select: none;
 	cursor: pointer;
+}
+
+.error-window {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	position: absolute;
+	top: 1.5em;
+	left: 39%;
+
+	width: 20%;
+	background-color: var(--button-color-orange);
+	color: white;
+	padding: 16px;
+	border-radius: 8px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.error-window-hidden {
+	display: none;
 }

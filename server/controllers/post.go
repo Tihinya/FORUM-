@@ -24,7 +24,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Authentication here
-	/* sessionToken, sessionTokenFound := checkForSessionToken(r)
+	sessionToken, sessionTokenFound := checkForSessionToken(r)
 	if !sessionTokenFound {
 		returnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
 		return
@@ -41,7 +41,6 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		returnMessageJSON(w, "You are not logged in", http.StatusInternalServerError, "unauthorized")
 		return
 	}
-	*/
 
 	if len(post.Title) == 0 || len(post.Content) == 0 {
 		returnMessageJSON(w, "Post creation failed, the post content or title can not be empty", http.StatusBadRequest, "error")
@@ -54,7 +53,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	post.CreationDate = time.Now()
-	post.UserInfo.Username = "testUser"
+	post.UserInfo.Username = username
 	post.UserInfo.ProfilePicture = "https://example.com/avatar.png"
 
 	err = database.CreatePost(post)

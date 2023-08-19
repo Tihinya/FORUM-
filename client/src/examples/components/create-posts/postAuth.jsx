@@ -1,15 +1,16 @@
 import Gachi, {
-	useContext,
 	useEffect,
 	useNavigate,
 	useState,
+	useContext,
 
 	// Add hover-over date to get full creation date
 } from "../../../core/framework.ts"
-import { convertTime } from "../../additional-funcitons/post.jsx"
-import { sendPostId } from "../comments/commentsAuth.jsx"
+import { convertTime } from "../../additional-funcitons/post.js"
+import isLogin from "../../additional-funcitons/isLogin.js"
 
 export function PostsAuth() {
+	const { activeSubj } = useContext("currentCategory")
 	const [posts, setPosts] = useState([])
 	const [categories, setCategories] = useState([])
 	const [likedPosts, setLikedPosts] = useState([])
@@ -18,15 +19,41 @@ export function PostsAuth() {
 	const [selectedCategories, setSelectedCategories] = useState([])
 	const [threadTitleValue, setThreadTitleValue] = useState("")
 	const [threadContentValue, setThreadContentValue] = useState("")
+	const [myPosts, setMyPosts] = useState([])
+	const [filter, setFilter] = useState("all")
 	const navigate = useNavigate()
+
+	const isLoggin = isLogin()
+	console.log(posts, myPosts, likedPosts)
+
+	const fetchMyPosts = () => {
+		fetch("https://localhost:8080/user/posts", {
+			method: "GET",
+			credentials: "include",
+		})
+			.then((response) => response.json())
+			.then((data) => {
+				setMyPosts(data)
+				console.log(data)
+				if (data.status === "unautharized") {
+					localStorage.removeItem("id")
+					navigate("/login")
+				}
+			})
+			.catch((error) => console.error("Error fetching my posts:", error))
+	}
 
 	// For displaying liked icon, if the post is already liked (TODO)
 	const fetchLikedPosts = () => {
 		fetch("https://localhost:8080/user/liked", {
+			method: "GET",
 			credentials: "include",
 		})
 			.then((response) => response.json())
-			.then((data) => setLikedPosts(data))
+			.then((data) => {
+				setLikedPosts(data)
+				console.log(data)
+			})
 			.catch((error) =>
 				console.error("Error fetching liked posts:", error)
 			)
@@ -44,7 +71,10 @@ export function PostsAuth() {
 	}
 
 	const fetchPosts = () => {
-		fetch("https://localhost:8080/posts")
+		fetch(
+			"https://localhost:8080/posts" +
+				`${activeSubj !== "" ? "?categories=" + activeSubj : ""}`
+		)
 			.then((response) => response.json())
 			.then((data) => setPosts(data))
 			.catch((error) => console.error("Error fetching posts:", error))
@@ -128,9 +158,12 @@ export function PostsAuth() {
 	useEffect(() => {
 		fetchPosts()
 		fetchCategoriesAndPostCategories()
-		fetchDislikedPosts()
-		fetchLikedPosts()
-	}, [])
+		if (isLoggin) {
+			fetchDislikedPosts()
+			fetchLikedPosts()
+			fetchMyPosts()
+		}
+	}, [activeSubj])
 
 	const createPost = async (title, content, categories) => {
 		// img to be added
@@ -249,14 +282,35 @@ export function PostsAuth() {
 					)
 				}
 			}
-		} catch {
-			console.error("You are most definitely not logged in")
+		} catch (error) {
+			console.error(error, "You are most definitely not logged in")
+		}
+	}
+
+	const toggleFilter = (filterType) => {
+		if (filterType !== filter) {
+			setFilter(filterType)
 		}
 	}
 
 	return (
 		<div className="post__container">
-			<form onSubmit={handleSubmit} className="add-thread">
+			<button className="" onClick={() => toggleFilter("all")}>
+				all posts
+			</button>
+			<button className="" onClick={() => toggleFilter("MyPosts")}>
+				my posts
+			</button>
+			<button className="" onClick={() => toggleFilter("MyLikes")}>
+				my likes
+			</button>
+			<form
+				onSubmit={handleSubmit}
+				className={
+					isLoggin ? "add-thread" : "add-thread-closed add-thread"
+				}
+				id="thread-window"
+			>
 				<div
 					className="thread-button"
 					id="add-a-thread"
@@ -307,6 +361,7 @@ export function PostsAuth() {
 							))}
 						</div>
 					</div>
+
 					<div className="create-post-button">
 						<button className="sign__button" type="submit">
 							Create Post
@@ -315,6 +370,18 @@ export function PostsAuth() {
 				</div>
 			</form>
 			{posts
+				.filter(({ id }) => {
+					if (filter === "all") {
+						return true
+					}
+					if (filter === "MyPosts") {
+						return myPosts.includes(id)
+					}
+					if (filter === "MyLikes") {
+						return likedPosts.includes(id)
+					}
+				})
+
 				.sort(
 					(a, b) =>
 						new Date(b.creation_date) - new Date(a.creation_date)
@@ -355,16 +422,18 @@ export function PostsAuth() {
 							<div className="post__likes">
 								<a
 									onClick={() => {
-										sendPostId(post.id)
-										navigate(`/comments-authorized`)
+										navigate(
+											`/comments-authorized/${post.id}`
+										)
 									}}
 								>
 									<img src="../img/message-square.svg" />
 								</a>
 								<p
 									onClick={() => {
-										sendPostId(post.id)
-										navigate(`/comments-authorized`)
+										navigate(
+											`/comments-authorized/${post.id}`
+										)
 									}}
 								>
 									{post.comment_count}

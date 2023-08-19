@@ -15,7 +15,6 @@ export default function MainPage() {
 	return (
 		<div>
 			<Header />
-			{/* <DropdownMenu /> */}
 			<NavBar />
 			<Posts />
 		</div>

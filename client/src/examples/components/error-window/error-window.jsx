@@ -4,18 +4,6 @@ import Gachi, {
 	useNavigate,
 } from "../../../core/framework"
 
-export default function ErrorWindow({ errorArr }) {
-	return (
-		<div className="error-window">
-			{errorArr.length > 0 && (
-				<ul className="error-window__list">
-					{errorArr.map((v, i) => (
-						<li className="error-window__list-item" key={i}>
-							{v.message}
-						</li>
-					))}
-				</ul>
-			)}
-		</div>
-	)
+export default function ErrorWindow({ errorMessage }) {
+	return <div className="error-window">{errorMessage}</div>
 }
