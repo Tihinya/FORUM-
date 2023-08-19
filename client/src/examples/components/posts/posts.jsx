@@ -14,7 +14,7 @@ export default function Posts() {
 
 	useEffect(() => {
 		const interval = () => {
-			fetch("https://localhost:8080/posts")
+			fetch("http://localhost:8080/posts")
 				.then((response) => response.json())
 				.then((data) => setPosts(data))
 				.catch((error) => console.error("Error fetching users:", error))
@@ -63,7 +63,14 @@ export default function Posts() {
 							<a onClick={() => navigate("/comments-authorized")}>
 								<img src="../img/message-square.svg" />
 							</a>
-							<p>3</p>
+							<p
+								onClick={() => {
+									sendPostId(post.id)
+									navigate(`/comments`)
+								}}
+							>
+								{post.comment_count}
+							</p>
 							<img src="../img/thumbs-up.svg" />
 							<p>{post.likes}</p>
 							<img src="../img/thumbs-down.svg" />

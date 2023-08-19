@@ -22,8 +22,10 @@ type Storage struct {
 
 var SessionStorage Storage
 
-const cookieLifeTime = time.Hour * 24 * 365 // 1 year
-const sessionLifeTime = time.Second * 3000  // 5 minutes
+const (
+	cookieLifeTime  = time.Hour * 24 * 365 // 1 year
+	sessionLifeTime = time.Second * 300    // 5 minutes
+)
 
 func (s *Storage) CreateSession(userId int) string {
 	s.lock.Lock()
