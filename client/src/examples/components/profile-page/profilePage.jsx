@@ -7,5 +7,10 @@ import Gachi, {
 export default function ProfilePage() {
 	const navigate = useNavigate()
 
+	const bad = localStorage.getItem("id")
+
+	if (!bad) {
+		navigate("/bad")
+	}
 	return <div>Profile Page</div>
 }

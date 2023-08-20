@@ -1,71 +1,75 @@
-import Gachi, {
-	useContext,
-	useEffect,
-	useNavigate,
-	useState,
-} from "../core/framework.ts"
-import { Router, Route } from "/src/components/router.ts"
+import Gachi from "../core/framework.ts"
+import { Router } from "/src/components/router.ts"
 import { importCss } from "../modules/cssLoader.js"
 import Header from "./components/header/header.jsx"
 import Login from "./components/login/login.jsx"
 import Registration from "./components/registration/registration.jsx"
-import Posts from "./components/posts/posts.jsx"
 import ProfilePage from "./components/profile-page/profilePage.jsx"
-import { PostsAuth } from "./components/create-posts/postAuth.jsx"
 import { CommentAuth } from "./components/comments/commentsAuth.jsx"
-import { Comment } from "./components/comments/comments.jsx"
-importCss("./styles/index.css")
+import MainPage from "./components/mainpage/mainpage.jsx"
+import ErrorPage from "./components/errors/error-page.jsx"
+importCss("/styles/index.css")
 
 const container = document.getElementById("root")
 
 function Home() {
 	return (
 		<div>
-			<Header />
-			<Posts />
+			<MainPage />
 		</div>
 	)
 }
 
-function HomeAuth() {
+function HomeComment({ params }) {
 	return (
 		<div>
 			<Header />
-			<PostsAuth />
+			<CommentAuth postId={params.postId} />
 		</div>
 	)
 }
 
-function HomeComment() {
-	return (
-		<div>
-			<Header />
-			<Comment />
-		</div>
-	)
+const ErrorNotFound = {
+	message: "Page Not Found",
+	status: "404",
 }
 
-function HomeCommentAuth() {
-	return (
-		<div>
-			<Header />
-			<CommentAuth />
-		</div>
-	)
+const ErrorBadRequest = {
+	message: "Bad Request",
+	status: "400",
+}
+
+const ErrorInternalError = {
+	message: "Internal Server Error",
+	status: "500",
 }
 
 function App() {
 	return (
-		<Router>
-			<Route path="/" element={<Home />} />
-			<Route path="/authorized" 	element={<HomeAuth />} />
-			<Route path="/login" 		element={<Login />} />
-			<Route path="/registration" element={<Registration />} />
-			<Route path="/profile-page" element={<ProfilePage />} />
-			<Route path="/internal-error" element={<h1>Error 500</h1>} />
-			<Route path="/comments" element={<HomeComment />} />
-			<Route path="/comments-authorized" element={<HomeCommentAuth />} />
-		</Router>
+		<Router
+			routes={[
+				{ path: "/", element: <Home /> },
+				{ path: "/login", element: <Login /> },
+				{ path: "/registration", element: <Registration /> },
+				{ path: "/profile-page", element: <ProfilePage /> },
+				{
+					path: "/comments-authorized/:postId",
+					element: <HomeComment />,
+				},
+				{
+					path: "serverded",
+					element: <ErrorPage error={ErrorInternalError} />,
+				},
+				{
+					path: "bad",
+					element: <ErrorPage error={ErrorBadRequest} />,
+				},
+				{
+					path: "*",
+					element: <ErrorPage error={ErrorNotFound} />,
+				},
+			]}
+		/>
 	)
 }
 

@@ -169,6 +169,72 @@ func ReadUserDislikedPosts(userID int) ([]int, error) {
 	return posts, nil
 }
 
+func ReadUserLikedComments(userID int) ([]int, error) {
+	posts := make([]int, 0)
+
+	username, err := GetUsername(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := DB.Query(`
+		SELECT PostId, CommentId
+		FROM like WHERE Username = ?
+	`, username)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var like Like
+
+		err = rows.Scan(&like.PostId, &like.CommentId)
+		if err != nil {
+			return nil, err
+		}
+
+		if like.CommentId != 0 {
+			post := like.CommentId
+			posts = append(posts, post)
+		}
+	}
+
+	return posts, nil
+}
+
+func ReadUserDislikedComments(userID int) ([]int, error) {
+	posts := make([]int, 0)
+
+	username, err := GetUsername(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := DB.Query(`
+		SELECT PostId, CommentId
+		FROM dislike WHERE Username = ?
+	`, username)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var dislike Dislike
+
+		err = rows.Scan(&dislike.PostId, &dislike.CommentId)
+		if err != nil {
+			return nil, err
+		}
+
+		if dislike.CommentId != 0 {
+			post := dislike.CommentId
+			posts = append(posts, post)
+		}
+	}
+
+	return posts, nil
+}
+
 func ReadUserCreatedPosts(userID int) ([]int, error) {
 	posts := make([]int, 0)
 

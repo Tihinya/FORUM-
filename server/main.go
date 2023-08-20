@@ -32,7 +32,7 @@ func main() {
 	r.AddGlobalMiddleware(ExampleMiddleware())
 
 	http.HandleFunc("/", r.ServeWithCORS(router.CORS{
-		Origin:      "http://localhost:3000", // Add your frontend domain here
+		Origin:      "http://localhost:3000",
 		Methods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		Headers:     []string{"Content-Type", "Authorization"},
 		Credentials: true,
@@ -46,6 +46,8 @@ func main() {
 	r.NewRoute("DELETE", `/user/(?P<id>\d+)/delete`, ct.DeleteUser)
 	r.NewRoute("GET", `/user/liked`, ct.ReadUserLikedPosts)
 	r.NewRoute("GET", `/user/disliked`, ct.ReadUserDislikedPosts)
+	r.NewRoute("GET", `/user/likedComments`, ct.ReadUserLikedComments)
+	r.NewRoute("GET", `/user/dislikedComments`, ct.ReadUserDislikedComments)
 	r.NewRoute("GET", `/user/posts`, ct.ReadUserCreatedPosts)
 
 	// Post
@@ -82,7 +84,7 @@ func main() {
 
 	// Login
 	r.NewRoute("POST", `/login`, ct.Login)
-	r.NewRoute("GET", `/logout/(?P<id>\d+)`, ct.LogOut)
+	r.NewRoute("GET", `/logout`, ct.LogOut)
 	r.NewRoute("GET", `/login/google`, ct.GoogleLogin)
 	r.NewRoute("GET", `/login/google/callback`, ct.GoogleCallback)
 	r.NewRoute("GET", `/login/github`, ct.GithubLogin)
@@ -92,5 +94,8 @@ func main() {
 
 	log.Println("Ctrl + Click on the link: https://localhost:" + config.Config.Port)
 	log.Println("To stop the server press `Ctrl + C`")
-	log.Fatal(http.ListenAndServeTLS(":"+config.Config.Port, "cert.pem", "key.pem", nil))
+
+	http.ListenAndServe(":"+config.Config.Port, nil)
+	// removed for now because of the review
+	// log.Fatal(http.ListenAndServeTLS(":"+config.Config.Port, "cert.pem", "key.pem", nil))
 }

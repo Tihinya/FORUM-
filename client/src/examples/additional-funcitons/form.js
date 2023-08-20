@@ -8,13 +8,11 @@ export default function HandleInputChange(e) {
 
 export default function HandleSubmit(e) {
     e.preventDefault()
-    console.log(formData)
 
     try {
         const resultInJson =  RegistrationRequest(formData)
 
         if (resultInJson.status === "success") {
-            console.log("Registration successful:", resultInJson.message)
         } else if (resultInJson.status === "error") {
             console.error("Registration error:", resultInJson.message)
         }

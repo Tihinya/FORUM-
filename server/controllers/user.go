@@ -40,7 +40,6 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-
 	// Validate inputs
 	if register.Email == "" || register.Password == "" {
 		w.WriteHeader(http.StatusBadRequest)
@@ -70,7 +69,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check if email is already taken
-	exist, err := validation.GetUserID(database.DB, register.Email)
+	exist, err := validation.GetUserIdFromEmail(database.DB, register.Email)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -80,6 +79,20 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(database.Response{
 			Status:  "error",
 			Message: "Email already taken",
+		})
+		return
+	}
+
+	exist, err = validation.GetUserIdFromUserName(database.DB, register.Username)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if exist != 0 {
+		w.WriteHeader(http.StatusConflict)
+		json.NewEncoder(w).Encode(database.Response{
+			Status:  "error",
+			Message: "Username already taken",
 		})
 		return
 	}
@@ -159,7 +172,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check if email is already taken
-	exist, err := validation.GetUserID(database.DB, req.Email)
+	exist, err := validation.GetUserIdFromEmail(database.DB, req.Email)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -260,6 +273,60 @@ func ReadUserDislikedPosts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(posts)
+}
+
+func ReadUserLikedComments(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	// Authentication here
+	sessionToken, sessionTokenFound := checkForSessionToken(r)
+	if !sessionTokenFound {
+		returnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	if !checkIfUserLoggedin(sessionToken) {
+		returnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	sessionUserID := session.SessionStorage.GetSession(sessionToken.Value).UserId
+
+	comments, err := database.ReadUserLikedComments(sessionUserID)
+	if err != nil {
+		log.Println(err)
+		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		return
+	}
+
+	json.NewEncoder(w).Encode(comments)
+}
+
+func ReadUserDislikedComments(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	// Authentication here
+	sessionToken, sessionTokenFound := checkForSessionToken(r)
+	if !sessionTokenFound {
+		returnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	if !checkIfUserLoggedin(sessionToken) {
+		returnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	sessionUserID := session.SessionStorage.GetSession(sessionToken.Value).UserId
+
+	comments, err := database.ReadUserDislikedComments(sessionUserID)
+	if err != nil {
+		log.Println(err)
+		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		return
+	}
+
+	json.NewEncoder(w).Encode(comments)
 }
 
 func ReadUserCreatedPosts(w http.ResponseWriter, r *http.Request) {

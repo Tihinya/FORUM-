@@ -18,15 +18,17 @@ const DropdownMenu = () => {
 		<div className="dropdown">
 			<button className="dropdown-button"></button>
 			<div className="dropdown-content">
-				<button>Button 1</button>
-				<button>Button 2</button>
+				{/* <button onClick={() => navigate("/")}>Profile Page</button> */}
 				<button
 					onClick={() => {
 						localStorage.removeItem("id")
 						navigate("/login")
+						fetch("http://localhost:8080/logout", {
+							credentials: "include",
+						})
 					}}
 				>
-					Button 3
+					LogOut
 				</button>
 			</div>
 		</div>

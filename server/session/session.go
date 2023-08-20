@@ -1,6 +1,7 @@
 package session
 
 import (
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
@@ -12,7 +13,6 @@ type Session struct {
 	UserId     int
 	Token      string
 	ExpireTime time.Time
-	LifeTime   time.Duration
 }
 
 type Storage struct {
@@ -22,8 +22,10 @@ type Storage struct {
 
 var SessionStorage Storage
 
-const cookieLifeTime = time.Hour * 24 * 365 // 1 year
-const sessionLifeTime = time.Second * 300   // 5 minutes
+const (
+	cookieLifeTime  = time.Hour * 24 * 365 // 1 year
+	sessionLifeTime = time.Second * 300    // 5 minutes
+)
 
 func (s *Storage) CreateSession(userId int) string {
 	s.lock.Lock()
@@ -35,16 +37,29 @@ func (s *Storage) CreateSession(userId int) string {
 		UserId:     userId,
 		Token:      sessionToken,
 		ExpireTime: expireTime,
-		LifeTime:   sessionLifeTime,
 	}
 	return sessionToken
 }
 
 func (s *Storage) DeleteCookie(w http.ResponseWriter) {
+	var cookie http.Cookie = http.Cookie{
+		Name:     "session_token",
+		MaxAge:   -1,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteNoneMode,
+	}
+
+	fmt.Println(cookie.Valid())
+
 	http.SetCookie(w, &http.Cookie{
-		Name:   "session_token",
-		MaxAge: -1,
-		Path:   "/",
+		Name:     "session_token",
+		MaxAge:   -1,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteNoneMode,
 	})
 }
 
@@ -53,9 +68,11 @@ func (s *Storage) SetCookie(sessionToken string, w http.ResponseWriter) {
 		Name:     "session_token",
 		Value:    sessionToken,
 		Expires:  time.Now().Add(cookieLifeTime),
-		SameSite: http.SameSiteStrictMode,
+		MaxAge:   int(cookieLifeTime.Seconds()),
 		Path:     "/",
 		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteNoneMode,
 	})
 }
 
@@ -75,7 +92,13 @@ func (s *Storage) GetSession(token string) Session {
 
 	session, ok := s.storage[token]
 	if !ok || session.ExpireTime.Before(time.Now()) {
+
 		return Session{}
+	}
+	s.storage[token] = Session{
+		UserId:     session.UserId,
+		Token:      session.Token,
+		ExpireTime: time.Now().Add(sessionLifeTime),
 	}
 
 	return session
@@ -94,7 +117,7 @@ func (s *Storage) startSessionCleanupRoutine() {
 
 		s.lock.Lock()
 		for token, session := range s.storage {
-			if time.Since(session.ExpireTime) >= session.LifeTime {
+			if session.ExpireTime.Before(time.Now()) {
 				delete(s.storage, token)
 			}
 		}

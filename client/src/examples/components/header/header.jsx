@@ -4,18 +4,19 @@ import Gachi, {
 	useNavigate,
 } from "../../../core/framework"
 import DropdownMenu from "./dropdown"
+import isLogin from "../../additional-funcitons/isLogin.js"
 
-function isLogin(id) {
-	return id !== null
-}
+// export function isLogin() {
+// 	return localStorage.getItem("id") !== null
+// }
 
 export default function Header() {
 	const navigate = useNavigate()
-	const isLoggin = isLogin(localStorage.getItem("id"))
+	const isLoggin = isLogin()
 	return (
 		<div className="header">
 			<div className="header__logo">
-				<p>Cartel Forum</p>
+				<a onClick={() => navigate("/")}>Cartel Forum</a>
 			</div>
 			<input className="search__bar" placeholder="Search in progres..." />
 			{!isLoggin ? (
@@ -41,7 +42,7 @@ export default function Header() {
 					<div className="profile-menu">
 						<div className="profile-nav">
 							<div className="user__info_picture">
-								<a href="/src/html/profile-page.html">
+								<a onClick={() => navigate("profile-page")}>
 									<img src="../img/avatarka.jpeg" />
 								</a>
 							</div>

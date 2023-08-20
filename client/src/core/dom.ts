@@ -28,10 +28,10 @@ function updateNode(element: FiberElement | undefined) {
 	}
 	if (element.effectTag === "DELETE") {
 		deleteNode(element, parentDom)
+		return
 	}
-	if (element.effectTag !== "DELETE") {
-		updateNode(element.child)
-	}
+
+	updateNode(element.child)
 	updateNode(element.sibling)
 }
 
@@ -41,7 +41,19 @@ function deleteNode(element: FiberElement, parentDom: HTMLElement | Text) {
 	if (element.dom) {
 		parentDom.removeChild(element.dom)
 	} else if (element.child) {
-		deleteNode(element.child, parentDom)
+		deleteFunctionalComponent(element.child, parentDom)
+	}
+}
+
+function deleteFunctionalComponent(element: FiberElement, parentDom: HTMLElement | Text) {
+	if (!element) return
+
+	if (element.dom) {
+		parentDom.removeChild(element.dom)
+		if (element.sibling)
+			deleteFunctionalComponent(element.sibling, parentDom)
+	} else if (element.child) {
+		deleteFunctionalComponent(element.child, parentDom)
 	}
 }
 
