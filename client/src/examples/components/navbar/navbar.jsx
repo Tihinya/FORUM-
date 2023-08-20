@@ -13,7 +13,7 @@ export function NavBar() {
 
 	// const subjects = ["UX/UI", "JavaScript", "Golang", "Wisdom"]
 	useEffect(() => {
-		fetch("https://localhost:8080/categories")
+		fetch("http://localhost:8080/categories")
 			.then((response) => response.json())
 			.then((data) => setCategories(data))
 			.catch((error) => console.error("Error fetching posts:", error))
@@ -22,6 +22,8 @@ export function NavBar() {
 	const handleSubjectClick = (index) => {
 		if (activeSubj !== index) {
 			setActiveSubj(index)
+		} else {
+			setActiveSubj("")
 		}
 	}
 
