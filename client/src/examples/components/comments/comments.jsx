@@ -17,14 +17,14 @@ export function Comment() {
 	const [comments, setComments] = useState([])
 
 	const fetchPost = () => {
-		fetch(`https://localhost:8080/post/${navigatePostId}`)
+		fetch(`http://localhost:8080/post/${navigatePostId}`)
 			.then((response) => response.json())
 			.then((data) => setPosts(data))
 			.catch((error) => console.error("Error fetching posts:", error))
 	}
 
 	const fetchComments = () => {
-		fetch(`https://localhost:8080/comments/${navigatePostId}`)
+		fetch(`http://localhost:8080/comments/${navigatePostId}`)
 			.then((response) => response.json())
 			.then((data) => setComments(data))
 			.catch((error) => console.error("Error fetching posts:", error))

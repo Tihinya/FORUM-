@@ -46,6 +46,8 @@ func main() {
 	r.NewRoute("DELETE", `/user/(?P<id>\d+)/delete`, ct.DeleteUser)
 	r.NewRoute("GET", `/user/liked`, ct.ReadUserLikedPosts)
 	r.NewRoute("GET", `/user/disliked`, ct.ReadUserDislikedPosts)
+	r.NewRoute("GET", `/user/likedComments`, ct.ReadUserLikedComments)
+	r.NewRoute("GET", `/user/dislikedComments`, ct.ReadUserDislikedComments)
 	r.NewRoute("GET", `/user/posts`, ct.ReadUserCreatedPosts)
 
 	// Post
@@ -93,7 +95,7 @@ func main() {
 	log.Println("Ctrl + Click on the link: https://localhost:" + config.Config.Port)
 	log.Println("To stop the server press `Ctrl + C`")
 
-	// http.ListenAndServe(":"+config.Config.Port, nil)
+	http.ListenAndServe(":"+config.Config.Port, nil)
 	// removed for now because of the review
-	log.Fatal(http.ListenAndServeTLS(":"+config.Config.Port, "cert.pem", "key.pem", nil))
+	// log.Fatal(http.ListenAndServeTLS(":"+config.Config.Port, "cert.pem", "key.pem", nil))
 }

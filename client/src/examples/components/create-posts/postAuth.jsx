@@ -27,7 +27,7 @@ export function PostsAuth() {
 	console.log(posts, myPosts, likedPosts)
 
 	const fetchMyPosts = () => {
-		fetch("https://localhost:8080/user/posts", {
+		fetch("http://localhost:8080/user/posts", {
 			method: "GET",
 			credentials: "include",
 		})
@@ -45,7 +45,7 @@ export function PostsAuth() {
 
 	// For displaying liked icon, if the post is already liked (TODO)
 	const fetchLikedPosts = () => {
-		fetch("https://localhost:8080/user/liked", {
+		fetch("http://localhost:8080/user/liked", {
 			method: "GET",
 			credentials: "include",
 		})
@@ -72,7 +72,7 @@ export function PostsAuth() {
 
 	const fetchPosts = () => {
 		fetch(
-			"https://localhost:8080/posts" +
+			"http://localhost:8080/posts" +
 				`${activeSubj !== "" ? "?categories=" + activeSubj : ""}`
 		)
 			.then((response) => response.json())

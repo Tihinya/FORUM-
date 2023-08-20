@@ -12,11 +12,13 @@ export function CommentAuth({ postId: navigatePostId }) {
 	const [posts, setPosts] = useState([])
 	const [likedPosts, setLikedPosts] = useState([])
 	const [dislikedPosts, setDislikedPosts] = useState([])
+	const [likedComments, setLikedComments] = useState([])
+	const [dislikedComments, setDislikedComments] = useState([])
 	const [comments, setComments] = useState([])
 	const [commentValue, setCommentValue] = useState("")
 
 	const fetchLikedPosts = () => {
-		fetch("https://localhost:8080/user/liked", {
+		fetch("http://localhost:8080/user/liked", {
 			credentials: "include",
 		})
 			.then((response) => response.json())
@@ -27,7 +29,7 @@ export function CommentAuth({ postId: navigatePostId }) {
 	}
 
 	const fetchDislikedPosts = () => {
-		fetch("https://localhost:8080/user/disliked", {
+		fetch("http://localhost:8080/user/disliked", {
 			credentials: "include",
 		})
 			.then((response) => response.json())
@@ -37,18 +39,40 @@ export function CommentAuth({ postId: navigatePostId }) {
 			)
 	}
 
+	const fetchLikedComments = () => {
+		fetch("http://localhost:8080/user/likedComments", {
+			credentials: "include",
+		})
+			.then((response) => response.json())
+			.then((data) => setLikedComments(data))
+			.catch((error) =>
+				console.error("Error fetching liked comments:", error)
+			)
+	}
+
+	const fetchDislikedComments = () => {
+		fetch("http://localhost:8080/user/dislikedComments", {
+			credentials: "include",
+		})
+			.then((response) => response.json())
+			.then((data) => setDislikedComments(data))
+			.catch((error) =>
+				console.error("Error fetching liked comments:", error)
+			)
+	}
+
 	const fetchPost = () => {
-		fetch(`https://localhost:8080/post/${navigatePostId}`)
+		fetch(`http://localhost:8080/post/${navigatePostId}`)
 			.then((response) => response.json())
 			.then((data) => setPosts(data))
 			.catch((error) => console.error("Error fetching posts:", error))
 	}
 
 	const fetchComments = () => {
-		fetch(`https://localhost:8080/comments/${navigatePostId}`)
+		fetch(`http://localhost:8080/comments/${navigatePostId}`)
 			.then((response) => response.json())
 			.then((data) => setComments(data))
-			.catch((error) => console.error("Error fetching posts:", error))
+			.catch((error) => console.error("Error fetching comments:", error))
 	}
 
 	useEffect(() => {
@@ -56,6 +80,8 @@ export function CommentAuth({ postId: navigatePostId }) {
 		fetchComments()
 		fetchDislikedPosts()
 		fetchLikedPosts()
+		fetchDislikedComments()
+		fetchLikedComments()
 	}, [])
 
 	function handleSubmit(e) {
@@ -70,7 +96,7 @@ export function CommentAuth({ postId: navigatePostId }) {
 
 	const createComment = async (content) => {
 		const response = await fetch(
-			`https://localhost:8080/comment/${navigatePostId}`,
+			`http://localhost:8080/comment/${navigatePostId}`,
 			{
 				method: "POST",
 				credentials: "include",
@@ -96,14 +122,99 @@ export function CommentAuth({ postId: navigatePostId }) {
 		}
 	}
 
-	const handleLike = async (type, postId) => {
+	const handleLikeComment = async (type, commentId) => {
+		try {
+			if (
+				!likedComments.includes(commentId) &&
+				!dislikedComments.includes(commentId)
+			) {
+				const response = await fetch(
+					`http://localhost:8080/comment/${commentId}/${type}`,
+					{
+						method: "POST",
+						credentials: "include",
+					}
+				)
+
+				const errorData = await response.json()
+
+				if (response.ok) {
+					setComments((prevComments) => {
+						return prevComments.map((comment) => {
+							if (comment.id === commentId) {
+								if (type === "like") {
+									return { ...comment, likes: comment.likes + 1 }
+								} else {
+									return {
+										...comment,
+										dislikes: comment.dislikes + 1,
+									}
+								}
+							}
+							return comment
+						})
+					})
+					fetchLikedComments()
+					fetchDislikedComments()
+				} else {
+					console.error(
+						response.status,
+						response.statusText,
+						"-",
+						errorData.message
+					)
+				}
+			} else {
+				const response = await fetch(
+					`http://localhost:8080/comment/${commentId}/un${type}`,
+					{
+						method: "POST",
+						credentials: "include",
+					}
+				)
+
+				const errorData = await response.json()
+
+				if (response.ok) {
+					setComments((prevComments) => {
+						return prevComments.map((comment) => {
+							if (comment.id === commentId) {
+								if (type === "like") {
+									return { ...comment, likes: comment.likes - 1 }
+								} else {
+									return {
+										...comment,
+										dislikes: comment.dislikes - 1,
+									}
+								}
+							}
+							return comment
+						})
+					})
+					fetchLikedComments()
+					fetchDislikedComments()
+				} else {
+					console.error(
+						response.status,
+						response.statusText,
+						"-",
+						errorData.message
+					)
+				}
+			}
+		} catch {
+			console.error("You are most definitely not logged in")
+		}
+	}
+
+	const handleLikePost = async (type, postId) => {
 		try {
 			if (
 				!likedPosts.includes(postId) &&
 				!dislikedPosts.includes(postId)
 			) {
 				const response = await fetch(
-					`https://localhost:8080/post/${postId}/${type}`,
+					`http://localhost:8080/post/${postId}/${type}`,
 					{
 						method: "POST",
 						credentials: "include",
@@ -140,7 +251,7 @@ export function CommentAuth({ postId: navigatePostId }) {
 				}
 			} else {
 				const response = await fetch(
-					`https://localhost:8080/post/${postId}/un${type}`,
+					`http://localhost:8080/post/${postId}/un${type}`,
 					{
 						method: "POST",
 						credentials: "include",
@@ -176,8 +287,8 @@ export function CommentAuth({ postId: navigatePostId }) {
 					)
 				}
 			}
-		} catch {
-			console.error("You are most definitely not logged in")
+		} catch (error) {
+			console.error(error, "You are most definitely not logged in")
 		}
 	}
 
@@ -217,26 +328,26 @@ export function CommentAuth({ postId: navigatePostId }) {
 								<div className="post__likes">
 									<img
 										onClick={() =>
-											handleLike("like", post.id)
+											handleLikePost("like", post.id)
 										}
 										src="../img/thumbs-up.svg"
 									/>
 									<p
 										onClick={() =>
-											handleLike("like", post.id)
+											handleLikePost("like", post.id)
 										}
 									>
 										{post.likes}
 									</p>
 									<img
 										onClick={() =>
-											handleLike("dislike", post.id)
+											handleLikePost("dislike", post.id)
 										}
 										src="../img/thumbs-down.svg"
 									/>
 									<p
 										onClick={() =>
-											handleLike("dislike", post.id)
+											handleLikePost("dislike", post.id)
 										}
 									>
 										{post.dislikes}
@@ -307,6 +418,28 @@ export function CommentAuth({ postId: navigatePostId }) {
 								<div className="post__content">
 									<p className="post-text">
 										{comment.content}
+									</p>
+								</div>
+								<div className="post__likes">
+									<img
+										onClick={() => handleLikeComment("like", comment.id)}
+										src="../img/thumbs-up.svg"
+									/>
+									<p onClick={() => handleLikeComment("like", comment.id)}>
+										{comment.likes}
+									</p>
+									<img
+										onClick={() =>
+											handleLikeComment("dislike", comment.id)
+										}
+										src="../img/thumbs-down.svg"
+									/>
+									<p
+										onClick={() =>
+											handleLikeComment("dislike", comment.id)
+										}
+									>
+										{comment.dislikes}
 									</p>
 								</div>
 							</div>
