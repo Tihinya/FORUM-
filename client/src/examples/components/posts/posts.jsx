@@ -17,7 +17,10 @@ export default function Posts() {
 			fetch("http://localhost:8080/posts")
 				.then((response) => response.json())
 				.then((data) => setPosts(data))
-				.catch((error) => console.error("Error fetching users:", error))
+				.catch(
+					(error) => navigate("serverded"),
+					console.error("Error fetching users:", error)
+				)
 		}
 
 		interval()

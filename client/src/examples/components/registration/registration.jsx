@@ -25,7 +25,6 @@ export default function Registation() {
 		e.preventDefault()
 		registrationRequest(formData)
 			.then((resultInJson) => {
-				console.log(resultInJson)
 				if (resultInJson.status === "success") {
 					localStorage.setItem("id", resultInJson.id)
 					navigate("/")
@@ -35,6 +34,7 @@ export default function Registation() {
 				}
 			})
 			.catch((error) => {
+				navigate("serverded")
 				console.error("Error during registration:", error)
 			})
 	}

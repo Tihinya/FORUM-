@@ -24,7 +24,6 @@ export function PostsAuth() {
 	const navigate = useNavigate()
 
 	const isLoggin = isLogin()
-	console.log(posts, myPosts, likedPosts)
 
 	const fetchMyPosts = () => {
 		fetch("http://localhost:8080/user/posts", {
@@ -34,7 +33,6 @@ export function PostsAuth() {
 			.then((response) => response.json())
 			.then((data) => {
 				setMyPosts(data)
-				console.log(data)
 				if (data.status === "unautharized") {
 					localStorage.removeItem("id")
 					navigate("/login")
@@ -52,7 +50,6 @@ export function PostsAuth() {
 			.then((response) => response.json())
 			.then((data) => {
 				setLikedPosts(data)
-				console.log(data)
 			})
 			.catch((error) =>
 				console.error("Error fetching liked posts:", error)
@@ -283,6 +280,7 @@ export function PostsAuth() {
 				}
 			}
 		} catch (error) {
+			navigate("serverded")
 			console.error(error, "You are most definitely not logged in")
 		}
 	}

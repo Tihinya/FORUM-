@@ -7,6 +7,7 @@ import Registration from "./components/registration/registration.jsx"
 import ProfilePage from "./components/profile-page/profilePage.jsx"
 import { CommentAuth } from "./components/comments/commentsAuth.jsx"
 import MainPage from "./components/mainpage/mainpage.jsx"
+import ErrorPage from "./components/errors/error-page.jsx"
 importCss("/styles/index.css")
 
 const container = document.getElementById("root")
@@ -28,14 +29,20 @@ function HomeComment({ params }) {
 	)
 }
 
-// function HomeCommentAuth() {
-// 	return (
-// 		<div>
-// 			<Header />
-// 			<CommentAuth />
-// 		</div>
-// 	)
-// }
+const ErrorNotFound = {
+	message: "Page Not Found",
+	status: "404",
+}
+
+const ErrorBadRequest = {
+	message: "Bad Request",
+	status: "400",
+}
+
+const ErrorInternalError = {
+	message: "Internal Server Error",
+	status: "500",
+}
 
 function App() {
 	return (
@@ -45,22 +52,24 @@ function App() {
 				{ path: "/login", element: <Login /> },
 				{ path: "/registration", element: <Registration /> },
 				{ path: "/profile-page", element: <ProfilePage /> },
-				{ path: "/internal-error", element: <h1>Error 500</h1> },
 				{
 					path: "/comments-authorized/:postId",
 					element: <HomeComment />,
 				},
+				{
+					path: "serverded",
+					element: <ErrorPage error={ErrorInternalError} />,
+				},
+				{
+					path: "bad",
+					element: <ErrorPage error={ErrorBadRequest} />,
+				},
+				{
+					path: "*",
+					element: <ErrorPage error={ErrorNotFound} />,
+				},
 			]}
 		/>
-
-		/* <Route path="/" element={<Home />} />
-			<Route path="/authorized" element={<HomeAuth />} />
-			<Route path="/login" element={<Login />} />
-			<Route path="/registration" element={<Registration />} />
-			<Route path="/profile-page" element={<ProfilePage />} />
-			<Route path="/internal-error" element={<h1>Error 500</h1>} />
-			<Route path="/comments" element={<HomeComment />} />
-			<Route path="/comments-authorized" element={<HomeCommentAuth />} /> */
 	)
 }
 

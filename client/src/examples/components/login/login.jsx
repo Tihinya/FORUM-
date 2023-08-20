@@ -38,12 +38,13 @@ export default function Login() {
 				}
 			})
 			.catch((error) => {
+				navigate("serverded")
 				console.error("Error during login:", error)
 			})
 	}
 
 	return (
-		<>
+		<div>
 			{errorMessage != "" ? (
 				<div className="error-window">
 					<button
@@ -119,6 +120,6 @@ export default function Login() {
 					</div>
 				</div>
 			</div>
-		</>
+		</div>
 	)
 }

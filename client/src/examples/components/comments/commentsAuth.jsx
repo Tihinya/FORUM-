@@ -143,7 +143,10 @@ export function CommentAuth({ postId: navigatePostId }) {
 						return prevComments.map((comment) => {
 							if (comment.id === commentId) {
 								if (type === "like") {
-									return { ...comment, likes: comment.likes + 1 }
+									return {
+										...comment,
+										likes: comment.likes + 1,
+									}
 								} else {
 									return {
 										...comment,
@@ -180,7 +183,10 @@ export function CommentAuth({ postId: navigatePostId }) {
 						return prevComments.map((comment) => {
 							if (comment.id === commentId) {
 								if (type === "like") {
-									return { ...comment, likes: comment.likes - 1 }
+									return {
+										...comment,
+										likes: comment.likes - 1,
+									}
 								} else {
 									return {
 										...comment,
@@ -295,7 +301,7 @@ export function CommentAuth({ postId: navigatePostId }) {
 	return (
 		<div className="post__container">
 			{posts.map((post) => (
-				<>
+				<div>
 					<div className="post-section">
 						<div className="post__box">
 							<div className="post__header">
@@ -422,21 +428,39 @@ export function CommentAuth({ postId: navigatePostId }) {
 								</div>
 								<div className="post__likes">
 									<img
-										onClick={() => handleLikeComment("like", comment.id)}
+										onClick={() =>
+											handleLikeComment(
+												"like",
+												comment.id
+											)
+										}
 										src="../img/thumbs-up.svg"
 									/>
-									<p onClick={() => handleLikeComment("like", comment.id)}>
+									<p
+										onClick={() =>
+											handleLikeComment(
+												"like",
+												comment.id
+											)
+										}
+									>
 										{comment.likes}
 									</p>
 									<img
 										onClick={() =>
-											handleLikeComment("dislike", comment.id)
+											handleLikeComment(
+												"dislike",
+												comment.id
+											)
 										}
 										src="../img/thumbs-down.svg"
 									/>
 									<p
 										onClick={() =>
-											handleLikeComment("dislike", comment.id)
+											handleLikeComment(
+												"dislike",
+												comment.id
+											)
 										}
 									>
 										{comment.dislikes}
@@ -444,7 +468,7 @@ export function CommentAuth({ postId: navigatePostId }) {
 								</div>
 							</div>
 						))}
-				</>
+				</div>
 			))}
 		</div>
 	)

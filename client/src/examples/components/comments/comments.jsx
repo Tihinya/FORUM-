@@ -38,7 +38,7 @@ export function Comment() {
 	return (
 		<div className="post__container">
 			{posts.map((post) => (
-				<>
+				<div>
 					<div className="post-section">
 						<div className="post__box">
 							<div className="post__header">
@@ -112,7 +112,7 @@ export function Comment() {
 								</div>
 							</div>
 						))}
-				</>
+				</div>
 			))}
 		</div>
 	)
