@@ -77,7 +77,7 @@ func SelectPost(id string) ([]Post, error) {
 		post.Likes, _ = getPostLikes(post.Id)
 		post.Dislikes, _ = getPostDislikes(post.Id)
 
-		post.Comments = fmt.Sprintf("https://localhost:8080/comments/%d", post.Id)
+		post.Comments = fmt.Sprintf("http://localhost:8080/comments/%d", post.Id)
 		post.CommentCount = getCommentsCount(post.Id)
 		post.UserInfo.ProfilePicture, _ = GetAvatar(post.UserInfo.Username)
 
@@ -127,7 +127,7 @@ func SelectAllPosts(categoriesString string) ([]Post, error) {
 		post.Likes, _ = getPostLikes(post.Id)
 		post.Dislikes, _ = getPostDislikes(post.Id)
 
-		post.Comments = fmt.Sprintf("https://localhost:8080/comments/%d", post.Id)
+		post.Comments = fmt.Sprintf("http://localhost:8080/comments/%d", post.Id)
 		post.CommentCount = getCommentsCount(post.Id)
 		post.UserInfo.ProfilePicture, _ = GetAvatar(post.UserInfo.Username)
 
@@ -449,7 +449,7 @@ func SelectAllPostCategory() ([]PostCategory, error) {
 
 func deletePostLikes(postId int) error {
 	stmt, err := DB.Prepare(`
-		DELETE FROM like WHERE PostId = ?
+		DELETE FROM like WHERE post_id = ?
 	`)
 	if err != nil {
 		return err
@@ -461,7 +461,7 @@ func deletePostLikes(postId int) error {
 	}
 
 	stmt, err = DB.Prepare(`
-		DELETE FROM dislike WHERE PostId = ?
+		DELETE FROM dislike WHERE post_id = ?
 	`)
 	if err != nil {
 		return err
@@ -478,7 +478,7 @@ func deletePostLikes(postId int) error {
 func checkIfPostExist(commentId int) bool {
 	var exists bool
 
-	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM post WHERE id=?)", commentId).Scan(&exists)
+	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM post WHERE id = ?)", commentId).Scan(&exists)
 
 	return err == nil && exists
 }
@@ -486,7 +486,7 @@ func checkIfPostExist(commentId int) bool {
 func checkIfCategoryExist(category string) bool {
 	var exists bool
 
-	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM category WHERE category=?)", category).Scan(&exists)
+	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM category WHERE category = ?)", category).Scan(&exists)
 
 	return err == nil && exists
 }

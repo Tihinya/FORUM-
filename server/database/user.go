@@ -112,8 +112,8 @@ func ReadUserLikedPosts(userID int) ([]int, error) {
 	}
 
 	rows, err := DB.Query(`
-		SELECT PostId, CommentId
-		FROM like WHERE Username = ?
+		SELECT post_id, comment_id
+		FROM like WHERE username = ?
 	`, username)
 	if err != nil {
 		return nil, err
@@ -145,8 +145,8 @@ func ReadUserDislikedPosts(userID int) ([]int, error) {
 	}
 
 	rows, err := DB.Query(`
-		SELECT PostId, CommentId
-		FROM dislike WHERE Username = ?
+		SELECT post_id, comment_id
+		FROM dislike WHERE username = ?
 	`, username)
 	if err != nil {
 		return nil, err
@@ -178,8 +178,8 @@ func ReadUserLikedComments(userID int) ([]int, error) {
 	}
 
 	rows, err := DB.Query(`
-		SELECT PostId, CommentId
-		FROM like WHERE Username = ?
+		SELECT post_id, comment_id
+		FROM like WHERE username = ?
 	`, username)
 	if err != nil {
 		return nil, err
@@ -211,8 +211,8 @@ func ReadUserDislikedComments(userID int) ([]int, error) {
 	}
 
 	rows, err := DB.Query(`
-		SELECT PostId, CommentId
-		FROM dislike WHERE Username = ?
+		SELECT post_id, comment_id
+		FROM dislike WHERE username = ?
 	`, username)
 	if err != nil {
 		return nil, err
@@ -244,7 +244,7 @@ func ReadUserCreatedPosts(userID int) ([]int, error) {
 	}
 
 	rows, err := DB.Query(`
-		SELECT id FROM post WHERE Username = ?
+		SELECT id FROM post WHERE username = ?
 	`, username)
 	if err != nil {
 		return nil, err

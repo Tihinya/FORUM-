@@ -179,7 +179,7 @@ func deletePostComments(postId int) error {
 
 func deleteCommentLikes(commentId int) error {
 	stmt, err := DB.Prepare(`
-		DELETE FROM like WHERE CommentId = ?
+		DELETE FROM like WHERE comment_id = ?
 	`)
 	if err != nil {
 		return err
@@ -191,7 +191,7 @@ func deleteCommentLikes(commentId int) error {
 	}
 
 	stmt, err = DB.Prepare(`
-		DELETE FROM dislike WHERE CommentId = ?
+		DELETE FROM dislike WHERE comment_id = ?
 	`)
 	if err != nil {
 		return err
@@ -230,7 +230,7 @@ func getPostCommentIds(postId int) ([]int, error) {
 func getCommentsCount(postId int) int {
 	var count int
 
-	DB.QueryRow(`SELECT COUNT(*) FROM comment WHERE post_id=?`, postId).Scan(&count)
+	DB.QueryRow(`SELECT COUNT(*) FROM comment WHERE post_id = ?`, postId).Scan(&count)
 
 	return count
 }
@@ -239,7 +239,7 @@ func getCommentsCount(postId int) int {
 func checkIfCommentExist(commentId int) bool {
 	var exists bool
 
-	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM comment WHERE id=?)", commentId).Scan(&exists)
+	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM comment WHERE id = ?)", commentId).Scan(&exists)
 
 	return err == nil && exists
 }
