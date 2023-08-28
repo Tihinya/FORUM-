@@ -165,12 +165,12 @@ func ReadCategories(w http.ResponseWriter, r *http.Request) {
 func ReadPostCategories(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	post_categories, err := database.SelectAllPostCategory()
+	postCategories, err := database.SelectAllPostCategory()
 	if err != nil {
 		log.Println(err)
 		ReturnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
 		return
 	}
 
-	json.NewEncoder(w).Encode(post_categories)
+	json.NewEncoder(w).Encode(postCategories)
 }

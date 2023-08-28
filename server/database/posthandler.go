@@ -427,24 +427,24 @@ func SelectAllCategories() ([]Category, error) {
 }
 
 func SelectAllPostCategory() ([]PostCategory, error) {
-	var post_categories []PostCategory
+	var postCategories []PostCategory
 	rows, err := DB.Query("SELECT * FROM post_category")
 	if err != nil {
 		return nil, err
 	}
 
 	for rows.Next() {
-		var post_category PostCategory
+		var postCategory PostCategory
 
-		err = rows.Scan(&post_category.PostId, &post_category.CategoryId)
+		err = rows.Scan(&postCategory.PostId, &postCategory.CategoryId)
 		if err != nil {
 			return nil, err
 		}
 
-		post_categories = append(post_categories, post_category)
+		postCategories = append(postCategories, postCategory)
 	}
 
-	return post_categories, nil
+	return postCategories, nil
 }
 
 func deletePostLikes(postId int) error {
