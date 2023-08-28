@@ -57,7 +57,6 @@ func main() {
 	r.NewRoute("DELETE", `/post/(?P<id>\d+)`, ct.DeletePost)
 	r.NewRoute("GET", `/posts`, ct.ReadPosts)
 	r.NewRoute("GET", `/categories`, ct.ReadCategories)
-	r.NewRoute("GET", `/postcategories`, ct.ReadPostCategories) // TO BE REMOVED
 
 	// Comment
 	r.NewRoute("POST", `/comment/(?P<id>\d+)`, ct.CreateComment)
@@ -96,6 +95,4 @@ func main() {
 	log.Println("To stop the server press `Ctrl + C`")
 
 	http.ListenAndServe(":"+config.Config.Port, nil)
-	// removed for now because of the review
-	// log.Fatal(http.ListenAndServeTLS(":"+config.Config.Port, "cert.pem", "key.pem", nil))
 }
