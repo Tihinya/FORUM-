@@ -54,6 +54,7 @@ export default function Posts() {
 					<div className="post__content">
 						<h3>{post.title}</h3>
 						<p className="post__text">{post.content}</p>
+						<div className="post__image">{post.img}</div>
 					</div>
 					<div className="post__info">
 						<div className="post__tags">

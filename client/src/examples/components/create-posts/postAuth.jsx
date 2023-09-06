@@ -16,6 +16,7 @@ export function PostsAuth() {
 	const [likedPosts, setLikedPosts] = useState([])
 	const [dislikedPosts, setDislikedPosts] = useState([])
 	const [threadClicked, setThreadClicked] = useState(false)
+	const [selectedImage, setSelectedImage] = useState("")
 	const [selectedCategories, setSelectedCategories] = useState([])
 	const [threadTitleValue, setThreadTitleValue] = useState("")
 	const [threadContentValue, setThreadContentValue] = useState("")
@@ -39,6 +40,23 @@ export function PostsAuth() {
 				}
 			})
 			.catch((error) => console.error("Error fetching my posts:", error))
+	}
+
+	const imageHandler = (e) => {
+		const file = e.target.files[0]
+
+		if (file) {
+			const reader = new FileReader()
+			reader.onload = (event) => {
+				const imageURL = event.target.result
+				setSelectedImage(imageURL)
+			}
+			reader.readAsDataURL(file)
+		}
+	}
+
+	const imageHandlerDelete = () => {
+		setSelectedImage("")
 	}
 
 	// For displaying liked icon, if the post is already liked (TODO)
@@ -175,11 +193,13 @@ export function PostsAuth() {
 				body: JSON.stringify({
 					title: title,
 					content: content,
+					image: image,
 					categories: categories,
 				}),
 			})
 
 			if (response.ok) {
+				setSelectedImage("")
 				setThreadContentValue("")
 				setThreadTitleValue("")
 				setSelectedCategories([])
@@ -332,7 +352,7 @@ export function PostsAuth() {
 				>
 					<div className="thread-options">
 						<div className="upload-image">
-							<img src="../img/add picture.svg" />
+							<input type="file" onChange={imageHandler} />
 						</div>
 						<textarea
 							value={threadContentValue}
@@ -350,7 +370,7 @@ export function PostsAuth() {
 									className={`thread-subject ${
 										selectedCategories.includes(category)
 											? "active"
-											: ""
+											: "deactive"
 									}`}
 									onClick={() => selectCategory(category)}
 								>
@@ -359,8 +379,22 @@ export function PostsAuth() {
 							))}
 						</div>
 					</div>
-
 					<div className="create-post-button">
+						{selectedImage && (
+							<div className="create-post-image-added">
+								<img
+									className="create-post-image"
+									src={selectedImage}
+								/>
+								<button
+									className="sign__button"
+									onClick={imageHandlerDelete}
+								>
+									Remove Image
+								</button>
+							</div>
+						)}
+
 						<button className="sign__button" type="submit">
 							Create Post
 						</button>

@@ -42,7 +42,7 @@ func SelectPost(id string) ([]Post, error) {
 	posts := make([]Post, 0)
 
 	rows, err := DB.Query(`
-		SELECT post.id, post.title, post.content,
+		SELECT post.id, post.title, post.image, post.content,
 		post.profile_picture, post.username, post.creation_date,
 		post.likes, post.dislikes, post.last_edited
 		FROM post WHERE id = ?
@@ -58,6 +58,7 @@ func SelectPost(id string) ([]Post, error) {
 			&post.Id,
 			&post.Title,
 			&post.Content,
+			&post.Image,
 			&post.UserInfo.ProfilePicture,
 			&post.UserInfo.Username,
 			&post.CreationDate,

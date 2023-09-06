@@ -1047,6 +1047,15 @@ body {
 	width: 100%;
 }
 
+.create-post-image-added {
+	display: flex;
+	justify-content: space-between;
+}
+
+.create-post-image {
+	width: 20%;
+}
+
 .post-text {
 	font-size: 18px;
 	font-family: "Roboto";
