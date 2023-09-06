@@ -193,7 +193,7 @@ export function PostsAuth() {
 				body: JSON.stringify({
 					title: title,
 					content: content,
-					image: image,
+					image: selectedImage,
 					categories: categories,
 				}),
 			})
