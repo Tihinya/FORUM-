@@ -1,8 +1,4 @@
-import Gachi, {
-	useContext,
-	useState,
-	useNavigate,
-} from "../../../core/framework"
+import Gachi, { useState } from "../../../core/framework"
 
 export default function PostFilter() {
 	const [filter, setFilter] = useState({

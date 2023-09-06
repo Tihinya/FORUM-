@@ -1,5 +1,4 @@
 import Gachi, {
-	useContext,
 	useState,
 	useNavigate,
 	useEffect,
@@ -18,7 +17,7 @@ export default function Posts() {
 				.then((response) => response.json())
 				.then((data) => setPosts(data))
 				.catch(
-					(error) => navigate("serverded"),
+					() => navigate("serverded"),
 					console.error("Error fetching users:", error)
 				)
 		}

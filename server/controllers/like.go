@@ -2,12 +2,11 @@ package controllers
 
 import (
 	"encoding/json"
-	"log"
-	"net/http"
-
 	"forum/database"
 	"forum/router"
 	"forum/session"
+	"log"
+	"net/http"
 )
 
 func LikePost(w http.ResponseWriter, r *http.Request) {

@@ -2,12 +2,11 @@ package controllers
 
 import (
 	"encoding/json"
-	"log"
-	"net/http"
-
 	"forum/database"
 	"forum/router"
 	"forum/session"
+	"log"
+	"net/http"
 )
 
 func DislikePost(w http.ResponseWriter, r *http.Request) {

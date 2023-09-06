@@ -2,15 +2,14 @@ package controllers
 
 import (
 	"encoding/json"
-	"log"
-	"net/http"
-	"strings"
-
 	"forum/database"
 	"forum/login"
 	"forum/router"
 	"forum/session"
 	"forum/validation"
+	"log"
+	"net/http"
+	"strings"
 )
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
