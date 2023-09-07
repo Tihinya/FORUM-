@@ -1,11 +1,6 @@
-import Gachi, {
-	useContext,
-	useState,
-	useNavigate,
-} from "../../../core/framework"
+import Gachi, { useNavigate } from "../../../core/framework"
 
 import Header from "../header/header"
-import DropdownMenu from "../header/dropdown"
 import { NavBar } from "../navbar/navbar"
 import Posts from "../posts/posts"
 

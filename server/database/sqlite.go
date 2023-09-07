@@ -20,7 +20,7 @@ func CreateTables() {
 		CREATE TABLE IF NOT EXISTS post (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			title TEXT NOT NULL,
-			image TEXT,
+			image BLOB,
 			content TEXT NOT NULL,
 			profile_picture TEXT,
 			username TEXT,

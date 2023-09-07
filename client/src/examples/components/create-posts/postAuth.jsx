@@ -169,7 +169,6 @@ export function PostsAuth() {
 		createPost(formJson.title, formJson.content, selectedCategories) // TODO CATEGORIES
 	}
 
-	// Initialize posts/likes/dislikes upon page load
 	useEffect(() => {
 		fetchPosts()
 		fetchCategoriesAndPostCategories()
@@ -181,7 +180,6 @@ export function PostsAuth() {
 	}, [activeSubj])
 
 	const createPost = async (title, content, categories) => {
-		// img to be added
 		try {
 			const response = await fetch(`http://localhost:8080/post`, {
 				method: "POST",
@@ -352,7 +350,16 @@ export function PostsAuth() {
 				>
 					<div className="thread-options">
 						<div className="upload-image">
-							<input type="file" onChange={imageHandler} />
+							<label
+								for="image-file-upload"
+								className="custom-upload-file-button"
+							>
+								<input
+									type="file"
+									onChange={imageHandler}
+									id="image-file-upload"
+								/>
+							</label>
 						</div>
 						<textarea
 							value={threadContentValue}
@@ -365,7 +372,7 @@ export function PostsAuth() {
 							rows={10}
 						/>
 						<div className="thread-tags">
-							{categories.slice(0, 5).map((category) => (
+							{categories.map((category) => (
 								<p
 									className={`thread-subject ${
 										selectedCategories.includes(category)
@@ -380,20 +387,22 @@ export function PostsAuth() {
 						</div>
 					</div>
 					<div className="create-post-button">
-						{selectedImage && (
-							<div className="create-post-image-added">
-								<img
-									className="create-post-image"
-									src={selectedImage}
-								/>
-								<button
-									className="sign__button"
-									onClick={imageHandlerDelete}
-								>
-									Remove Image
-								</button>
-							</div>
-						)}
+						<div className="create-post-image-added-container">
+							{selectedImage && (
+								<div className="create-post-image-added">
+									<img
+										className="create-post-image"
+										src={selectedImage}
+									/>
+									<button
+										className="sign__button"
+										onClick={imageHandlerDelete}
+									>
+										Remove Image
+									</button>
+								</div>
+							)}
+						</div>
 
 						<button className="sign__button" type="submit">
 							Create Post
