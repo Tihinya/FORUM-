@@ -26,7 +26,7 @@ export function PostsAuth() {
 	const isLoggin = isLogin()
 
 	const fetchMyPosts = () => {
-		fetch("http://localhost:8080/user/posts", {
+		fetch("https://localhost:8080/user/posts", {
 			method: "GET",
 			credentials: "include",
 		})
@@ -43,7 +43,7 @@ export function PostsAuth() {
 
 	// For displaying liked icon, if the post is already liked (TODO)
 	const fetchLikedPosts = () => {
-		fetch("http://localhost:8080/user/liked", {
+		fetch("https://localhost:8080/user/liked", {
 			method: "GET",
 			credentials: "include",
 		})
@@ -57,7 +57,7 @@ export function PostsAuth() {
 	}
 
 	const fetchDislikedPosts = () => {
-		fetch("http://localhost:8080/user/disliked", {
+		fetch("https://localhost:8080/user/disliked", {
 			credentials: "include",
 		})
 			.then((response) => response.json())
@@ -69,7 +69,7 @@ export function PostsAuth() {
 
 	const fetchPosts = () => {
 		fetch(
-			"http://localhost:8080/posts" +
+			"https://localhost:8080/posts" +
 				`${activeSubj !== "" ? "?categories=" + activeSubj : ""}`
 		)
 			.then((response) => response.json())
@@ -79,8 +79,8 @@ export function PostsAuth() {
 
 	const fetchCategoriesAndPostCategories = () => {
 		Promise.all([
-			fetch("http://localhost:8080/categories"),
-			fetch("http://localhost:8080/postcategories"),
+			fetch("https://localhost:8080/categories"),
+			fetch("https://localhost:8080/postcategories"),
 		])
 			.then(([categoriesResponse, postCategoriesResponse]) => {
 				return Promise.all([
@@ -165,7 +165,7 @@ export function PostsAuth() {
 	const createPost = async (title, content, categories) => {
 		// img to be added
 		try {
-			const response = await fetch(`http://localhost:8080/post`, {
+			const response = await fetch(`https://localhost:8080/post`, {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -206,7 +206,7 @@ export function PostsAuth() {
 				!dislikedPosts.includes(postId)
 			) {
 				const response = await fetch(
-					`http://localhost:8080/post/${postId}/${type}`,
+					`https://localhost:8080/post/${postId}/${type}`,
 					{
 						method: "POST",
 						credentials: "include",
@@ -243,7 +243,7 @@ export function PostsAuth() {
 				}
 			} else {
 				const response = await fetch(
-					`http://localhost:8080/post/${postId}/un${type}`,
+					`https://localhost:8080/post/${postId}/un${type}`,
 					{
 						method: "POST",
 						credentials: "include",

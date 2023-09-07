@@ -18,7 +18,7 @@ export function CommentAuth({ postId: navigatePostId }) {
 	const [commentValue, setCommentValue] = useState("")
 
 	const fetchLikedPosts = () => {
-		fetch("http://localhost:8080/user/liked", {
+		fetch("https://localhost:8080/user/liked", {
 			credentials: "include",
 		})
 			.then((response) => response.json())
@@ -29,7 +29,7 @@ export function CommentAuth({ postId: navigatePostId }) {
 	}
 
 	const fetchDislikedPosts = () => {
-		fetch("http://localhost:8080/user/disliked", {
+		fetch("https://localhost:8080/user/disliked", {
 			credentials: "include",
 		})
 			.then((response) => response.json())
@@ -40,7 +40,7 @@ export function CommentAuth({ postId: navigatePostId }) {
 	}
 
 	const fetchLikedComments = () => {
-		fetch("http://localhost:8080/user/likedComments", {
+		fetch("https://localhost:8080/user/likedComments", {
 			credentials: "include",
 		})
 			.then((response) => response.json())
@@ -51,7 +51,7 @@ export function CommentAuth({ postId: navigatePostId }) {
 	}
 
 	const fetchDislikedComments = () => {
-		fetch("http://localhost:8080/user/dislikedComments", {
+		fetch("https://localhost:8080/user/dislikedComments", {
 			credentials: "include",
 		})
 			.then((response) => response.json())
@@ -62,14 +62,14 @@ export function CommentAuth({ postId: navigatePostId }) {
 	}
 
 	const fetchPost = () => {
-		fetch(`http://localhost:8080/post/${navigatePostId}`)
+		fetch(`https://localhost:8080/post/${navigatePostId}`)
 			.then((response) => response.json())
 			.then((data) => setPosts(data))
 			.catch((error) => console.error("Error fetching posts:", error))
 	}
 
 	const fetchComments = () => {
-		fetch(`http://localhost:8080/comments/${navigatePostId}`)
+		fetch(`https://localhost:8080/comments/${navigatePostId}`)
 			.then((response) => response.json())
 			.then((data) => setComments(data))
 			.catch((error) => console.error("Error fetching comments:", error))
@@ -96,7 +96,7 @@ export function CommentAuth({ postId: navigatePostId }) {
 
 	const createComment = async (content) => {
 		const response = await fetch(
-			`http://localhost:8080/comment/${navigatePostId}`,
+			`https://localhost:8080/comment/${navigatePostId}`,
 			{
 				method: "POST",
 				credentials: "include",
@@ -129,7 +129,7 @@ export function CommentAuth({ postId: navigatePostId }) {
 				!dislikedComments.includes(commentId)
 			) {
 				const response = await fetch(
-					`http://localhost:8080/comment/${commentId}/${type}`,
+					`https://localhost:8080/comment/${commentId}/${type}`,
 					{
 						method: "POST",
 						credentials: "include",
@@ -169,7 +169,7 @@ export function CommentAuth({ postId: navigatePostId }) {
 				}
 			} else {
 				const response = await fetch(
-					`http://localhost:8080/comment/${commentId}/un${type}`,
+					`https://localhost:8080/comment/${commentId}/un${type}`,
 					{
 						method: "POST",
 						credentials: "include",
@@ -220,7 +220,7 @@ export function CommentAuth({ postId: navigatePostId }) {
 				!dislikedPosts.includes(postId)
 			) {
 				const response = await fetch(
-					`http://localhost:8080/post/${postId}/${type}`,
+					`https://localhost:8080/post/${postId}/${type}`,
 					{
 						method: "POST",
 						credentials: "include",
@@ -257,7 +257,7 @@ export function CommentAuth({ postId: navigatePostId }) {
 				}
 			} else {
 				const response = await fetch(
-					`http://localhost:8080/post/${postId}/un${type}`,
+					`https://localhost:8080/post/${postId}/un${type}`,
 					{
 						method: "POST",
 						credentials: "include",

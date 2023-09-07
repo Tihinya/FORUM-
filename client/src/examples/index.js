@@ -8,6 +8,7 @@ import ProfilePage from "./components/profile-page/profilePage.jsx"
 import { CommentAuth } from "./components/comments/commentsAuth.jsx"
 import MainPage from "./components/mainpage/mainpage.jsx"
 import ErrorPage from "./components/errors/error-page.jsx"
+import { RateLimiter } from "./additional-funcitons/ratelimiter.js"
 importCss("/styles/index.css")
 
 const container = document.getElementById("root")
@@ -44,7 +45,7 @@ const ErrorInternalError = {
 	status: "500",
 }
 
-function App() {
+export function App() {
 	return (
 		<Router
 			routes={[
@@ -73,4 +74,4 @@ function App() {
 	)
 }
 
-Gachi.render(<App />, container)
+Gachi.render(<RateLimiter />, container)

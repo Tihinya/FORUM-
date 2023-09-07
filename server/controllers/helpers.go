@@ -9,6 +9,7 @@ import (
 )
 
 func ReturnMessageJSON(w http.ResponseWriter, message string, httpCode int, status string) {
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(httpCode)
 	json.NewEncoder(w).Encode(database.Response{
 		Status:  status,
@@ -52,4 +53,11 @@ func getUserId(r *http.Request) int {
 	sessionToken, _ := CheckForSessionToken(r)
 	userID := session.SessionStorage.GetSession(sessionToken.Value).UserId
 	return userID
+}
+
+func RateLimited(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	ReturnMessageJSON(w, "Rate OK", http.StatusOK, "success")
+	return
 }

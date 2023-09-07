@@ -77,7 +77,7 @@ func SelectPost(id string) ([]Post, error) {
 		post.Likes, _ = getPostLikes(post.Id)
 		post.Dislikes, _ = getPostDislikes(post.Id)
 
-		post.Comments = fmt.Sprintf("http://localhost:8080/comments/%d", post.Id)
+		post.Comments = fmt.Sprintf("https://localhost:8080/comments/%d", post.Id)
 		post.CommentCount = getCommentsCount(post.Id)
 		post.UserInfo.ProfilePicture, _ = GetAvatar(post.UserInfo.Username)
 
@@ -127,7 +127,7 @@ func SelectAllPosts(categoriesString string) ([]Post, error) {
 		post.Likes, _ = getPostLikes(post.Id)
 		post.Dislikes, _ = getPostDislikes(post.Id)
 
-		post.Comments = fmt.Sprintf("http://localhost:8080/comments/%d", post.Id)
+		post.Comments = fmt.Sprintf("https://localhost:8080/comments/%d", post.Id)
 		post.CommentCount = getCommentsCount(post.Id)
 		post.UserInfo.ProfilePicture, _ = GetAvatar(post.UserInfo.Username)
 

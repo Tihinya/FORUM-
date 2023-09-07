@@ -3,29 +3,67 @@ package main
 import (
 	"log"
 	"net/http"
+	"sync"
+	"time"
 
 	"forum/config"
-	"forum/controllers"
 	ct "forum/controllers"
 	"forum/database"
 	"forum/router"
 )
 
+var requests = make(map[string]int)
+var l sync.Mutex
+
 func Auth() router.Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			sessionToken, sessionTokenFound := controllers.CheckForSessionToken(r)
+			w.Header().Set("Content-Type", "application/json")
+
+			sessionToken, sessionTokenFound := ct.CheckForSessionToken(r)
 			if !sessionTokenFound {
-				controllers.ReturnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
+				ct.ReturnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
 				log.Println("Auth middleware fail")
 				return
 			}
 
-			if !controllers.CheckIfUserLoggedin(sessionToken) {
-				controllers.ReturnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
+			if !ct.CheckIfUserLoggedin(sessionToken) {
+				ct.ReturnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
 				log.Println("Auth middleware fail")
 				return
 			}
+
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
+func RateLimiter() router.Middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ip := r.RemoteAddr
+
+			if count, ok := requests[ip]; ok {
+				if count >= 200 {
+					ct.ReturnMessageJSON(
+						w,
+						"You have reached the bandwidth limit of your 3G package, your rate has been limited.",
+						http.StatusTooManyRequests,
+						"error",
+					)
+					return
+				}
+				requests[ip] = count + 1
+			} else {
+				requests[ip] = 1
+			}
+
+			go func() {
+				time.Sleep(time.Minute)
+				l.Lock()
+				delete(requests, ip)
+				l.Unlock()
+			}()
 
 			next.ServeHTTP(w, r)
 		})
@@ -38,11 +76,16 @@ func main() {
 	database.CreateTables()
 
 	http.HandleFunc("/", r.ServeWithCORS(router.CORS{
-		Origin:      "http://localhost:3000",
+		Origin:      "https://localhost:3000",
 		Methods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		Headers:     []string{"Content-Type", "Authorization"},
 		Credentials: true,
 	}))
+
+	r.AddGlobalMiddleware(RateLimiter())
+
+	// Rate limiter
+	r.NewRoute("GET", `/ratelimited`, ct.RateLimited)
 
 	// User
 	r.NewRoute("POST", `/user/create`, ct.CreateUser)
@@ -101,7 +144,5 @@ func main() {
 	log.Println("Ctrl + Click on the link: https://localhost:" + config.Config.Port)
 	log.Println("To stop the server press `Ctrl + C`")
 
-	http.ListenAndServe(":"+config.Config.Port, nil)
-	// removed for now because of the review
-	// log.Fatal(http.ListenAndServeTLS(":"+config.Config.Port, "cert.pem", "key.pem", nil))
+	log.Fatal(http.ListenAndServeTLS(":"+config.Config.Port, "cert.pem", "key.pem", nil))
 }

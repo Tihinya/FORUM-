@@ -13,7 +13,7 @@ export function NavBar() {
 
 	// const subjects = ["UX/UI", "JavaScript", "Golang", "Wisdom"]
 	useEffect(() => {
-		fetch("http://localhost:8080/categories")
+		fetch("https://localhost:8080/categories")
 			.then((response) => response.json())
 			.then((data) => setCategories(data))
 			.catch((error) => console.error("Error fetching posts:", error))

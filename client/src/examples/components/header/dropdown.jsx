@@ -23,7 +23,7 @@ const DropdownMenu = () => {
 					onClick={() => {
 						localStorage.removeItem("id")
 						navigate("/login")
-						fetch("http://localhost:8080/logout", {
+						fetch("https://localhost:8080/logout", {
 							credentials: "include",
 						})
 					}}

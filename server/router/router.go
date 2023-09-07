@@ -108,6 +108,9 @@ func (r *router) serve(w http.ResponseWriter, req *http.Request) {
 			for i := len(route.localMiddleware) - 1; i >= 0; i-- {
 				handler = route.localMiddleware[i](handler)
 			}
+			for i := len(r.globalMiddleware) - 1; i >= 0; i-- {
+				handler = r.globalMiddleware[i](handler)
+			}
 			handler.ServeHTTP(w, req)
 			return
 		}
