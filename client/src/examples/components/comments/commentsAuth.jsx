@@ -16,7 +16,6 @@ export function CommentAuth({ postId: navigatePostId }) {
 	const [dislikedComments, setDislikedComments] = useState([])
 	const [comments, setComments] = useState([])
 	const [commentValue, setCommentValue] = useState("")
-	const [imageURL] = useState("")
 
 	const fetchLikedPosts = () => {
 		fetch("http://localhost:8080/user/liked", {

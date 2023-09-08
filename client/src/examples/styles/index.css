@@ -1033,7 +1033,7 @@ input[type="file"] {
 .thread-subject {
 	font-family: "Roboto";
 	font-weight: 500;
-	padding: 2px 10px 2px 10px;
+	padding: 4px 10px 4px 10px;
 	background-color: white;
 	border-radius: 10px;
 
@@ -1045,10 +1045,6 @@ input[type="file"] {
 
 .thread-subject:hover {
 	background-color: #c2c2c2;
-}
-
-.thread-subject-active {
-	background-color: var(--button-color-orange);
 }
 
 .create-post-button {
@@ -1168,14 +1164,14 @@ input[type="file"] {
 }
 
 .thread-subject.active:hover {
-	background-color: rgb(119, 150, 244);
+	background-color: var(--button-color-orange-hover);
 }
 
 .thread-subject.active {
 	font-family: "Roboto";
 	font-weight: 500;
 	padding: 2px 10px 2px 10px;
-	background-color: rgb(119, 150, 244);
+	background-color: var(--button-color-orange);
 	border-radius: 10px;
 
 	transition: 0.3s;

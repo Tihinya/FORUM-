@@ -44,11 +44,20 @@ export function PostsAuth() {
 
 	const imageHandler = (e) => {
 		const file = e.target.files[0]
+		const imageSize = 20 * 1024 * 1024
 
 		if (file) {
 			const reader = new FileReader()
+
+			let imageFileSize =
+				document.getElementById("image-file-upload").files[0].size
+			if (imageFileSize > imageSize) {
+				alert("File is too big, max size is 20Mb")
+				return
+			}
 			reader.onload = (event) => {
 				const imageURL = event.target.result
+
 				setSelectedImage(imageURL)
 			}
 			reader.readAsDataURL(file)
@@ -91,7 +100,9 @@ export function PostsAuth() {
 				`${activeSubj !== "" ? "?categories=" + activeSubj : ""}`
 		)
 			.then((response) => response.json())
-			.then((data) => setPosts(data))
+			.then((data) => {
+				setPosts(data)
+			})
 			.catch((error) => console.error("Error fetching posts:", error))
 	}
 
@@ -197,7 +208,6 @@ export function PostsAuth() {
 			})
 
 			if (response.ok) {
-				setSelectedImage("")
 				setThreadContentValue("")
 				setThreadTitleValue("")
 				setSelectedCategories([])
