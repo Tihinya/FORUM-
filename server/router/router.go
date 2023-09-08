@@ -10,18 +10,16 @@ import (
 )
 
 type Middleware func(http.Handler) http.Handler
-
 type route struct {
 	regex           *regexp.Regexp
 	handler         http.Handler
 	localMiddleware []Middleware
+	middlewareAfter []Middleware
 }
-
 type router struct {
 	routes           map[string][]route
 	globalMiddleware []Middleware
 }
-
 type CORS struct {
 	Origin      string
 	Methods     []string
@@ -46,11 +44,11 @@ func NewRouter() *router {
 func (r *router) NewRoute(method, regexpString string, handler http.HandlerFunc, middleware ...Middleware) {
 	regex := regexp.MustCompile("^" + regexpString + "$")
 	method = strings.ToUpper(method)
-
 	r.routes[method] = append(r.routes[method], route{
 		regex,
 		handler,
 		middleware,
+		make([]Middleware, 0),
 	})
 }
 
@@ -78,33 +76,27 @@ func (r *router) ServeWithCORS(c CORS) http.HandlerFunc {
 		headers["Access-Control-Allow-Methods"] = strings.Join(c.Methods, ", ")
 	}
 	if len(c.Headers) > 0 {
-		headers["Access-Control-Allow-Headers"] = strings.Join(c.Headers, ",")
+		headers["Access-Control-Allow-Headers"] = strings.Join(c.Headers, ", ")
 	}
 	if c.Credentials {
 		headers["Access-Control-Allow-Credentials"] = "true"
 	}
-
 	return func(w http.ResponseWriter, req *http.Request) {
 		for header, value := range headers {
 			w.Header().Set(header, value)
 		}
-
 		if req.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
 			return
 		}
-
 		r.serve(w, req)
 	}
 }
-
 func (r *router) serve(w http.ResponseWriter, req *http.Request) {
 	for _, route := range r.routes[strings.ToUpper(req.Method)] {
 		match := route.regex.FindStringSubmatch(req.URL.Path)
 		if len(match) > 0 {
 			matchMap := make(map[string]string)
 			groupName := route.regex.SubexpNames()
-
 			// map group name(key) to submatched result
 			// these arrays have one to one relationship
 			for i := 1; i < len(match); i++ {
@@ -112,12 +104,10 @@ func (r *router) serve(w http.ResponseWriter, req *http.Request) {
 			}
 			ctx := context.WithValue(req.Context(), struct{}{}, matchMap)
 			req = req.WithContext(ctx)
-
 			handler := route.handler
-			for i := len(r.globalMiddleware) - 1; i >= 0; i-- {
-				handler = r.globalMiddleware[i](handler)
+			for i := len(route.localMiddleware) - 1; i >= 0; i-- {
+				handler = route.localMiddleware[i](handler)
 			}
-
 			handler.ServeHTTP(w, req)
 			return
 		}
@@ -130,12 +120,10 @@ func GetFieldString(r *http.Request, name string) (string, error) {
 	if !ok {
 		return "", fmt.Errorf("internal error: no fileds in context")
 	}
-
 	field, exist := fields[name]
 	if !exist {
 		return "", fmt.Errorf("no such variable in request: %v", name)
 	}
-
 	return field, nil
 }
 
@@ -145,11 +133,9 @@ func GetFieldInt(r *http.Request, name string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-
 	fieldInt, err := strconv.Atoi(field)
 	if err != nil {
 		return 0, err
 	}
-
 	return fieldInt, nil
 }
