@@ -68,13 +68,13 @@ type UpdateUserRequest struct {
 }
 
 type Like struct {
-	PostId    int    `json:"postId"`
-	CommentId int    `json:"commentId"`
+	PostId    int    `json:"post_id"`
+	CommentId int    `json:"comment_id"`
 	Username  string `json:"username"`
 }
 
 type Dislike struct {
-	PostId    int    `json:"postId"`
-	CommentId int    `json:"commentId"`
+	PostId    int    `json:"post_id"`
+	CommentId int    `json:"comment_id"`
 	Username  string `json:"username"`
 }

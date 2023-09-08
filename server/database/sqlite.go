@@ -81,11 +81,11 @@ func CreateTables() {
 
 	stmt, err = DB.Prepare(`
 		CREATE TABLE IF NOT EXISTS like (
-			PostId INTEGER DEFAULT 0,
-			CommentId INTEGER DEFAULT 0,
-			Username TEXT NOT NULL
-		)
-	`)
+			post_id INTEGER DEFAULT 0, 
+			comment_id INTEGER DEFAULT 0,
+			username TEXT NOT NULL
+		) 
+	`) // PostId -> post_id
 	checkErr(err)
 
 	_, err = stmt.Exec()
@@ -93,9 +93,9 @@ func CreateTables() {
 
 	stmt, err = DB.Prepare(`
 		CREATE TABLE IF NOT EXISTS dislike (
-			PostId INTEGER DEFAULT 0,
-			CommentId INTEGER DEFAULT 0,
-			Username TEXT NOT NULL
+			post_id INTEGER DEFAULT 0,
+			comment_id INTEGER DEFAULT 0,
+			username TEXT NOT NULL
 		)
 	`)
 	checkErr(err)

@@ -11,8 +11,8 @@ func LikePost(postId int, username string) (bool, error) {
 
 	stmt, err := DB.Prepare(`
 		INSERT INTO like (
-			PostId,
-			Username
+			post_id,
+			username
 		) VALUES (?, ?)
 	`)
 	if err != nil {
@@ -37,7 +37,7 @@ func UnlikePost(postId int, username string) (bool, error) {
 	}
 
 	stmt, err := DB.Prepare(`
-		DELETE FROM like WHERE PostId = ? AND Username = ?
+		DELETE FROM like WHERE post_id = ? AND username = ?
 	`)
 	if err != nil {
 		return false, err
@@ -62,8 +62,8 @@ func LikeComment(commentId int, username string) (bool, error) {
 
 	stmt, err := DB.Prepare(`
 		INSERT INTO like (
-			CommentId,
-			Username
+			comment_id,
+			username
 		) VALUES (?, ?)
 	`)
 	if err != nil {
@@ -88,7 +88,7 @@ func UnlikeComment(commentId int, username string) (bool, error) {
 	}
 
 	stmt, err := DB.Prepare(`
-		DELETE FROM like WHERE CommentId = ? AND Username = ?
+		DELETE FROM like WHERE comment_id = ? AND username = ?
 	`)
 	if err != nil {
 		return false, err
@@ -105,7 +105,7 @@ func UnlikeComment(commentId int, username string) (bool, error) {
 func getPostLikes(postId int) (int, error) {
 	var count int
 
-	err := DB.QueryRow(`SELECT COUNT(*) FROM like WHERE PostId = ?`, postId).Scan(&count)
+	err := DB.QueryRow(`SELECT COUNT(*) FROM like WHERE post_id = ?`, postId).Scan(&count)
 	if err != nil {
 		return 0, err
 	}
@@ -116,7 +116,7 @@ func getPostLikes(postId int) (int, error) {
 func getCommentLikes(commentId int) (int, error) {
 	var count int
 
-	err := DB.QueryRow(`SELECT COUNT(*) FROM like WHERE CommentId = ?`, commentId).Scan(&count)
+	err := DB.QueryRow(`SELECT COUNT(*) FROM like WHERE comment_id = ?`, commentId).Scan(&count)
 	if err != nil {
 		return 0, err
 	}
@@ -127,7 +127,7 @@ func getCommentLikes(commentId int) (int, error) {
 func CheckIfPostLiked(postId int, username string) bool {
 	var exists bool
 
-	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM like WHERE PostId = ? AND Username = ?)", postId, username).Scan(&exists)
+	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM like WHERE post_id = ? AND username = ?)", postId, username).Scan(&exists)
 
 	return err == nil && exists
 }
@@ -135,7 +135,7 @@ func CheckIfPostLiked(postId int, username string) bool {
 func CheckIfCommentLiked(commentId int, username string) bool {
 	var exists bool
 
-	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM like WHERE CommentId = ? AND Username = ?)", commentId, username).Scan(&exists)
+	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM like WHERE comment_id = ? AND username = ?)", commentId, username).Scan(&exists)
 
 	return err == nil && exists
 }
