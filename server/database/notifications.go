@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-func ReadUserNotifications(userId int) ([]Notification, error) {
+func GetNotifications(userId int) ([]Notification, error) {
 	notifications := make([]Notification, 0)
 
 	username, err := GetUsername(userId)
@@ -41,7 +41,12 @@ func ReadUserNotifications(userId int) ([]Notification, error) {
 	return notifications, nil
 }
 
-func createNotification(username string, objectType string, objectId int, Type string) error {
+func CreateNotification(objectType string, objectId int, Type string) error {
+	username, err := getPostCreatorByPostId(objectId)
+	if err != nil {
+		return err
+	}
+
 	stmt, err := DB.Prepare(`
 		INSERT INTO notifications (
 			username,
@@ -56,6 +61,29 @@ func createNotification(username string, objectType string, objectId int, Type s
 	}
 
 	_, err = stmt.Exec(username, objectType, objectId, Type, time.Now())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func MarkNotificationRead(userId int) error {
+	username, err := GetUsername(userId)
+	if err != nil {
+		return err
+	}
+
+	stmt, err := DB.Prepare(`
+		UPDATE notifications SET
+			status = ?
+		WHERE username = ?
+	`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec("read", username)
 	if err != nil {
 		return err
 	}

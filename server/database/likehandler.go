@@ -24,11 +24,6 @@ func LikePost(postId int, username string) (bool, error) {
 		return false, err
 	}
 
-	err = createNotification(username, "post", postId, "like")
-	if err != nil {
-		return false, err
-	}
-
 	return true, nil
 }
 
@@ -76,11 +71,6 @@ func LikeComment(commentId int, username string) (bool, error) {
 	}
 
 	_, err = stmt.Exec(commentId, username)
-	if err != nil {
-		return false, err
-	}
-
-	err = createNotification(username, "comment", commentId, "like")
 	if err != nil {
 		return false, err
 	}

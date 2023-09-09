@@ -100,23 +100,26 @@ func main() {
 	r.NewRoute("GET", `/user/likedComments`, ct.ReadUserLikedComments, Auth())
 	r.NewRoute("GET", `/user/dislikedComments`, ct.ReadUserDislikedComments, Auth())
 	r.NewRoute("GET", `/user/posts`, ct.ReadUserCreatedPosts, Auth())
-	r.NewRoute("GET", `/user/notifications`, ct.ReadUserNotifications, Auth())
+
+	// Notifications
+	r.NewRoute("GET", `/notifications`, ct.GetNotifications, Auth())
+	r.NewRoute("POST", `/readnotifications`, ct.MarkNotificationsRead, Auth())
 
 	// Post
 	r.NewRoute("POST", `/post`, ct.CreatePost, Auth())
 	r.NewRoute("GET", `/post/(?P<id>\d+)`, ct.ReadPost)
+	r.NewRoute("GET", `/posts`, ct.ReadPosts)
 	r.NewRoute("PATCH", `/post/(?P<id>\d+)`, ct.UpdatePost, Auth())
 	r.NewRoute("DELETE", `/post/(?P<id>\d+)`, ct.DeletePost, Auth())
-	r.NewRoute("GET", `/posts`, ct.ReadPosts)
 	r.NewRoute("GET", `/categories`, ct.ReadCategories)
 	r.NewRoute("GET", `/postcategories`, ct.ReadPostCategories)
 
 	// Comment
 	r.NewRoute("POST", `/comment/(?P<id>\d+)`, ct.CreateComment, Auth())
 	r.NewRoute("GET", `/comment/(?P<id>\d+)`, ct.ReadComment)
+	r.NewRoute("GET", `/comments/(?P<id>\d+)`, ct.ReadComments)
 	r.NewRoute("PATCH", `/comment/(?P<id>\d+)`, ct.UpdateComment, Auth())
 	r.NewRoute("DELETE", `/comment/(?P<id>\d+)`, ct.DeleteComment, Auth())
-	r.NewRoute("GET", `/comments/(?P<id>\d+)`, ct.ReadComments)
 
 	// Like
 	r.NewRoute("POST", `/post/(?P<id>\d+)/like`, ct.LikePost, Auth())

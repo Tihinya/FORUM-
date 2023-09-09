@@ -22,17 +22,7 @@ func CreateCommentRow(comment Comment, postId int, username string) (bool, error
 		return false, err
 	}
 
-	result, err := stmt.Exec(postId, comment.Content, comment.UserInfo.ProfilePicture, comment.UserInfo.Username, comment.CreationDate)
-	if err != nil {
-		return false, err
-	}
-
-	commentId, err := result.LastInsertId()
-	if err != nil {
-		return false, err
-	}
-
-	err = createNotification(username, "post", int(commentId), "comment")
+	_, err = stmt.Exec(postId, comment.Content, comment.UserInfo.ProfilePicture, comment.UserInfo.Username, comment.CreationDate)
 	if err != nil {
 		return false, err
 	}
