@@ -77,3 +77,13 @@ type Dislike struct {
 	CommentId int    `json:"comment_id"`
 	Username  string `json:"username"`
 }
+
+type Notification struct {
+	Id                int        `json:"id"`
+	Username          string     `json:"username"`
+	RelatedObjectType string     `json:"related_object_type"`
+	RelatedObjectId   int        `json:"related_object_id"`
+	Type              string     `json:"type"`
+	Status            string     `json:"status"`
+	CreationDate      *time.Time `json:"creation_date"`
+}

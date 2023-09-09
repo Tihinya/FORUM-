@@ -30,7 +30,7 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 	comment.CreationDate = time.Now()
 	comment.UserInfo.Username = getUsername(r)
 
-	exists, err = database.CreateCommentRow(comment, postId)
+	exists, err = database.CreateCommentRow(comment, postId, comment.UserInfo.Username)
 
 	if err != nil {
 		log.Println(err)

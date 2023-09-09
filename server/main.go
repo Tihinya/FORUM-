@@ -12,8 +12,10 @@ import (
 	"forum/router"
 )
 
-var requests = make(map[string]int)
-var l sync.Mutex
+var (
+	requests = make(map[string]int)
+	l        sync.Mutex
+)
 
 func Auth() router.Middleware {
 	return func(next http.Handler) http.Handler {
@@ -98,6 +100,7 @@ func main() {
 	r.NewRoute("GET", `/user/likedComments`, ct.ReadUserLikedComments, Auth())
 	r.NewRoute("GET", `/user/dislikedComments`, ct.ReadUserDislikedComments, Auth())
 	r.NewRoute("GET", `/user/posts`, ct.ReadUserCreatedPosts, Auth())
+	r.NewRoute("GET", `/user/notifications`, ct.ReadUserNotifications, Auth())
 
 	// Post
 	r.NewRoute("POST", `/post`, ct.CreatePost, Auth())

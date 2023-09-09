@@ -24,6 +24,11 @@ func DislikePost(postId int, username string) (bool, error) {
 		return false, err
 	}
 
+	err = createNotification(username, "post", postId, "dislike")
+	if err != nil {
+		return false, err
+	}
+
 	return true, nil
 }
 
@@ -71,6 +76,11 @@ func DislikeComment(commentId int, username string) (bool, error) {
 	}
 
 	_, err = stmt.Exec(commentId, username)
+	if err != nil {
+		return false, err
+	}
+
+	err = createNotification(username, "comment", commentId, "dislike")
 	if err != nil {
 		return false, err
 	}
