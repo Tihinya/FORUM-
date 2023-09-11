@@ -2,9 +2,11 @@ import Gachi, {
 	useContext,
 	useState,
 	useNavigate,
+	useEffect,
 } from "../../../core/framework"
 import DropdownMenu from "./dropdown"
 import isLogin from "../../additional-funcitons/isLogin.js"
+import { Notifications } from "./notifications"
 
 // export function isLogin() {
 // 	return localStorage.getItem("id") !== null
@@ -13,6 +15,7 @@ import isLogin from "../../additional-funcitons/isLogin.js"
 export default function Header() {
 	const navigate = useNavigate()
 	const isLoggin = isLogin()
+
 	return (
 		<div className="header">
 			<div className="header__logo">
@@ -36,9 +39,14 @@ export default function Header() {
 				</>
 			) : (
 				<>
-					<div className="sign__button" id="notification-button">
+					{/* <div
+					className="sign__button" 
+					id="notification-button"
+					onClick={() => console.log(Notifications)}
+					> 
 						Notification
-					</div>
+					</div>*/}
+					<Notifications />
 					<div className="profile-menu">
 						<div className="profile-nav">
 							<div className="user__info_picture">

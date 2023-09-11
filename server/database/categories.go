@@ -213,3 +213,11 @@ func SelectAllPostCategory() ([]PostCategory, error) {
 
 	return postCategories, nil
 }
+
+func checkIfCategoryExist(category string) bool {
+	var exists bool
+
+	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM category WHERE category = ?)", category).Scan(&exists)
+
+	return err == nil && exists
+}
