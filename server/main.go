@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"forum/config"
-	"forum/controllers"
 	ct "forum/controllers"
 	"forum/database"
 	"forum/router"
@@ -14,15 +13,15 @@ import (
 func Auth() router.Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			sessionToken, sessionTokenFound := controllers.CheckForSessionToken(r)
+			sessionToken, sessionTokenFound := ct.CheckForSessionToken(r)
 			if !sessionTokenFound {
-				controllers.ReturnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
+				ct.ReturnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
 				log.Println("Auth middleware fail")
 				return
 			}
 
-			if !controllers.CheckIfUserLoggedin(sessionToken) {
-				controllers.ReturnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
+			if !ct.CheckIfUserLoggedin(sessionToken) {
+				ct.ReturnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
 				log.Println("Auth middleware fail")
 				return
 			}

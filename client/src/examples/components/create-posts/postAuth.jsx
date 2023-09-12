@@ -16,6 +16,7 @@ export function PostsAuth() {
 	const [likedPosts, setLikedPosts] = useState([])
 	const [dislikedPosts, setDislikedPosts] = useState([])
 	const [threadClicked, setThreadClicked] = useState(false)
+	const [selectedImage, setSelectedImage] = useState("")
 	const [selectedCategories, setSelectedCategories] = useState([])
 	const [threadTitleValue, setThreadTitleValue] = useState("")
 	const [threadContentValue, setThreadContentValue] = useState("")
@@ -39,6 +40,32 @@ export function PostsAuth() {
 				}
 			})
 			.catch((error) => console.error("Error fetching my posts:", error))
+	}
+
+	const imageHandler = (e) => {
+		const file = e.target.files[0]
+		const imageSize = 20 * 1024 * 1024
+
+		if (file) {
+			const reader = new FileReader()
+
+			let imageFileSize =
+				document.getElementById("image-file-upload").files[0].size
+			if (imageFileSize > imageSize) {
+				alert("File is too big, max size is 20Mb")
+				return
+			}
+			reader.onload = (event) => {
+				const imageURL = event.target.result
+
+				setSelectedImage(imageURL)
+			}
+			reader.readAsDataURL(file)
+		}
+	}
+
+	const imageHandlerDelete = () => {
+		setSelectedImage("")
 	}
 
 	// For displaying liked icon, if the post is already liked (TODO)
@@ -73,7 +100,9 @@ export function PostsAuth() {
 				`${activeSubj !== "" ? "?categories=" + activeSubj : ""}`
 		)
 			.then((response) => response.json())
-			.then((data) => setPosts(data))
+			.then((data) => {
+				setPosts(data)
+			})
 			.catch((error) => console.error("Error fetching posts:", error))
 	}
 
@@ -151,7 +180,6 @@ export function PostsAuth() {
 		createPost(formJson.title, formJson.content, selectedCategories) // TODO CATEGORIES
 	}
 
-	// Initialize posts/likes/dislikes upon page load
 	useEffect(() => {
 		fetchPosts()
 		fetchCategoriesAndPostCategories()
@@ -163,7 +191,6 @@ export function PostsAuth() {
 	}, [activeSubj])
 
 	const createPost = async (title, content, categories) => {
-		// img to be added
 		try {
 			const response = await fetch(`http://localhost:8080/post`, {
 				method: "POST",
@@ -175,6 +202,7 @@ export function PostsAuth() {
 				body: JSON.stringify({
 					title: title,
 					content: content,
+					image: selectedImage,
 					categories: categories,
 				}),
 			})
@@ -332,7 +360,16 @@ export function PostsAuth() {
 				>
 					<div className="thread-options">
 						<div className="upload-image">
-							<img src="../img/add picture.svg" />
+							<label
+								for="image-file-upload"
+								className="custom-upload-file-button"
+							>
+								<input
+									type="file"
+									onChange={imageHandler}
+									id="image-file-upload"
+								/>
+							</label>
 						</div>
 						<textarea
 							value={threadContentValue}
@@ -345,12 +382,12 @@ export function PostsAuth() {
 							rows={10}
 						/>
 						<div className="thread-tags">
-							{categories.slice(0, 5).map((category) => (
+							{categories.map((category) => (
 								<p
 									className={`thread-subject ${
 										selectedCategories.includes(category)
 											? "active"
-											: ""
+											: "deactive"
 									}`}
 									onClick={() => selectCategory(category)}
 								>
@@ -359,8 +396,24 @@ export function PostsAuth() {
 							))}
 						</div>
 					</div>
-
 					<div className="create-post-button">
+						<div className="create-post-image-added-container">
+							{selectedImage && (
+								<div className="create-post-image-added">
+									<img
+										className="create-post-image"
+										src={selectedImage}
+									/>
+									<button
+										className="sign__button"
+										onClick={imageHandlerDelete}
+									>
+										Remove Image
+									</button>
+								</div>
+							)}
+						</div>
+
 						<button className="sign__button" type="submit">
 							Create Post
 						</button>
