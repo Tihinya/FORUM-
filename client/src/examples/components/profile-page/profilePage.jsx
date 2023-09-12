@@ -1,8 +1,4 @@
-import Gachi, {
-	useContext,
-	useState,
-	useNavigate,
-} from "../../../core/framework"
+import Gachi, { useNavigate } from "../../../core/framework"
 
 export default function ProfilePage() {
 	const navigate = useNavigate()

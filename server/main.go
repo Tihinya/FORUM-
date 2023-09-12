@@ -102,6 +102,4 @@ func main() {
 	log.Println("To stop the server press `Ctrl + C`")
 
 	http.ListenAndServe(":"+config.Config.Port, nil)
-	// removed for now because of the review
-	// log.Fatal(http.ListenAndServeTLS(":"+config.Config.Port, "cert.pem", "key.pem", nil))
 }
