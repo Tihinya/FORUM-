@@ -1,9 +1,4 @@
-import Gachi, {
-	useContext,
-	useEffect,
-	useNavigate,
-	useState,
-} from "../../../core/framework.ts"
+import Gachi, { useEffect, useState } from "../../../core/framework.ts"
 import isLogin from "../../additional-funcitons/isLogin.js"
 import { convertTime } from "../../additional-funcitons/post.js"
 

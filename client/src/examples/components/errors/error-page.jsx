@@ -1,9 +1,3 @@
-import Gachi, {
-	useContext,
-	useState,
-	useNavigate,
-} from "../../../core/framework"
-
 export default function ErrorPage({ error }) {
 	return (
 		<div className="error__page">
