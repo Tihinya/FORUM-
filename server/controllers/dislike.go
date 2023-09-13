@@ -2,12 +2,10 @@ package controllers
 
 import (
 	"encoding/json"
-	"log"
-	"net/http"
-
 	"forum/database"
 	"forum/router"
-	"forum/session"
+	"log"
+	"net/http"
 )
 
 func DislikePost(w http.ResponseWriter, r *http.Request) {
@@ -19,28 +17,11 @@ func DislikePost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid post ID", http.StatusBadRequest)
 	}
 
-	// Authentication here
-	sessionToken, sessionTokenFound := checkForSessionToken(r)
-	if !sessionTokenFound {
-		returnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
-		return
-	}
-
-	if !checkIfUserLoggedin(sessionToken) {
-		returnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
-		return
-	}
-
-	userID := session.SessionStorage.GetSession(sessionToken.Value).UserId
-	username, err := database.GetUsername(userID)
-	if err != nil {
-		returnMessageJSON(w, "You are not logged in", http.StatusInternalServerError, "unauthorized")
-		return
-	}
+	username := getUsername(r)
 
 	// Check if post is already liked
 	if database.CheckIfPostLiked(postId, username) {
-		returnMessageJSON(w, "Failed to dislike post. Post is already liked.", http.StatusBadRequest, "error")
+		ReturnMessageJSON(w, "Failed to dislike post. Post is already liked.", http.StatusBadRequest, "error")
 		return
 	}
 
@@ -48,16 +29,16 @@ func DislikePost(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Println(err)
-		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		ReturnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
 		return
 	}
 
 	if !existsLiked {
-		returnMessageJSON(w, "Disliking post failed, post is already disliked or does not exist", http.StatusBadRequest, "error")
+		ReturnMessageJSON(w, "Disliking post failed, post is already disliked or does not exist", http.StatusBadRequest, "error")
 		return
 	}
 
-	returnMessageJSON(w, "Post successfully disliked", http.StatusOK, "success")
+	ReturnMessageJSON(w, "Post successfully disliked", http.StatusOK, "success")
 }
 
 func UndislikePost(w http.ResponseWriter, r *http.Request) {
@@ -69,39 +50,21 @@ func UndislikePost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid post ID", http.StatusBadRequest)
 	}
 
-	// Authentication here
-	sessionToken, sessionTokenFound := checkForSessionToken(r)
-	if !sessionTokenFound {
-		returnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
-		return
-	}
-
-	if !checkIfUserLoggedin(sessionToken) {
-		returnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
-		return
-	}
-
-	userID := session.SessionStorage.GetSession(sessionToken.Value).UserId
-	username, err := database.GetUsername(userID)
-	if err != nil {
-		returnMessageJSON(w, "You are not logged in", http.StatusInternalServerError, "unauthorized")
-		return
-	}
-
+	username := getUsername(r)
 	existsLiked, err = database.UndislikePost(postId, username)
 
 	if err != nil {
 		log.Println(err)
-		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		ReturnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
 		return
 	}
 
 	if !existsLiked {
-		returnMessageJSON(w, "Undisliking post failed, post is not disliked or does not exist", http.StatusBadRequest, "error")
+		ReturnMessageJSON(w, "Undisliking post failed, post is not disliked or does not exist", http.StatusBadRequest, "error")
 		return
 	}
 
-	returnMessageJSON(w, "Post successfully undisliked", http.StatusOK, "success")
+	ReturnMessageJSON(w, "Post successfully undisliked", http.StatusOK, "success")
 }
 
 func DislikeComment(w http.ResponseWriter, r *http.Request) {
@@ -112,28 +75,11 @@ func DislikeComment(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid comment ID", http.StatusBadRequest)
 	}
 
-	// Authentication here
-	sessionToken, sessionTokenFound := checkForSessionToken(r)
-	if !sessionTokenFound {
-		returnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
-		return
-	}
-
-	if !checkIfUserLoggedin(sessionToken) {
-		returnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
-		return
-	}
-
-	userID := session.SessionStorage.GetSession(sessionToken.Value).UserId
-	username, err := database.GetUsername(userID)
-	if err != nil {
-		returnMessageJSON(w, "You are not logged in", http.StatusInternalServerError, "unauthorized")
-		return
-	}
+	username := getUsername(r)
 
 	// Check if comment is already liked
 	if database.CheckIfCommentLiked(commentId, username) {
-		returnMessageJSON(w, "Failed to dislike comment. Comment is already liked.", http.StatusBadRequest, "error")
+		ReturnMessageJSON(w, "Failed to dislike comment. Comment is already liked.", http.StatusBadRequest, "error")
 		return
 	}
 
@@ -141,16 +87,16 @@ func DislikeComment(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Println(err)
-		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		ReturnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
 		return
 	}
 
 	if !existsLiked {
-		returnMessageJSON(w, "Disliking comment failed, comment is already disliked or does not exist", http.StatusBadRequest, "error")
+		ReturnMessageJSON(w, "Disliking comment failed, comment is already disliked or does not exist", http.StatusBadRequest, "error")
 		return
 	}
 
-	returnMessageJSON(w, "Comment successfully disliked", http.StatusOK, "success")
+	ReturnMessageJSON(w, "Comment successfully disliked", http.StatusOK, "success")
 }
 
 func UndislikeComment(w http.ResponseWriter, r *http.Request) {
@@ -161,39 +107,21 @@ func UndislikeComment(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid comment ID", http.StatusBadRequest)
 	}
 
-	// Authentication here
-	sessionToken, sessionTokenFound := checkForSessionToken(r)
-	if !sessionTokenFound {
-		returnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
-		return
-	}
-
-	if !checkIfUserLoggedin(sessionToken) {
-		returnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
-		return
-	}
-
-	userID := session.SessionStorage.GetSession(sessionToken.Value).UserId
-	username, err := database.GetUsername(userID)
-	if err != nil {
-		returnMessageJSON(w, "You are not logged in", http.StatusInternalServerError, "unauthorized")
-		return
-	}
-
+	username := getUsername(r)
 	existsLiked, err = database.UndislikeComment(commentId, username)
 
 	if err != nil {
 		log.Println(err)
-		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		ReturnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
 		return
 	}
 
 	if !existsLiked {
-		returnMessageJSON(w, "Undisliking comment failed, comment is not disliked or does not exist", http.StatusBadRequest, "error")
+		ReturnMessageJSON(w, "Undisliking comment failed, comment is not disliked or does not exist", http.StatusBadRequest, "error")
 		return
 	}
 
-	returnMessageJSON(w, "Comment successfully undisliked", http.StatusOK, "success")
+	ReturnMessageJSON(w, "Comment successfully undisliked", http.StatusOK, "success")
 }
 
 func Temp_getDislikes(w http.ResponseWriter, r *http.Request) {
@@ -202,7 +130,7 @@ func Temp_getDislikes(w http.ResponseWriter, r *http.Request) {
 	likes, err := database.Temp_selectDislikes()
 	if err != nil {
 		log.Println(err)
-		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		ReturnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
 		return
 	}
 

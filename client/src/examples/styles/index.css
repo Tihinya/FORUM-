@@ -123,9 +123,8 @@ body {
 	font-family: "Roboto", sans-serif;
 	font-size: 18px;
 
-	padding: 12px;
+	padding: 20px;
 
-	width: 10%;
 	border-radius: 15px;
 	box-shadow: inset -2px -2px 2px rgba(255, 204, 164, 0.5),
 		inset 2px 2px 2px rgba(0, 0, 0, 0.25);
@@ -237,12 +236,6 @@ body {
 	padding: 0px 0px 30px 0px;
 }
 
-.post__text:after {
-	content: "...Read More";
-	color: var(--button-color);
-	cursor: pointer;
-}
-
 .post__box {
 	display: flex;
 	flex-direction: column;
@@ -267,6 +260,12 @@ body {
 	width: 100%;
 }
 
+
+.post__comments-container {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
 
 .user__info {
 	display: flex;
@@ -1021,6 +1020,19 @@ body {
 	cursor: pointer;
 }
 
+.custom-upload-file-button {
+	background-image: url(../img/add-picture.svg);
+	background-repeat: no-repeat;
+	width: 10%;
+	height: 20%;
+	padding: 1px 10px;
+	cursor: pointer;
+}
+
+input[type="file"] {
+	display: none;
+}
+
 .thread-text {
 	padding: 10px 0px 0px 10px;
 	resize: none;
@@ -1040,7 +1052,7 @@ body {
 .thread-subject {
 	font-family: "Roboto";
 	font-weight: 500;
-	padding: 2px 10px 2px 10px;
+	padding: 4px 10px 4px 10px;
 	background-color: white;
 	border-radius: 10px;
 
@@ -1054,16 +1066,56 @@ body {
 	background-color: #c2c2c2;
 }
 
-.thread-subject-active {
-	background-color: var(--button-color-orange);
-}
-
 .create-post-button {
 	display: flex;
 	flex-direction: row;
 	justify-content: end;
 
+	align-items: center;
+
 	width: 100%;
+}
+
+.create-post-button .sign__button {
+	width: 20%;
+}
+
+.create-post-image-added-container {
+	display: flex;
+	width: 100%;
+}
+
+.post__image-container {
+	display: flex;
+
+	padding: 10px;
+
+	justify-content: center;
+	width: 90%;
+
+	background-color: rgb(221, 227, 231);
+}
+
+.post__image {
+	width: 50%;
+}
+
+.create-post-image-added {
+	display: flex;
+
+	padding: 5px 0 5px 10px;
+
+	gap: 20px;
+	justify-content: flex-start;
+	align-items: center;
+}
+
+.create-post-image-added .sign__button {
+	padding: 13px;
+}
+
+.create-post-image {
+	width: 20%;
 }
 
 .post-text {
@@ -1131,14 +1183,15 @@ body {
 }
 
 .thread-subject.active:hover {
-	background-color: rgb(119, 150, 244);
+	padding: 4px 10px 4px 10px;
+	background-color: var(--button-color-orange-hover);
 }
 
 .thread-subject.active {
 	font-family: "Roboto";
 	font-weight: 500;
-	padding: 2px 10px 2px 10px;
-	background-color: rgb(119, 150, 244);
+	padding: 4px 10px 4px 10px;
+	background-color: var(--button-color-orange);
 	border-radius: 10px;
 
 	transition: 0.3s;

@@ -1,14 +1,6 @@
-import Gachi, {
-	useContext,
-	useState,
-	useNavigate,
-} from "../../../core/framework"
+import Gachi, { useNavigate } from "../../../core/framework"
 import DropdownMenu from "./dropdown"
 import isLogin from "../../additional-funcitons/isLogin.js"
-
-// export function isLogin() {
-// 	return localStorage.getItem("id") !== null
-// }
 
 export default function Header() {
 	const navigate = useNavigate()

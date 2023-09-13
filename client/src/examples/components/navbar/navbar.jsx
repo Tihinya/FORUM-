@@ -1,9 +1,4 @@
-import Gachi, {
-	useContext,
-	useState,
-	useNavigate,
-	useEffect,
-} from "../../../core/framework"
+import Gachi, { useContext, useState, useEffect } from "../../../core/framework"
 
 import { fetchData } from "../../additional-funcitons/api.js"
 

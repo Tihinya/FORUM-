@@ -6,6 +6,7 @@ type Post struct {
 	Id           int          `json:"id"`
 	Title        string       `json:"title"`
 	Content      string       `json:"content"`
+	Image        string       `json:"image"`
 	UserInfo     PostUserInfo `json:"user_info"`
 	CreationDate time.Time    `json:"creation_date"`
 	Likes        int          `json:"likes"`
@@ -67,13 +68,13 @@ type UpdateUserRequest struct {
 }
 
 type Like struct {
-	PostId    int    `json:"postId"`
-	CommentId int    `json:"commentId"`
+	PostId    int    `json:"post_id"`
+	CommentId int    `json:"comment_id"`
 	Username  string `json:"username"`
 }
 
 type Dislike struct {
-	PostId    int    `json:"postId"`
-	CommentId int    `json:"commentId"`
+	PostId    int    `json:"post_id"`
+	CommentId int    `json:"comment_id"`
 	Username  string `json:"username"`
 }

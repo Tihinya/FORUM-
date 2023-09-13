@@ -20,6 +20,7 @@ func CreateTables() {
 		CREATE TABLE IF NOT EXISTS post (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			title TEXT NOT NULL,
+			image BLOB,
 			content TEXT NOT NULL,
 			profile_picture TEXT,
 			username TEXT,
@@ -80,11 +81,11 @@ func CreateTables() {
 
 	stmt, err = DB.Prepare(`
 		CREATE TABLE IF NOT EXISTS like (
-			PostId INTEGER DEFAULT 0,
-			CommentId INTEGER DEFAULT 0,
-			Username TEXT NOT NULL
-		)
-	`)
+			post_id INTEGER DEFAULT 0, 
+			comment_id INTEGER DEFAULT 0,
+			username TEXT NOT NULL
+		) 
+	`) // PostId -> post_id
 	checkErr(err)
 
 	_, err = stmt.Exec()
@@ -92,9 +93,9 @@ func CreateTables() {
 
 	stmt, err = DB.Prepare(`
 		CREATE TABLE IF NOT EXISTS dislike (
-			PostId INTEGER DEFAULT 0,
-			CommentId INTEGER DEFAULT 0,
-			Username TEXT NOT NULL
+			post_id INTEGER DEFAULT 0,
+			comment_id INTEGER DEFAULT 0,
+			username TEXT NOT NULL
 		)
 	`)
 	checkErr(err)

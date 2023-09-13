@@ -24,7 +24,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	err := json.NewDecoder(r.Body).Decode(&login)
 	if err != nil {
-		returnMessageJSON(w, "Invalid request body", http.StatusBadRequest, "error")
+		ReturnMessageJSON(w, "Invalid request body", http.StatusBadRequest, "error")
 		return
 	}
 	login.Email = strings.TrimSpace(login.Email)
@@ -37,7 +37,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if userId == 0 {
-		returnMessageJSON(w, "incorrect login or password", http.StatusBadRequest, "error")
+		ReturnMessageJSON(w, "incorrect login or password", http.StatusBadRequest, "error")
 		return
 	}
 
@@ -51,18 +51,14 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	// Check if the entered password matches the stored hashed password
 	err = bcrypt.CompareHashAndPassword([]byte(userPassword.Password), []byte(login.Password))
 	if err != nil {
-		returnMessageJSON(w, "incorrect login or password", http.StatusBadRequest, "error")
+		ReturnMessageJSON(w, "incorrect login or password", http.StatusBadRequest, "error")
 		return
 	}
 
 	token := session.SessionStorage.CreateSession(userId)
 	session.SessionStorage.SetCookie(token, w)
 
-	json.NewEncoder(w).Encode(database.LoginResponse{
-		Status:  "success",
-		Message: "User logined successfully",
-		ID:      userId,
-	})
+	ReturnMessageJSON(w, "User logined successfully", http.StatusOK, "success")
 }
 
 func LogOut(w http.ResponseWriter, r *http.Request) {
@@ -166,31 +162,19 @@ func GithubCallback(w http.ResponseWriter, r *http.Request) {
 	code := r.URL.Query().Get("code")
 	githubAccessToken, err := login.GetGithubAccessToken(code)
 	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(database.Response{
-			Status:  "error",
-			Message: "Bad request - problem with access tokens!",
-		})
+		ReturnMessageJSON(w, "You are not authorized, problem with access token", http.StatusBadRequest, "error")
 		return
 	}
 
 	githubData, err := login.GetGithubData(githubAccessToken)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(database.Response{
-			Status:  "error",
-			Message: "Bad request - problem with user data!",
-		})
+		ReturnMessageJSON(w, "Problem with user data", http.StatusBadRequest, "error")
 		return
 	}
 
 	// Check if the user has made their GitHub email public
 	if githubData.Email == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(database.Response{
-			Status:  "error",
-			Message: "Please make your GitHub email public to proceed with authentication",
-		})
+		ReturnMessageJSON(w, "Please make your GitHub email public to proceed with authenticationa", http.StatusBadRequest, "error")
 		return
 	}
 

@@ -13,14 +13,15 @@ func CreatePost(post Post) error {
 			content,
 			profile_picture,
 			username,
+			image,
 			creation_date
-		) VALUES (?, ?, ?, ?, ?)
+		) VALUES (?, ?, ?, ?, ?, ?)
 	`)
 	if err != nil {
 		return err
 	}
 
-	result, err := stmt.Exec(post.Title, post.Content, post.UserInfo.ProfilePicture, post.UserInfo.Username, post.CreationDate)
+	result, err := stmt.Exec(post.Title, post.Content, post.UserInfo.ProfilePicture, post.UserInfo.Username, post.Image, post.CreationDate)
 	if err != nil {
 		return err
 	}
@@ -44,7 +45,7 @@ func SelectPost(id string) ([]Post, error) {
 	rows, err := DB.Query(`
 		SELECT post.id, post.title, post.content,
 		post.profile_picture, post.username, post.creation_date,
-		post.likes, post.dislikes, post.last_edited
+		post.likes, post.dislikes, post.last_edited, post.image
 		FROM post WHERE id = ?
 	`, id)
 	if err != nil {
@@ -64,6 +65,7 @@ func SelectPost(id string) ([]Post, error) {
 			&post.Likes,
 			&post.Dislikes,
 			&post.LastEdited,
+			&post.Image,
 		)
 		if err != nil {
 			return nil, err
@@ -77,7 +79,7 @@ func SelectPost(id string) ([]Post, error) {
 		post.Likes, _ = getPostLikes(post.Id)
 		post.Dislikes, _ = getPostDislikes(post.Id)
 
-		post.Comments = fmt.Sprintf("https://localhost:8080/comments/%d", post.Id)
+		post.Comments = fmt.Sprintf("http://localhost:8080/comments/%d", post.Id)
 		post.CommentCount = getCommentsCount(post.Id)
 		post.UserInfo.ProfilePicture, _ = GetAvatar(post.UserInfo.Username)
 
@@ -94,7 +96,7 @@ func SelectAllPosts(categoriesString string) ([]Post, error) {
 	rows, err := DB.Query(`
 		SELECT post.id, post.title, post.content,
 		post.profile_picture, post.username, post.creation_date,
-		post.likes, post.dislikes, post.last_edited
+		post.likes, post.dislikes, post.last_edited, post.image
 		FROM post
 	`)
 	if err != nil {
@@ -114,6 +116,7 @@ func SelectAllPosts(categoriesString string) ([]Post, error) {
 			&post.Likes,
 			&post.Dislikes,
 			&post.LastEdited,
+			&post.Image,
 		)
 		if err != nil {
 			return nil, err
@@ -127,7 +130,7 @@ func SelectAllPosts(categoriesString string) ([]Post, error) {
 		post.Likes, _ = getPostLikes(post.Id)
 		post.Dislikes, _ = getPostDislikes(post.Id)
 
-		post.Comments = fmt.Sprintf("https://localhost:8080/comments/%d", post.Id)
+		post.Comments = fmt.Sprintf("http://localhost:8080/comments/%d", post.Id)
 		post.CommentCount = getCommentsCount(post.Id)
 		post.UserInfo.ProfilePicture, _ = GetAvatar(post.UserInfo.Username)
 
@@ -427,29 +430,29 @@ func SelectAllCategories() ([]Category, error) {
 }
 
 func SelectAllPostCategory() ([]PostCategory, error) {
-	var post_categories []PostCategory
+	var postCategories []PostCategory
 	rows, err := DB.Query("SELECT * FROM post_category")
 	if err != nil {
 		return nil, err
 	}
 
 	for rows.Next() {
-		var post_category PostCategory
+		var postCategory PostCategory
 
-		err = rows.Scan(&post_category.PostId, &post_category.CategoryId)
+		err = rows.Scan(&postCategory.PostId, &postCategory.CategoryId)
 		if err != nil {
 			return nil, err
 		}
 
-		post_categories = append(post_categories, post_category)
+		postCategories = append(postCategories, postCategory)
 	}
 
-	return post_categories, nil
+	return postCategories, nil
 }
 
 func deletePostLikes(postId int) error {
 	stmt, err := DB.Prepare(`
-		DELETE FROM like WHERE PostId = ?
+		DELETE FROM like WHERE post_id = ?
 	`)
 	if err != nil {
 		return err
@@ -461,7 +464,7 @@ func deletePostLikes(postId int) error {
 	}
 
 	stmt, err = DB.Prepare(`
-		DELETE FROM dislike WHERE PostId = ?
+		DELETE FROM dislike WHERE post_id = ?
 	`)
 	if err != nil {
 		return err
@@ -478,7 +481,7 @@ func deletePostLikes(postId int) error {
 func checkIfPostExist(commentId int) bool {
 	var exists bool
 
-	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM post WHERE id=?)", commentId).Scan(&exists)
+	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM post WHERE id = ?)", commentId).Scan(&exists)
 
 	return err == nil && exists
 }
@@ -486,7 +489,7 @@ func checkIfPostExist(commentId int) bool {
 func checkIfCategoryExist(category string) bool {
 	var exists bool
 
-	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM category WHERE category=?)", category).Scan(&exists)
+	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM category WHERE category = ?)", category).Scan(&exists)
 
 	return err == nil && exists
 }

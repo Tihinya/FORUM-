@@ -2,16 +2,14 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
-	"net/http"
-	"strings"
-
 	"forum/database"
 	"forum/login"
 	"forum/router"
 	"forum/session"
 	"forum/validation"
+	"log"
+	"net/http"
+	"strings"
 )
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
@@ -34,38 +32,22 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	register.PasswordConfirmation = strings.TrimSpace(register.PasswordConfirmation)
 
 	if register.Username == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(database.Response{
-			Status:  "error",
-			Message: "User name cannot be empty ",
-		})
+		ReturnMessageJSON(w, "User name cannot be empty", http.StatusBadRequest, "error")
 		return
 	}
 	// Validate inputs
 	if register.Email == "" || register.Password == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(database.Response{
-			Status:  "error",
-			Message: "Email and password are required",
-		})
+		ReturnMessageJSON(w, "Email and password are required", http.StatusBadRequest, "error")
 		return
 	}
 	// Check email format
 	if !validation.ValidateEmail(register.Email) {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(database.Response{
-			Status:  "error",
-			Message: "Invalid email format",
-		})
+		ReturnMessageJSON(w, "Invalid email format", http.StatusBadRequest, "error")
 		return
 	}
 	// Password check
 	if register.Password != register.PasswordConfirmation {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(database.Response{
-			Status:  "error",
-			Message: "Password confirmation does not match",
-		})
+		ReturnMessageJSON(w, "Password confirmation does not match", http.StatusBadRequest, "error")
 		return
 	}
 
@@ -76,11 +58,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if exist != 0 {
-		w.WriteHeader(http.StatusConflict)
-		json.NewEncoder(w).Encode(database.Response{
-			Status:  "error",
-			Message: "Email already taken",
-		})
+		ReturnMessageJSON(w, "Email already taken", http.StatusConflict, "error")
 		return
 	}
 
@@ -90,11 +68,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if exist != 0 {
-		w.WriteHeader(http.StatusConflict)
-		json.NewEncoder(w).Encode(database.Response{
-			Status:  "error",
-			Message: "Username already taken",
-		})
+		ReturnMessageJSON(w, "Username already taken", http.StatusConflict, "error")
 		return
 	}
 
@@ -109,10 +83,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	token := session.SessionStorage.CreateSession(id)
 	session.SessionStorage.SetCookie(token, w)
 
-	json.NewEncoder(w).Encode(database.Response{
-		Status:  "success",
-		Message: "Registration successful",
-	})
+	ReturnMessageJSON(w, "Registration successful", http.StatusOK, "success")
 }
 
 func ReadUser(w http.ResponseWriter, r *http.Request) {
@@ -156,19 +127,11 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	var req database.UpdateUserRequest
 	err = json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(database.Response{
-			Status:  "error",
-			Message: "Invalid request body",
-		})
+		ReturnMessageJSON(w, "Invalid request body", http.StatusBadRequest, "error")
 		return
 	}
 	if !validation.ValidateEmail(req.Email) {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(database.Response{
-			Status:  "error",
-			Message: "Invalid email format",
-		})
+		ReturnMessageJSON(w, "Invalid email format", http.StatusBadRequest, "error")
 		return
 	}
 
@@ -179,11 +142,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if exist != 0 {
-		w.WriteHeader(http.StatusConflict)
-		json.NewEncoder(w).Encode(database.Response{
-			Status:  "error",
-			Message: "Email already taken",
-		})
+		ReturnMessageJSON(w, "Email already taken", http.StatusConflict, "error")
 		return
 	}
 
@@ -194,10 +153,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(database.Response{
-		Status:  "success",
-		Message: "User updated successfully",
-	})
+	ReturnMessageJSON(w, "User updated successfully", http.StatusOK, "success")
 }
 
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
@@ -216,33 +172,18 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(database.Response{
-		Status:  "success",
-		Message: "User deleted successfully",
-	})
+	ReturnMessageJSON(w, "User deleted successfully", http.StatusOK, "success")
 }
 
 func ReadUserLikedPosts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	// Authentication here
-	sessionToken, sessionTokenFound := checkForSessionToken(r)
-	if !sessionTokenFound {
-		returnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
-		return
-	}
+	UserId := getUserId(r)
 
-	if !checkIfUserLoggedin(sessionToken) {
-		returnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
-		return
-	}
-
-	sessionUserID := session.SessionStorage.GetSession(sessionToken.Value).UserId
-
-	posts, err := database.ReadUserLikedPosts(sessionUserID)
+	posts, err := database.ReadUserLikedPosts(UserId)
 	if err != nil {
 		log.Println(err)
-		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		ReturnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
 		return
 	}
 
@@ -252,24 +193,12 @@ func ReadUserLikedPosts(w http.ResponseWriter, r *http.Request) {
 func ReadUserDislikedPosts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	// Authentication here
-	sessionToken, sessionTokenFound := checkForSessionToken(r)
-	if !sessionTokenFound {
-		returnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
-		return
-	}
+	UserId := getUserId(r)
 
-	if !checkIfUserLoggedin(sessionToken) {
-		returnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
-		return
-	}
-
-	sessionUserID := session.SessionStorage.GetSession(sessionToken.Value).UserId
-
-	posts, err := database.ReadUserDislikedPosts(sessionUserID)
+	posts, err := database.ReadUserDislikedPosts(UserId)
 	if err != nil {
 		log.Println(err)
-		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		ReturnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
 		return
 	}
 
@@ -279,24 +208,12 @@ func ReadUserDislikedPosts(w http.ResponseWriter, r *http.Request) {
 func ReadUserLikedComments(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	// Authentication here
-	sessionToken, sessionTokenFound := checkForSessionToken(r)
-	if !sessionTokenFound {
-		returnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
-		return
-	}
+	UserId := getUserId(r)
 
-	if !checkIfUserLoggedin(sessionToken) {
-		returnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
-		return
-	}
-
-	sessionUserID := session.SessionStorage.GetSession(sessionToken.Value).UserId
-
-	comments, err := database.ReadUserLikedComments(sessionUserID)
+	comments, err := database.ReadUserLikedComments(UserId)
 	if err != nil {
 		log.Println(err)
-		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		ReturnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
 		return
 	}
 
@@ -306,24 +223,12 @@ func ReadUserLikedComments(w http.ResponseWriter, r *http.Request) {
 func ReadUserDislikedComments(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	// Authentication here
-	sessionToken, sessionTokenFound := checkForSessionToken(r)
-	if !sessionTokenFound {
-		returnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
-		return
-	}
+	UserId := getUserId(r)
 
-	if !checkIfUserLoggedin(sessionToken) {
-		returnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
-		return
-	}
-
-	sessionUserID := session.SessionStorage.GetSession(sessionToken.Value).UserId
-
-	comments, err := database.ReadUserDislikedComments(sessionUserID)
+	comments, err := database.ReadUserDislikedComments(UserId)
 	if err != nil {
 		log.Println(err)
-		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		ReturnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
 		return
 	}
 
@@ -333,24 +238,12 @@ func ReadUserDislikedComments(w http.ResponseWriter, r *http.Request) {
 func ReadUserCreatedPosts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	// Authentication here
-	sessionToken, sessionTokenFound := checkForSessionToken(r)
-	if !sessionTokenFound {
-		returnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
-		return
-	}
+	UserId := getUserId(r)
 
-	if !checkIfUserLoggedin(sessionToken) {
-		returnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
-		return
-	}
-
-	sessionUserID := session.SessionStorage.GetSession(sessionToken.Value).UserId
-
-	posts, err := database.ReadUserCreatedPosts(sessionUserID)
+	posts, err := database.ReadUserCreatedPosts(UserId)
 	if err != nil {
 		log.Println(err)
-		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		ReturnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
 		return
 	}
 
@@ -359,28 +252,13 @@ func ReadUserCreatedPosts(w http.ResponseWriter, r *http.Request) {
 
 func ReadUserCommentdPosts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-
-	// Authentication here
-	sessionToken, sessionTokenFound := checkForSessionToken(r)
-	if !sessionTokenFound {
-		returnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
-		return
-	}
-
-	if !checkIfUserLoggedin(sessionToken) {
-		returnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
-		return
-	}
-
-	sessionUserID := session.SessionStorage.GetSession(sessionToken.Value).UserId
-
-	posts, err := database.ReadUserCommentsPosts(sessionUserID)
+	UserId := getUserId(r)
+	posts, err := database.ReadUserCommentsPosts(UserId)
 	if err != nil {
 		log.Println(err)
-		returnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		ReturnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
 		return
 	}
-	fmt.Println(posts)
 
 	json.NewEncoder(w).Encode(posts)
 

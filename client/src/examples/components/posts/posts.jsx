@@ -1,5 +1,4 @@
 import Gachi, {
-	useContext,
 	useState,
 	useNavigate,
 	useEffect,
@@ -13,21 +12,24 @@ export default function Posts() {
 	const [posts, setPosts] = useState([])
 
 	useEffect(() => {
-		const interval = () => {
-			fetch("http://localhost:8080/posts")
-				.then((response) => response.json())
-				.then((data) => setPosts(data))
-				.catch(
-					(error) => navigate("serverded"),
-					console.error("Error fetching users:", error)
-				)
+		const fetchData = async () => {
+			try {
+				const response = await fetch("http://localhost:8080/posts")
+				if (!response.ok) {
+					throw new Error("Network response was not ok")
+				}
+				const data = await response.json()
+				setPosts(data)
+			} catch (error) {
+				console.error("Error fetching posts:", error)
+			}
 		}
 
-		interval()
+		fetchData()
 
-		const fetchPosts = setInterval(interval, 100000)
+		const fetchPostsInterval = setInterval(fetchData, 100000)
 
-		return () => clearInterval(fetchPosts)
+		return () => clearInterval(fetchPostsInterval)
 	}, [])
 
 	return (
@@ -57,7 +59,6 @@ export default function Posts() {
 					</div>
 					<div className="post__info">
 						<div className="post__tags">
-							.
 							{post.categories.map((categories) => (
 								<p className="tag">{categories}</p>
 							))}

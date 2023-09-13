@@ -1,5 +1,4 @@
 import Gachi, { useState, useNavigate } from "../../../core/framework"
-// import ErrorWindow from "../error-window/err or-window.jsx"
 import { registrationRequest } from "../../additional-funcitons/authorization.js"
 
 export default function Registation() {
@@ -119,7 +118,6 @@ export default function Registation() {
 										onChange={handleInputChange}
 									/>
 								</div>
-								{/* <ErrorWindow errorArr={errorArr} /> */}
 								<button className="sign__button" type="submit">
 									Sign Up
 								</button>
@@ -130,22 +128,4 @@ export default function Registation() {
 			</div>
 		</>
 	)
-}
-
-const handleSubmit = (e) => {
-	e.preventDefault()
-
-	loginRequest(formData)
-		.then((resultInJson) => {
-			if (resultInJson.status === "success") {
-				localStorage.setItem("id", resultInJson.id)
-				navigate("/")
-			} else if (resultInJson.status === "error") {
-				setErrorMessage(resultInJson.message)
-				console.error("Login error:", resultInJson.message)
-			}
-		})
-		.catch((error) => {
-			console.error("Error during login:", error)
-		})
 }
