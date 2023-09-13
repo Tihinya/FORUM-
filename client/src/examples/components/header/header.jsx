@@ -42,7 +42,7 @@ export default function Header() {
 					<div className="profile-menu">
 						<div className="profile-nav">
 							<div className="user__info_picture">
-								<a onClick={() => navigate("profile-page")}>
+								<a onClick={() => navigate("/profile-page")}>
 									<img src="../img/avatarka.jpeg" />
 								</a>
 							</div>

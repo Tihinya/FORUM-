@@ -262,6 +262,12 @@ body {
 	display: none;
 }
 
+.post__header {
+	display: flex;
+	width: 100%;
+}
+
+
 .user__info {
 	display: flex;
 	flex-direction: row;
@@ -269,9 +275,18 @@ body {
 	gap: 30px;
 }
 
+.user__info_name {
+	display: flex;
+	flex-direction: column;
+	height: 100px;
+	justify-content: center;
+
+
+}
+
 .user__info_picture {
-	width: 60px;
-	height: 60px;
+	width: 70px;
+	height: 70px;
 	border-radius: 50%;
 	overflow: hidden;
 }
@@ -286,7 +301,7 @@ body {
 	display: inline-block;
 	font-size: 16px;
 	font-family: "Roboto", sans-serif;
-
+	margin: 0;
 	cursor: pointer;
 }
 
@@ -294,6 +309,7 @@ body {
 	font-size: 16px;
 	font-family: "Roboto", sans-serif;
 	color: var(--text-black-oppacity);
+	margin: 0;
 }
 
 .post__content h3 {
@@ -586,7 +602,7 @@ body {
 	gap: 20px;
 	padding: 20px;
 
-	width: 100%;
+	width: 95%;
 }
 
 .input-design {
@@ -835,11 +851,13 @@ body {
 
 .personal-navigator__categories {
 	display: flex;
+	padding: 32px;
 	flex-direction: column;
 	align-items: center;
-	font-size: 18px;
+	font-size: 20px;
 	font-family: "Roboto", sans-serif;
 	font-weight: 700;
+	gap: 20px;
 }
 
 .personal-navigator__categories p {
@@ -868,6 +886,7 @@ body {
 .nav__menu_profile {
 	position: fixed;
 	right: 2%;
+	top: 12%;
 	display: flex;
 	flex-direction: column;
 

@@ -11,6 +11,7 @@ import (
 )
 
 func LikePost(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	var existsLiked bool
 
 	postId, err := router.GetFieldInt(r, "id")
@@ -60,6 +61,7 @@ func LikePost(w http.ResponseWriter, r *http.Request) {
 }
 
 func UnlikePost(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	var existsLiked bool
 
 	postId, err := router.GetFieldInt(r, "id")

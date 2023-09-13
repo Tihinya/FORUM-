@@ -49,6 +49,7 @@ func main() {
 	r.NewRoute("GET", `/user/likedComments`, ct.ReadUserLikedComments)
 	r.NewRoute("GET", `/user/dislikedComments`, ct.ReadUserDislikedComments)
 	r.NewRoute("GET", `/user/posts`, ct.ReadUserCreatedPosts)
+	r.NewRoute("GET", `/user/comments`, ct.ReadUserCommentdPosts)
 
 	// Post
 	r.NewRoute("POST", `/post`, ct.CreatePost)

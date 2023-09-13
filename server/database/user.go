@@ -1,5 +1,7 @@
 package database
 
+import "fmt"
+
 func CreateUser(user UserInfo) (int, error) {
 	sqlStmt, err := DB.Prepare(`INSERT INTO users(
 		email,
@@ -103,39 +105,63 @@ func DeleteUser(userID int) error {
 	return nil
 }
 
-func ReadUserLikedPosts(userID int) ([]int, error) {
-	posts := make([]int, 0)
+func ReadUserLikedPosts(userID int) ([]Post, error) {
+	likedPosts := make([]Post, 0)
 
+	// Get the username for the given userID
 	username, err := GetUsername(userID)
 	if err != nil {
 		return nil, err
 	}
 
+	// Query the database for liked posts
 	rows, err := DB.Query(`
-		SELECT PostId, CommentId
-		FROM like WHERE Username = ?
+		SELECT p.id, p.title, p.content, p.profile_picture, p.username, p.creation_date,
+		p.likes, p.dislikes, p.last_edited
+		FROM like AS l
+		INNER JOIN post AS p ON l.PostId = p.id
+		WHERE l.Username = ?
 	`, username)
 	if err != nil {
 		return nil, err
 	}
 
 	for rows.Next() {
-		var like Like
+		var post Post
 
-		err = rows.Scan(&like.PostId, &like.CommentId)
+		// Scan the post data from the query result
+		err = rows.Scan(
+			&post.Id,
+			&post.Title,
+			&post.Content,
+			&post.UserInfo.ProfilePicture,
+			&post.UserInfo.Username,
+			&post.CreationDate,
+			&post.Likes,
+			&post.Dislikes,
+			&post.LastEdited,
+		)
 		if err != nil {
 			return nil, err
 		}
 
-		if like.PostId != 0 {
-			post := like.PostId
-			posts = append(posts, post)
+		post.Categories, err = getCategories(post)
+		if err != nil {
+			return nil, err
 		}
+
+		post.Likes, _ = getPostLikes(post.Id)
+		post.Dislikes, _ = getPostDislikes(post.Id)
+
+		post.Comments = fmt.Sprintf("https://localhost:8080/comments/%d", post.Id)
+		post.CommentCount = getCommentsCount(post.Id)
+		post.UserInfo.ProfilePicture, _ = GetAvatar(post.UserInfo.Username)
+
+		likedPosts = append(likedPosts, post)
 	}
 
-	return posts, nil
+	return likedPosts, nil
 }
-
 func ReadUserDislikedPosts(userID int) ([]int, error) {
 	posts := make([]int, 0)
 
@@ -235,8 +261,8 @@ func ReadUserDislikedComments(userID int) ([]int, error) {
 	return posts, nil
 }
 
-func ReadUserCreatedPosts(userID int) ([]int, error) {
-	posts := make([]int, 0)
+func ReadUserCreatedPosts(userID int) ([]Post, error) {
+	posts := make([]Post, 0)
 
 	username, err := GetUsername(userID)
 	if err != nil {
@@ -244,7 +270,9 @@ func ReadUserCreatedPosts(userID int) ([]int, error) {
 	}
 
 	rows, err := DB.Query(`
-		SELECT id FROM post WHERE Username = ?
+		SELECT id, title, content, profile_picture, username, creation_date,
+		likes, dislikes, last_edited
+		FROM post WHERE username = ?
 	`, username)
 	if err != nil {
 		return nil, err
@@ -253,18 +281,95 @@ func ReadUserCreatedPosts(userID int) ([]int, error) {
 	for rows.Next() {
 		var post Post
 
-		err = rows.Scan(&post.Id)
+		err = rows.Scan(
+			&post.Id,
+			&post.Title,
+			&post.Content,
+			&post.UserInfo.ProfilePicture,
+			&post.UserInfo.Username,
+			&post.CreationDate,
+			&post.Likes,
+			&post.Dislikes,
+			&post.LastEdited,
+		)
 		if err != nil {
 			return nil, err
 		}
 
-		if post.Id != 0 {
-			post := post.Id
-			posts = append(posts, post)
+		post.Categories, err = getCategories(post)
+		if err != nil {
+			return nil, err
 		}
+
+		post.Likes, _ = getPostLikes(post.Id)
+		post.Dislikes, _ = getPostDislikes(post.Id)
+
+		post.Comments = fmt.Sprintf("https://localhost:8080/comments/%d", post.Id)
+		post.CommentCount = getCommentsCount(post.Id)
+		post.UserInfo.ProfilePicture, _ = GetAvatar(post.UserInfo.Username)
+
+		posts = append(posts, post)
 	}
 
 	return posts, nil
+}
+
+func ReadUserCommentsPosts(userID int) ([]Post, error) {
+	postsWithComments := make([]Post, 0)
+
+	// Get the username for the given userID
+	username, err := GetUsername(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Query the database for posts with comments by the user
+	rows, err := DB.Query(`
+		SELECT p.id, p.title, p.content, p.profile_picture, p.username, p.creation_date,
+		p.likes, p.dislikes, p.last_edited
+		FROM comment AS c
+		INNER JOIN post AS p ON c.post_id = p.id
+		WHERE c.username = ?
+	`, username)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var post Post
+
+		// Scan the post data from the query result
+		err = rows.Scan(
+			&post.Id,
+			&post.Title,
+			&post.Content,
+			&post.UserInfo.ProfilePicture,
+			&post.UserInfo.Username,
+			&post.CreationDate,
+			&post.Likes,
+			&post.Dislikes,
+			&post.LastEdited,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		post.Categories, err = getCategories(post)
+		if err != nil {
+			return nil, err
+		}
+
+		post.Likes, _ = getPostLikes(post.Id)
+		post.Dislikes, _ = getPostDislikes(post.Id)
+
+		post.Comments = fmt.Sprintf("https://localhost:8080/comments/%d", post.Id)
+		post.CommentCount = getCommentsCount(post.Id)
+		post.UserInfo.ProfilePicture, _ = GetAvatar(post.UserInfo.Username)
+
+		postsWithComments = append(postsWithComments, post)
+	}
+
+	return postsWithComments, nil
 }
 
 func GetUsername(userID int) (string, error) {

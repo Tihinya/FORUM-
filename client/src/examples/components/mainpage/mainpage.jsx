@@ -9,18 +9,16 @@ import DropdownMenu from "../header/dropdown"
 import { NavBar } from "../navbar/navbar"
 import Posts from "../posts/posts"
 import { PostsAuth } from "../create-posts/postAuth"
+import PostList from "../post-list/postList"
 
 export default function MainPage() {
-	const [activeSubj, setActiveSubj] = useState("")
-	Gachi.createContext("currentCategory", { activeSubj, setActiveSubj })
-
-	const navigate = useNavigate()
-
 	return (
 		<div>
 			<Header />
 			<NavBar />
-			<PostsAuth />
+			<PostList />
+
+			{/* <PostsAuth /> */}
 		</div>
 	)
 }

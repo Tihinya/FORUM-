@@ -5,18 +5,21 @@ import Gachi, {
 	useEffect,
 } from "../../../core/framework"
 
+import { fetchData } from "../../additional-funcitons/api.js"
+
 export function NavBar() {
-	// const [activeSubj, setActiveSubj] = useState(0)
 	const { activeSubj, setActiveSubj } = useContext("currentCategory")
 	const detailsVisible = useState(false)
 	const [categories, setCategories] = useState([])
 
-	// const subjects = ["UX/UI", "JavaScript", "Golang", "Wisdom"]
 	useEffect(() => {
-		fetch("http://localhost:8080/categories")
-			.then((response) => response.json())
-			.then((data) => setCategories(data))
-			.catch((error) => console.error("Error fetching posts:", error))
+		fetchData(null, "categories", "GET")
+			.then((resultInJson) => {
+				setCategories(resultInJson)
+			})
+			.catch((error) => {
+				setErrorMessage("Failed to fetch categories: " + error.message)
+			})
 	}, [])
 
 	const handleSubjectClick = (index) => {
@@ -43,9 +46,9 @@ export function NavBar() {
 					</p>
 				))}
 			</div>
-			<div className={`detailed-thread ${detailsVisible ? "show" : ""}`}>
-				{/* Detailed thread content */}
-			</div>
+			<div
+				className={`detailed-thread ${detailsVisible ? "show" : ""}`}
+			></div>
 		</div>
 	)
 }
