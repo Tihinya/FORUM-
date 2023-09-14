@@ -7,8 +7,7 @@ import Gachi, {
 
 import { fetchData } from "../../additional-funcitons/api.js"
 
-export default function LikesAndDislikes({ post, page }) {
-	const navigate = useNavigate()
+export default function LikesAndDislikes({ post, method }) {
 	const likeUrl = "user/liked"
 	const disLikeUrl = "user/disliked"
 
@@ -28,13 +27,6 @@ export default function LikesAndDislikes({ post, page }) {
 		})
 	}
 
-	// console.log(dislikedPosts)
-
-	useEffect(() => {
-		fetchLikes()
-		fetchDislikes()
-	}, [])
-
 	// Create a helper function for making the POST requests
 	const handleLike = (type, postId) => {
 		const isLiking =
@@ -42,44 +34,19 @@ export default function LikesAndDislikes({ post, page }) {
 			!dislikedPosts.includes(postId)
 		const endpoint = isLiking ? `${postId}/${type}` : `${postId}/un${type}`
 
-		fetchData(null, `${page}/${endpoint}`, "POST").then((resultInJson) => {
-			if (resultInJson.status === "success") {
-				fetchData(null, "posts", "GET").then((resultInJson) => {
-					setPosts(resultInJson)
-					fetchLikes()
-					fetchDislikes()
-				})
-			} else if (resultInJson.status === "error") {
-				setErrorMessage(resultInJson.message)
+		fetchData(null, `${method}/${endpoint}`, "POST").then(
+			(resultInJson) => {
+				if (resultInJson.status === "success") {
+					fetchData(null, "posts", "GET").then((resultInJson) => {
+						setPosts(resultInJson)
+						fetchLikes()
+						fetchDislikes()
+					})
+				} else if (resultInJson.status === "error") {
+					setErrorMessage(resultInJson.message)
+				}
 			}
-		})
-		// if (response.status === "success") {
-		// 	// setPosts((prevPosts) => {
-		// 	// 	return prevPosts.map((post) => {
-		// 	// 		if (post.id === postId) {
-		// 	// 			return {
-		// 	// 				...post,
-		// 	// 				likes:
-		// 	// 					type === "like"
-		// 	// 						? post.likes + (isLiking ? 1 : -1)
-		// 	// 						: post.likes,
-		// 	// 				dislikes:
-		// 	// 					type === "dislike"
-		// 	// 						? post.dislikes + (isLiking ? 1 : -1)
-		// 	// 						: post.dislikes,
-		// 	// 			}
-		// 	// 		}
-		// 	// 		return post
-		// 	// 	})
-		// 	// })
-		// 	fetchLikes()
-		// 	fetchDislikes()
-		// } else {
-		// 	console.error(
-		// 		`Request failed with status: ${response.status} - ${response.message}`
-		// 	)
-		// }
-		// })
+		)
 	}
 
 	return (

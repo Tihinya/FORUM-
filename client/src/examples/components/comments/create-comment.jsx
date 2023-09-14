@@ -28,13 +28,14 @@ export default function CreateComment({ endPointUrl, userId }) {
 		fetchData(formData, endpoint, "POST")
 			.then((resultInJson) => {
 				if (resultInJson.status === "success") {
-					fetchData(null, point, "GET")
-						.then((resultInJson) => {
-							setComments(resultInJson)
-						})
-						.catch((error) => {
-							console.log("Failed to fetch: " + error.message)
-						})
+					setFormData({
+						...formData,
+						content: "",
+					})
+
+					fetchData(null, point, "GET").then((resultInJson) => {
+						setComments(resultInJson)
+					})
 				} else if (resultInJson.status === "error") {
 					setErrorMessage(resultInJson.message)
 				}
@@ -83,7 +84,6 @@ export default function CreateComment({ endPointUrl, userId }) {
 				</div>
 				<div className="promotion-message__buttons">
 					<button type="submit" className="sign__button-orange">
-						{" "}
 						Leave comment
 					</button>
 				</div>

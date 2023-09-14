@@ -1,5 +1,4 @@
 export function fetchData(formData = null, endPointUrl, method) {
-	// console.log(endPointUrl)
 	const requestOptions = {
 		method: method,
 		headers: {

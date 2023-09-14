@@ -1,7 +1,7 @@
-import Gachi, { useNavigate } from "../../../core/framework"
+import Gachi, { useNavigate, useContext } from "../../../core/framework"
 
 import { NavBar } from "../navbar/navbar"
-import Posts from "../posts/posts1"
+import Posts from "../posts/posts"
 import Header from "../header/header"
 import PersonalNavBar from "../personalNavBar/personalNavBar"
 

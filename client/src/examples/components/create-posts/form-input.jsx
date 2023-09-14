@@ -11,7 +11,7 @@ import ErrorWindow from "../errors/error-window"
 export default function CreatePost() {
 	const navigate = useNavigate()
 
-	const isLoggin = true
+	const isLoggin = isLogin()
 	const categorieUrl = "categories"
 	const createPostUrl = "post"
 
@@ -20,9 +20,11 @@ export default function CreatePost() {
 	const [errorMessage, setErrorMessage] = useState("")
 	const [categories, setCategories] = useState([])
 	const [threadClicked, setThreadClicked] = useState(false)
+	const [selectedImage, setSelectedImage] = useState("")
 	const [formData, setFormData] = useState({
 		title: "",
 		content: "",
+		image: "",
 	})
 
 	useEffect(() => {
@@ -44,16 +46,45 @@ export default function CreatePost() {
 	}
 
 	const handleInputChange = (e) => {
-		const { name, value } = e.target
-		setFormData((prevData) => ({
-			...prevData,
-			[name]: value,
-		}))
+		const { name, value, type } = e.target
+
+		// Check if the input field is of type "file" (for images)
+		if (type === "file") {
+			const file = e.target.files[0]
+			const imageSize = 20 * 1024 * 1024 // 20MB
+
+			if (file) {
+				// Handle image file upload
+				const reader = new FileReader()
+
+				// Check if the image size is within limits
+				if (file.size > imageSize) {
+					alert("File is too big, max size is 20Mb")
+					return
+				}
+
+				reader.onload = (event) => {
+					const imageURL = event.target.result
+
+					setFormData((prevData) => ({
+						...prevData,
+						[name]: imageURL, // Store the image data (URL) in the form data
+					}))
+					setSelectedImage(imageURL) // Optionally, update the selectedImage state
+				}
+				reader.readAsDataURL(file)
+			}
+		} else {
+			// For non-image fields, update the form data as usual
+			setFormData((prevData) => ({
+				...prevData,
+				[name]: value,
+			}))
+		}
 	}
 
 	const handleSubmitClick = (e) => {
 		e.preventDefault()
-
 		fetchData(formData, createPostUrl, "POST")
 			.then((resultInJson) => {
 				if (resultInJson.status === "success") {
@@ -85,6 +116,36 @@ export default function CreatePost() {
 				category,
 			])
 		}
+	}
+	const imageHandler = (e) => {
+		const file = e.target.files[0]
+		const imageSize = 20 * 1024 * 1024 // 20MB
+
+		if (file) {
+			if (file.size > imageSize) {
+				alert("File is too big, max size is 20Mb")
+				return
+			}
+
+			const reader = new FileReader()
+
+			reader.onload = (event) => {
+				const imageURL = event.target.result
+
+				setSelectedImage(imageURL)
+
+				setFormData((prevData) => ({
+					...prevData,
+					image: imageURL,
+				}))
+			}
+
+			reader.readAsDataURL(file)
+		}
+	}
+
+	const imageHandlerDelete = () => {
+		setSelectedImage("")
 	}
 
 	return (
@@ -127,7 +188,17 @@ export default function CreatePost() {
 				>
 					<div className="thread-options">
 						<div className="upload-image">
-							<img src="../img/add picture.svg" />
+							<label
+								for="image-file-upload"
+								className="custom-upload-file-button"
+							>
+								<input
+									type="file"
+									name="image"
+									onChange={imageHandler}
+									id="image-file-upload"
+								/>
+							</label>
 						</div>
 						<textarea
 							value={formData.content}
@@ -158,6 +229,24 @@ export default function CreatePost() {
 					</div>
 
 					<div className="create-post-button">
+						<div className="create-post-image-added-container">
+							{selectedImage && (
+								<div className="create-post-image-added">
+									<img
+										className="create-post-image"
+										src={selectedImage}
+										alt="Select Image"
+									/>
+									<button
+										className="sign__button"
+										onClick={imageHandlerDelete}
+									>
+										Remove Image
+									</button>
+								</div>
+							)}
+						</div>
+
 						<button className="sign__button" type="submit">
 							Create Post
 						</button>

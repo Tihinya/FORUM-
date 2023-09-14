@@ -8,13 +8,9 @@ export function NavBar() {
 	const [categories, setCategories] = useState([])
 
 	useEffect(() => {
-		fetchData(null, "categories", "GET")
-			.then((resultInJson) => {
-				setCategories(resultInJson)
-			})
-			.catch((error) => {
-				setErrorMessage("Failed to fetch categories: " + error.message)
-			})
+		fetchData(null, "categories", "GET").then((resultInJson) => {
+			setCategories(resultInJson)
+		})
 	}, [])
 
 	const handleSubjectClick = (index) => {

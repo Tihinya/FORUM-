@@ -119,9 +119,10 @@ func ReadUserLikedPosts(userID int) ([]Post, error) {
 		SELECT p.id, p.title, p.content, p.profile_picture, p.username, p.creation_date,
 		p.likes, p.dislikes, p.last_edited
 		FROM like AS l
-		INNER JOIN post AS p ON l.PostId = p.id
+		INNER JOIN post AS p ON l.post_id = p.id
 		WHERE l.Username = ?
 	`, username)
+
 	if err != nil {
 		return nil, err
 	}

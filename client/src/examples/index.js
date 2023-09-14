@@ -10,20 +10,12 @@ import Header from "./components/header/header.jsx"
 import Login from "./components/login/login.jsx"
 import Registration from "./components/registration/registration.jsx"
 import ProfilePage from "./components/profile-page/profilePage.jsx"
-import { Comments } from "./components/comments/comments1.jsx"
+import { Comments } from "./components/comments/comments.jsx"
 import MainPage from "./components/mainpage/mainpage.jsx"
 import ErrorPage from "./components/errors/error-page.jsx"
 importCss("/styles/index.css")
 
 const container = document.getElementById("root")
-
-function Home() {
-	return (
-		<div>
-			<MainPage />
-		</div>
-	)
-}
 
 function HomeComment({ params }) {
 	return (
@@ -60,11 +52,10 @@ function App() {
 	const [comments, setComments] = useState([])
 	Gachi.createContext("currentComment", { comments, setComments })
 
-	// const [top, setTop] = useState("")
 	return (
 		<Router
 			routes={[
-				{ path: "/", element: <Home /> },
+				{ path: "/", element: <MainPage /> },
 				{ path: "/login", element: <Login /> },
 				{ path: "/registration", element: <Registration /> },
 				{ path: "/profile-page", element: <ProfilePage /> },
