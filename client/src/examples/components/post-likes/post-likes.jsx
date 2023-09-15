@@ -10,8 +10,8 @@ import { fetchData } from "../../additional-funcitons/api.js"
 export default function LikesAndDislikes({ post, method }) {
 	const likeUrl = "user/liked"
 	const disLikeUrl = "user/disliked"
-
 	const { setPosts } = useContext("currentPosts")
+	const { setErrorMessage } = useContext("currentErrorMessage")
 	const [likedPosts, setLikedPosts] = useState([])
 	const [dislikedPosts, setDislikedPosts] = useState([])
 

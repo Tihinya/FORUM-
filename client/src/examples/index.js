@@ -41,8 +41,9 @@ const ErrorInternalError = {
 }
 
 function App() {
-	const [top, setTop] = useState("")
+	const [top, setTop] = useState("user/posts")
 	Gachi.createContext("currentTop", { top, setTop })
+
 	const [activeSubj, setActiveSubj] = useState("")
 	Gachi.createContext("currentCategory", { activeSubj, setActiveSubj })
 
@@ -52,6 +53,11 @@ function App() {
 	const [comments, setComments] = useState([])
 	Gachi.createContext("currentComment", { comments, setComments })
 
+	const [errorMessage, setErrorMessage] = useState("")
+	Gachi.createContext("currentErrorMessage", {
+		errorMessage,
+		setErrorMessage,
+	})
 	return (
 		<Router
 			routes={[

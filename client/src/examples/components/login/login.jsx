@@ -41,16 +41,12 @@ export default function Login() {
 		}))
 	}
 
-	const handleErrorMessageClose = () => {
-		setErrorMessage("")
-	}
-
 	return (
 		<div>
 			{errorMessage != "" ? (
 				<ErrorWindow
 					errorMessage={errorMessage}
-					onClose={handleErrorMessageClose}
+					onClose={() => setErrorMessage("")}
 				/>
 			) : (
 				""

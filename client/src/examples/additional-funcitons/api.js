@@ -13,11 +13,6 @@ export function fetchData(formData = null, endPointUrl, method) {
 
 	return fetch(`http://localhost:8080/${endPointUrl}`, requestOptions)
 		.then((response) => {
-			if (!response.ok) {
-				throw new Error(
-					`Request failed with status: ${response.status}`
-				)
-			}
 			return response.json()
 		})
 		.catch((error) => {

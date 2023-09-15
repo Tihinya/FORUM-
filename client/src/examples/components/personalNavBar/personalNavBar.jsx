@@ -5,11 +5,12 @@ import Gachi, {
 } from "../../../core/framework"
 
 export default function PersonalNavBar() {
-	const navigateTo = useNavigate()
+	// const navigateTo = useNavigate()
 	const { top, setTop } = useContext("currentTop")
 
 	const toggleFilter = (filterType) => {
 		if (top !== filterType) {
+			setTop("")
 			setTop(filterType)
 		} else {
 			setTop("")

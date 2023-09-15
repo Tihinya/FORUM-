@@ -1201,6 +1201,7 @@ input[type="file"] {
 }
 
 .error-window {
+	position: sticky;
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -1215,6 +1216,7 @@ input[type="file"] {
 	padding: 16px;
 	border-radius: 8px;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+	z-index: 3;
 }
 
 .error-window-hidden {
