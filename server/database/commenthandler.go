@@ -227,6 +227,17 @@ func getPostCommentIds(postId int) ([]int, error) {
 	return comments, nil
 }
 
+func GetPostIdFromCommentId(commentId int) (int, error) {
+	var postId int
+
+	err := DB.QueryRow("SELECT post_id FROM comment WHERE id = ?", commentId).Scan(&postId)
+	if err != nil {
+		return 0, err
+	}
+
+	return postId, nil
+}
+
 func getCommentsCount(postId int) int {
 	var count int
 

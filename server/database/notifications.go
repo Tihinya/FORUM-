@@ -25,6 +25,7 @@ func GetNotifications(userId int) ([]Notification, error) {
 		err = rows.Scan(
 			&notification.Id,
 			&notification.Username,
+			&notification.ParentObjectId,
 			&notification.RelatedObjectType,
 			&notification.RelatedObjectId,
 			&notification.Type,
@@ -41,8 +42,10 @@ func GetNotifications(userId int) ([]Notification, error) {
 	return notifications, nil
 }
 
-func CreateNotification(objectType string, objectId int, Type string) error {
-	username, err := getPostCreatorByPostId(objectId)
+func CreateNotification(parentObjectId int, objectType string, objectId int, Type string) error {
+	var username string
+
+	username, err = getPostCreatorByPostId(parentObjectId)
 	if err != nil {
 		return err
 	}
@@ -50,17 +53,18 @@ func CreateNotification(objectType string, objectId int, Type string) error {
 	stmt, err := DB.Prepare(`
 		INSERT INTO notifications (
 			username,
+			parent_object_id,
 			related_object_type,
 			related_object_id,
 			type,
 			creation_date
-		) VALUES (?, ?, ?, ?, ?)
+		) VALUES (?, ?, ?, ?, ?, ?)
 	`)
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(username, objectType, objectId, Type, time.Now())
+	_, err = stmt.Exec(username, parentObjectId, objectType, objectId, Type, time.Now())
 	if err != nil {
 		return err
 	}

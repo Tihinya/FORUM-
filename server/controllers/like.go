@@ -38,7 +38,7 @@ func LikePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = database.CreateNotification("post", postId, "like")
+	err = database.CreateNotification(postId, "post", postId, "like")
 	if err != nil {
 		log.Println(err)
 		ReturnMessageJSON(w, "Internal error", http.StatusInternalServerError, "error")
@@ -102,7 +102,14 @@ func LikeComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = database.CreateNotification("comment", commentId, "like")
+	postId, err := database.GetPostIdFromCommentId(commentId)
+	if err != nil {
+		log.Println(err)
+		ReturnMessageJSON(w, "Internal error", http.StatusInternalServerError, "error")
+		return
+	}
+
+	err = database.CreateNotification(postId, "comment", commentId, "like")
 	if err != nil {
 		log.Println(err)
 		ReturnMessageJSON(w, "Internal error", http.StatusInternalServerError, "error")

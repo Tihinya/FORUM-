@@ -42,7 +42,7 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = database.CreateNotification("post", postId, "comment")
+	err = database.CreateNotification(postId, "post", postId, "comment")
 	if err != nil {
 		log.Println(err)
 		ReturnMessageJSON(w, "Internal error", http.StatusInternalServerError, "error")

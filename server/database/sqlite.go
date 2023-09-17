@@ -123,6 +123,7 @@ func CreateTables() {
 		CREATE TABLE IF NOT EXISTS notifications (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			username TEXT NOT NULL,
+			parent_object_id INTEGER NOT NULL,
 			related_object_type TEXT NOT NULL,
 			related_object_id INTEGER NOT NULL,
 			type TEXT NOT NULL,

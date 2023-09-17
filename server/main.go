@@ -13,9 +13,14 @@ import (
 )
 
 var (
-	requests = make(map[string]int)
+	requests = make(map[string]*requestInfo)
 	l        sync.Mutex
 )
+
+type requestInfo struct {
+	count     int
+	timestamp time.Time
+}
 
 func Auth() router.Middleware {
 	return func(next http.Handler) http.Handler {
@@ -44,9 +49,18 @@ func RateLimiter() router.Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ip := r.RemoteAddr
+			now := time.Now()
 
-			if count, ok := requests[ip]; ok {
-				if count >= 200 {
+			l.Lock()
+
+			info, ok := requests[ip]
+			if ok {
+				// Check if it's been more than a minute since the first request
+				if now.Sub(info.timestamp) > time.Minute {
+					info.count = 1
+					info.timestamp = now
+				} else if info.count >= 200 {
+					l.Unlock()
 					ct.ReturnMessageJSON(
 						w,
 						"You have reached the bandwidth limit of your 3G package, your rate has been limited.",
@@ -54,18 +68,13 @@ func RateLimiter() router.Middleware {
 						"error",
 					)
 					return
+				} else {
+					info.count++
 				}
-				requests[ip] = count + 1
 			} else {
-				requests[ip] = 1
+				requests[ip] = &requestInfo{count: 1, timestamp: now}
 			}
-
-			go func() {
-				time.Sleep(time.Minute)
-				l.Lock()
-				delete(requests, ip)
-				l.Unlock()
-			}()
+			l.Unlock() // Unlock after modifying the map
 
 			next.ServeHTTP(w, r)
 		})

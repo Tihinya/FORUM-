@@ -38,7 +38,7 @@ func DislikePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = database.CreateNotification("post", postId, "dislike")
+	err = database.CreateNotification(postId, "post", postId, "dislike")
 	if err != nil {
 		log.Println(err)
 		ReturnMessageJSON(w, "Internal error", http.StatusInternalServerError, "error")
@@ -102,7 +102,14 @@ func DislikeComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = database.CreateNotification("comment", commentId, "dislike")
+	postId, err := database.GetPostIdFromCommentId(commentId)
+	if err != nil {
+		log.Println(err)
+		ReturnMessageJSON(w, "Internal error", http.StatusInternalServerError, "error")
+		return
+	}
+
+	err = database.CreateNotification(postId, "comment", commentId, "dislike")
 	if err != nil {
 		log.Println(err)
 		ReturnMessageJSON(w, "Internal error", http.StatusInternalServerError, "error")
