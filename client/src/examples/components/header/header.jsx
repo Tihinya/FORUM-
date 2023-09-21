@@ -10,6 +10,7 @@ export default function Header() {
 			<div className="header__logo">
 				<a
 					onClick={() => {
+						navigate("/")
 						window.location.reload() // Reload the page
 					}}
 				>

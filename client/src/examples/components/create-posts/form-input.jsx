@@ -17,16 +17,16 @@ export default function CreatePost() {
 
 	const { setPosts } = useContext("currentPosts")
 	const [selectedCategories, setSelectedCategories] = useState([])
-	const [errorMessage, setErrorMessage] = useState("")
 	const [categories, setCategories] = useState([])
+	const [errorMessage, setErrorMessage] = useState("")
 	const [threadClicked, setThreadClicked] = useState(false)
 	const [selectedImage, setSelectedImage] = useState("")
 	const [formData, setFormData] = useState({
 		title: "",
 		content: "",
 		image: "",
+		categories: [],
 	})
-
 	useEffect(() => {
 		fetchData(null, categorieUrl, "GET")
 			.then((resultInJson) => {
@@ -35,7 +35,12 @@ export default function CreatePost() {
 			.catch((error) => {
 				setErrorMessage("Failed to fetch categories: " + error.message)
 			})
-	}, [])
+
+		setFormData((prevData) => ({
+			...prevData,
+			categories: selectedCategories,
+		}))
+	}, [selectedCategories])
 
 	const handleThreadButtonClick = () => {
 		if (!threadClicked) {
@@ -59,7 +64,7 @@ export default function CreatePost() {
 
 				// Check if the image size is within limits
 				if (file.size > imageSize) {
-					alert("File is too big, max size is 20Mb")
+					setErrorMessage("File is too big, max size is 20Mb")
 					return
 				}
 
@@ -85,10 +90,19 @@ export default function CreatePost() {
 
 	const handleSubmitClick = (e) => {
 		e.preventDefault()
+		console.log(formData)
 		fetchData(formData, createPostUrl, "POST")
 			.then((resultInJson) => {
 				if (resultInJson.status === "success") {
 					setThreadClicked("")
+					setFormData({
+						title: "",
+						content: "",
+						image: "",
+						categories: [],
+					})
+					setSelectedCategories([])
+
 					fetchData(null, "posts", "GET").then((resultInJson) => {
 						setPosts(resultInJson)
 					})
@@ -115,32 +129,6 @@ export default function CreatePost() {
 				...prevCategories,
 				category,
 			])
-		}
-	}
-	const imageHandler = (e) => {
-		const file = e.target.files[0]
-		const imageSize = 20 * 1024 * 1024 // 20MB
-
-		if (file) {
-			if (file.size > imageSize) {
-				alert("File is too big, max size is 20Mb")
-				return
-			}
-
-			const reader = new FileReader()
-
-			reader.onload = (event) => {
-				const imageURL = event.target.result
-
-				setSelectedImage(imageURL)
-
-				setFormData((prevData) => ({
-					...prevData,
-					image: imageURL,
-				}))
-			}
-
-			reader.readAsDataURL(file)
 		}
 	}
 
@@ -195,7 +183,7 @@ export default function CreatePost() {
 								<input
 									type="file"
 									name="image"
-									onChange={imageHandler}
+									onChange={handleInputChange}
 									id="image-file-upload"
 								/>
 							</label>

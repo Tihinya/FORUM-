@@ -21,7 +21,7 @@ func Auth() router.Middleware {
 			}
 
 			if !ct.CheckIfUserLoggedin(sessionToken) {
-				ct.ReturnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
+				ct.ReturnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "error")
 				log.Println("Auth middleware fail")
 				return
 			}

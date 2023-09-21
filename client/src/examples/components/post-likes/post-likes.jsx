@@ -7,11 +7,12 @@ import Gachi, {
 
 import { fetchData } from "../../additional-funcitons/api.js"
 
-export default function LikesAndDislikes({ post, method }) {
+export default function LikesAndDislikes({ post, method, endPointUrl }) {
 	const likeUrl = "user/liked"
 	const disLikeUrl = "user/disliked"
 	const { setPosts } = useContext("currentPosts")
 	const { setErrorMessage } = useContext("currentErrorMessage")
+	const { setComments } = useContext("currentComment")
 	const [likedPosts, setLikedPosts] = useState([])
 	const [dislikedPosts, setDislikedPosts] = useState([])
 
@@ -20,25 +21,33 @@ export default function LikesAndDislikes({ post, method }) {
 			setLikedPosts(resultInJson)
 		})
 	}
-
 	const fetchDislikes = () => {
 		fetchData(null, disLikeUrl, "GET").then((resultInJson) => {
 			setDislikedPosts(resultInJson)
 		})
 	}
-
-	// Create a helper function for making the POST requests
 	const handleLike = (type, postId) => {
+		fetchLikes()
+		fetchDislikes()
 		const isLiking =
 			!likedPosts.some((obj) => obj.id === postId) &&
 			!dislikedPosts.includes(postId)
-		const endpoint = isLiking ? `${postId}/${type}` : `${postId}/un${type}`
 
+		const endpoint = isLiking ? `${postId}/${type}` : `${postId}/un${type}`
+		console.log(`${method}/${endpoint}`)
 		fetchData(null, `${method}/${endpoint}`, "POST").then(
 			(resultInJson) => {
 				if (resultInJson.status === "success") {
-					fetchData(null, "posts", "GET").then((resultInJson) => {
-						setPosts(resultInJson)
+					fetchData(null, endPointUrl, "GET").then((resultInJson) => {
+						if (
+							endPointUrl === "posts" ||
+							endPointUrl === "user/posts" ||
+							endPointUrl === "post"
+						) {
+							setPosts(resultInJson)
+						} else {
+							setComments(resultInJson)
+						}
 						fetchLikes()
 						fetchDislikes()
 					})

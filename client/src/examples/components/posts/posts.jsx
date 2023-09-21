@@ -20,7 +20,6 @@ export default function Posts({ endPointUrl, userId }) {
 	const { posts, setPosts } = useContext("currentPosts")
 	const { activeSubj } = useContext("currentCategory")
 	const { comments, setComments } = useContext("currentComment")
-	const [post, setPost] = useState([])
 	const navigate = useNavigate()
 	const postOrComment = endPointUrl !== "comments" ? true : false
 	const endpoint =
@@ -32,10 +31,12 @@ export default function Posts({ endPointUrl, userId }) {
 
 	useEffect(() => {
 		fetchData(null, endpoint, "GET").then((resultInJson) => {
-			if (endPointUrl === "posts" || endPointUrl === "user/posts") {
+			if (
+				endPointUrl === "posts" ||
+				endPointUrl === "user/posts" ||
+				endPointUrl === "post"
+			) {
 				setPosts(resultInJson)
-			} else if (endPointUrl === "post") {
-				setPost(resultInJson)
 			} else {
 				setComments(resultInJson)
 			}
@@ -43,10 +44,10 @@ export default function Posts({ endPointUrl, userId }) {
 	}, [activeSubj])
 
 	const data =
-		endPointUrl === "posts" || endPointUrl === "user/posts"
+		endPointUrl === "posts" ||
+		endPointUrl === "user/posts" ||
+		endPointUrl === "post"
 			? posts
-			: endPointUrl === "post"
-			? post
 			: comments
 
 	data.sort((a, b) => {
@@ -58,6 +59,9 @@ export default function Posts({ endPointUrl, userId }) {
 	if (!data.length) {
 		return <h1 style={"text-align: center"}>Posts not found</h1>
 	}
+
+	const method = endPointUrl === "posts" ? "post" : "comment"
+	console.log(method)
 
 	return (
 		<div>
@@ -115,7 +119,11 @@ export default function Posts({ endPointUrl, userId }) {
 									<CommentsIcon post={post} />
 								)}
 
-								<LikesAndDislikes post={post} method={"post"} />
+								<LikesAndDislikes
+									post={post}
+									method={method}
+									endPointUrl={endpoint}
+								/>
 							</div>
 						</div>
 					</div>
