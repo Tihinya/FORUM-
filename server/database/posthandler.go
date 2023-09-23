@@ -13,14 +13,15 @@ func CreatePost(post Post) error {
 			content,
 			profile_picture,
 			username,
+			image,
 			creation_date
-		) VALUES (?, ?, ?, ?, ?)
+		) VALUES (?, ?, ?, ?, ?, ?)
 	`)
 	if err != nil {
 		return err
 	}
 
-	result, err := stmt.Exec(post.Title, post.Content, post.UserInfo.ProfilePicture, post.UserInfo.Username, post.CreationDate)
+	result, err := stmt.Exec(post.Title, post.Content, post.UserInfo.ProfilePicture, post.UserInfo.Username, post.Image, post.CreationDate)
 	if err != nil {
 		return err
 	}
@@ -44,7 +45,7 @@ func SelectPost(id string) ([]Post, error) {
 	rows, err := DB.Query(`
 		SELECT post.id, post.title, post.content,
 		post.profile_picture, post.username, post.creation_date,
-		post.likes, post.dislikes, post.last_edited
+		post.likes, post.dislikes, post.last_edited, post.image
 		FROM post WHERE id = ?
 	`, id)
 	if err != nil {
@@ -64,6 +65,7 @@ func SelectPost(id string) ([]Post, error) {
 			&post.Likes,
 			&post.Dislikes,
 			&post.LastEdited,
+			&post.Image,
 		)
 		if err != nil {
 			return nil, err
@@ -94,7 +96,7 @@ func SelectAllPosts(categoriesString string) ([]Post, error) {
 	rows, err := DB.Query(`
 		SELECT post.id, post.title, post.content,
 		post.profile_picture, post.username, post.creation_date,
-		post.likes, post.dislikes, post.last_edited
+		post.likes, post.dislikes, post.last_edited, post.image
 		FROM post
 	`)
 	if err != nil {
@@ -114,6 +116,7 @@ func SelectAllPosts(categoriesString string) ([]Post, error) {
 			&post.Likes,
 			&post.Dislikes,
 			&post.LastEdited,
+			&post.Image,
 		)
 		if err != nil {
 			return nil, err

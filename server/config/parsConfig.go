@@ -20,7 +20,6 @@ type config struct {
 	GoogleRedirectURI  string `json:"googleRedirectURI"`
 	GoogleOAuth        string `json:"googleOAuth"`
 	GoogleGetToken     string `json:"googleGetToken"`
-	// GoogleClientSecret string `json:"googleClientSecret"`
 }
 
 func parseConfig() config {

@@ -1,17 +1,10 @@
-import Gachi, {
-	useContext,
-	useState,
-	useNavigate,
-	useEffect,
-} from "../../../core/framework"
+import Gachi, { useContext, useState, useEffect } from "../../../core/framework"
 
 export function NavBar() {
-	// const [activeSubj, setActiveSubj] = useState(0)
 	const { activeSubj, setActiveSubj } = useContext("currentCategory")
 	const detailsVisible = useState(false)
 	const [categories, setCategories] = useState([])
 
-	// const subjects = ["UX/UI", "JavaScript", "Golang", "Wisdom"]
 	useEffect(() => {
 		fetch("https://localhost:8080/categories")
 			.then((response) => response.json())
@@ -43,9 +36,9 @@ export function NavBar() {
 					</p>
 				))}
 			</div>
-			<div className={`detailed-thread ${detailsVisible ? "show" : ""}`}>
-				{/* Detailed thread content */}
-			</div>
+			<div
+				className={`detailed-thread ${detailsVisible ? "show" : ""}`}
+			></div>
 		</div>
 	)
 }

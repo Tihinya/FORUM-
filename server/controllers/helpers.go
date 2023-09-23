@@ -2,10 +2,9 @@ package controllers
 
 import (
 	"encoding/json"
-	"net/http"
-
 	"forum/database"
 	"forum/session"
+	"net/http"
 )
 
 func ReturnMessageJSON(w http.ResponseWriter, message string, httpCode int, status string) {

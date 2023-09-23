@@ -9,10 +9,6 @@ export async function registrationRequest(formData) {
 
 	const data = await response.json()
 
-	// if (!response.ok) {
-	// 	throw new Error(data.message)
-	// }
-
 	return data
 }
 
@@ -27,10 +23,5 @@ export async function loginRequest(formData) {
 	})
 
 	const data = await response.json()
-
-	// if (!response.ok) {
-	// 	throw new Error(data.message)
-	// }
-
 	return data
 }

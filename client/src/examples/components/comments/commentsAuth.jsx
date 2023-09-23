@@ -1,9 +1,4 @@
-import Gachi, {
-	useContext,
-	useEffect,
-	useNavigate,
-	useState,
-} from "../../../core/framework.ts"
+import Gachi, { useEffect, useState } from "../../../core/framework.ts"
 import isLogin from "../../additional-funcitons/isLogin.js"
 import { convertTime } from "../../additional-funcitons/post.js"
 
@@ -64,7 +59,9 @@ export function CommentAuth({ postId: navigatePostId }) {
 	const fetchPost = () => {
 		fetch(`https://localhost:8080/post/${navigatePostId}`)
 			.then((response) => response.json())
-			.then((data) => setPosts(data))
+			.then((data) => {
+				setPosts(data)
+			})
 			.catch((error) => console.error("Error fetching posts:", error))
 	}
 
@@ -324,6 +321,14 @@ export function CommentAuth({ postId: navigatePostId }) {
 							<div className="post__content">
 								<h3>{post.title}</h3>
 								<p className="post-text">{post.content}</p>
+								{post.image && (
+									<div className="post__image-container">
+										<img
+											className="post__image"
+											src={post.image}
+										/>
+									</div>
+								)}
 							</div>
 							<div className="post__info">
 								<div className="post__tags">
@@ -394,80 +399,82 @@ export function CommentAuth({ postId: navigatePostId }) {
 							</div>
 						</form>
 					</div>
-					{comments
-						.sort(
-							(a, b) =>
-								new Date(b.creation_date) -
-								new Date(a.creation_date)
-						)
-						.map((comment) => (
-							<div className="post__box">
-								<div className="post__header">
-									<div className="user__info">
-										<div className="user__info_picture">
-											<a href="../html/profile-page.html">
-												<img src="../img/avatarka.jpeg" />
-											</a>
-										</div>
-										<div className="user__info_name">
-											<p className="name">
-												{comment.user_info.username}
-											</p>
-											<p className="date">
-												{convertTime(
-													comment.creation_date
-												)}
-											</p>
+					<div className="post__comments-container">
+						{comments
+							.sort(
+								(a, b) =>
+									new Date(b.creation_date) -
+									new Date(a.creation_date)
+							)
+							.map((comment) => (
+								<div className="post__box">
+									<div className="post__header">
+										<div className="user__info">
+											<div className="user__info_picture">
+												<a href="../html/profile-page.html">
+													<img src="../img/avatarka.jpeg" />
+												</a>
+											</div>
+											<div className="user__info_name">
+												<p className="name">
+													{comment.user_info.username}
+												</p>
+												<p className="date">
+													{convertTime(
+														comment.creation_date
+													)}
+												</p>
+											</div>
 										</div>
 									</div>
+									<div className="post__content">
+										<p className="post-text">
+											{comment.content}
+										</p>
+									</div>
+									<div className="post__likes">
+										<img
+											onClick={() =>
+												handleLikeComment(
+													"like",
+													comment.id
+												)
+											}
+											src="../img/thumbs-up.svg"
+										/>
+										<p
+											onClick={() =>
+												handleLikeComment(
+													"like",
+													comment.id
+												)
+											}
+										>
+											{comment.likes}
+										</p>
+										<img
+											onClick={() =>
+												handleLikeComment(
+													"dislike",
+													comment.id
+												)
+											}
+											src="../img/thumbs-down.svg"
+										/>
+										<p
+											onClick={() =>
+												handleLikeComment(
+													"dislike",
+													comment.id
+												)
+											}
+										>
+											{comment.dislikes}
+										</p>
+									</div>
 								</div>
-								<div className="post__content">
-									<p className="post-text">
-										{comment.content}
-									</p>
-								</div>
-								<div className="post__likes">
-									<img
-										onClick={() =>
-											handleLikeComment(
-												"like",
-												comment.id
-											)
-										}
-										src="../img/thumbs-up.svg"
-									/>
-									<p
-										onClick={() =>
-											handleLikeComment(
-												"like",
-												comment.id
-											)
-										}
-									>
-										{comment.likes}
-									</p>
-									<img
-										onClick={() =>
-											handleLikeComment(
-												"dislike",
-												comment.id
-											)
-										}
-										src="../img/thumbs-down.svg"
-									/>
-									<p
-										onClick={() =>
-											handleLikeComment(
-												"dislike",
-												comment.id
-											)
-										}
-									>
-										{comment.dislikes}
-									</p>
-								</div>
-							</div>
-						))}
+							))}
+					</div>
 				</div>
 			))}
 		</div>
