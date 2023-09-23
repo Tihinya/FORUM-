@@ -18,16 +18,35 @@ function markNotificationsRead() {
 export function Notifications() {
 	const [notifications, setNotifications] = useState([])
 	const [showNotifications, setShowNotifications] = useState(false)
+	const [notificationsUnread, setNotificationsUnread] = useState(false)
+	const [clickedNotificationButton, setClickedNotificationButton] = useState(false)
 	const navigate = useNavigate()
 
 	useEffect(() => {
 		fetchNotifications()
+
+		const interval = setInterval(() => {
+			// Future reference: React useRef()
+			fetchNotifications()
+		}, 5000)
+	
+		return () => clearInterval(interval)	
 	}, [])
+
+	useEffect(() => {
+		checkForUnreadNotifications();
+	}, [notifications]);
 
 	function clickNotifications() {
 		setShowNotifications(!showNotifications)
-		if (!showNotifications) {
+		if (clickedNotificationButton) {
 			markNotificationsRead()
+		}
+		setClickedNotificationButton(true)
+
+		// Change notification button color when window closed
+		if (showNotifications) {
+			setNotificationsUnread(false)
 		}
 	}
 
@@ -40,10 +59,17 @@ export function Notifications() {
 			.catch((error) => console.error("Error fetching notifications:", error))
 	}
 
+	function checkForUnreadNotifications() {
+		if (notifications.some((notification) => notification.status == "unread")) {
+			setNotificationsUnread(true)
+			return
+		}
+	}
+
     return (
         <div className="notifications-container">
 			<div
-				className="sign__button" 
+				className={notificationsUnread ? "sign__button_unread" : "sign__button"}
 				onClick={() => {
 					clickNotifications()
 				}}
@@ -60,25 +86,40 @@ export function Notifications() {
 								(a, b) =>
 									new Date(b.creation_date) - new Date(a.creation_date)
 							)
+							.slice(0, 12)
 							.map((notification) => (
 							<>
 								{notification.status == "unread" ? 
 									<li 
 										className="notification"
-										onClick={() => navigate(
+										onClick={() => {
+											clickNotifications()
+											navigate(
 											`/comments-authorized/${notification.parent_object_id}`
-										)}
+											)
+										}}
 									>
-										Your {notification.related_object_type} has been {notification.type}d
+										{notification.type == "comment" ? 
+											`Your ${notification.related_object_type} has been ${notification.type}ed` 
+										: 
+											`Your ${notification.related_object_type} has been ${notification.type}d`
+										}
 									</li>
 								: 
 									<li 
 										className="notification-read"
-										onClick={() => navigate(
+										onClick={() => {
+											clickNotifications()
+											navigate(
 											`/comments-authorized/${notification.parent_object_id}`
-										)}
+											)
+										}}
 									>
-										Your {notification.related_object_type} has been {notification.type}d
+										{notification.type == "comment" ? 
+											`Your ${notification.related_object_type} has been ${notification.type}ed` 
+										: 
+											`Your ${notification.related_object_type} has been ${notification.type}d`
+										}
 									</li>
 								}
 							</>
