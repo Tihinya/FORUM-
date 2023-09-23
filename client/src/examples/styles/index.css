@@ -126,7 +126,7 @@ body {
 	box-shadow: inset -2px -2px 2px rgba(165, 187, 255, 0.5),
 		inset 2px 2px 2px rgba(0, 0, 0, 0.25);
 
-	background-color: red;
+	background-color: #ffa500;
 	transition: 0.3s;
 
 	color: var(--text-color-white);
@@ -1178,11 +1178,14 @@ body {
 	display: flex;
 	flex-direction: column;
 	position: absolute;
+	left: 75%;
+	top: 100%;
 	align-items: start;
 	align-self: stretch;
 	padding: 10px;
 	border-style: solid;
 	border-color: #7796f4;
+	border-radius: 15px;
 	margin: 20px;
 }
 
@@ -1195,6 +1198,7 @@ body {
 	border-style: solid;
 	border-color: #224fd4;
 	border-radius: 5px;
+	margin: 1%;
 	cursor: pointer;
 }
 
@@ -1202,6 +1206,7 @@ body {
 	border-style: solid;
 	border-color: #b4c4f4;
 	border-radius: 5px;
+	margin: 1%;
 	cursor: pointer;
 }
 
