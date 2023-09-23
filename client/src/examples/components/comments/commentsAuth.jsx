@@ -10,7 +10,6 @@ export function CommentAuth({ postId: navigatePostId }) {
 	const [likedComments, setLikedComments] = useState([])
 	const [dislikedComments, setDislikedComments] = useState([])
 	const [comments, setComments] = useState([])
-	const [commentValue, setCommentValue] = useState("")
 
 	const fetchLikedPosts = () => {
 		fetch("https://localhost:8080/user/liked", {
@@ -89,6 +88,7 @@ export function CommentAuth({ postId: navigatePostId }) {
 		const formData = new FormData(form)
 		const formJson = Object.fromEntries(formData.entries())
 		createComment(formJson.content)
+		form.reset()
 	}
 
 	const createComment = async (content) => {
@@ -106,7 +106,6 @@ export function CommentAuth({ postId: navigatePostId }) {
 		)
 
 		if (response.ok) {
-			setCommentValue("")
 			fetchComments()
 		} else {
 			const errorData = await response.json()
@@ -377,10 +376,7 @@ export function CommentAuth({ postId: navigatePostId }) {
 							</p>
 							<div className="input-fields">
 								<textarea
-									value={commentValue}
-									onChange={(e) =>
-										setCommentValue(e.target.value)
-									}
+									id="commentValue"
 									className="text-area"
 									name="content"
 									rows="5"

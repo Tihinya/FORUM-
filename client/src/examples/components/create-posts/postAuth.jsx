@@ -3,7 +3,6 @@ import Gachi, {
 	useNavigate,
 	useState,
 	useContext,
-
 	// Add hover-over date to get full creation date
 } from "../../../core/framework.ts"
 import { convertTime } from "../../additional-funcitons/post.js"
@@ -18,8 +17,6 @@ export function PostsAuth() {
 	const [threadClicked, setThreadClicked] = useState(false)
 	const [selectedImage, setSelectedImage] = useState("")
 	const [selectedCategories, setSelectedCategories] = useState([])
-	const [threadTitleValue, setThreadTitleValue] = useState("")
-	const [threadContentValue, setThreadContentValue] = useState("")
 	const [myPosts, setMyPosts] = useState([])
 	const [filter, setFilter] = useState("all")
 	const navigate = useNavigate()
@@ -178,6 +175,7 @@ export function PostsAuth() {
 		const formData = new FormData(form)
 		const formJson = Object.fromEntries(formData.entries())
 		createPost(formJson.title, formJson.content, selectedCategories) // TODO CATEGORIES
+		form.reset()
 	}
 
 	useEffect(() => {
@@ -208,8 +206,6 @@ export function PostsAuth() {
 			})
 
 			if (response.ok) {
-				setThreadContentValue("")
-				setThreadTitleValue("")
 				setSelectedCategories([])
 				handleThreadButtonClick()
 				fetchPosts()
@@ -346,10 +342,9 @@ export function PostsAuth() {
 				</div>
 				<input
 					type="text"
+					id="threadTitleValue"
 					name="title"
 					maxlength="120"
-					value={threadTitleValue}
-					onChange={(e) => setThreadTitleValue(e.target.value)}
 					placeholder="Add a thread"
 				/>
 				<div
@@ -372,10 +367,7 @@ export function PostsAuth() {
 							</label>
 						</div>
 						<textarea
-							value={threadContentValue}
-							onChange={(e) =>
-								setThreadContentValue(e.target.value)
-							}
+							id="threadContentValue"
 							className="thread-text"
 							name="content"
 							placeholder="Description here"

@@ -60,9 +60,11 @@ export function Notifications() {
 	}
 
 	function checkForUnreadNotifications() {
-		if (notifications.some((notification) => notification.status == "unread")) {
-			setNotificationsUnread(true)
-			return
+		if (notifications.length > 0) {
+			if (notifications.some((notification) => notification.status == "unread")) {
+				setNotificationsUnread(true)
+				return
+			}
 		}
 	}
 
