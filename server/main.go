@@ -153,6 +153,7 @@ func main() {
 	r.NewRoute("GET", `/login/google/callback`, ct.GoogleCallback)
 	r.NewRoute("GET", `/login/github`, ct.GithubLogin)
 	r.NewRoute("GET", `/login/github/callback`, ct.GithubCallback)
+	r.NewRoute("GET", `/authorized`, ct.CheckAuthorization, Auth())
 
 	r.NewRoute("GET", `/login/github/redirect`, ct.GithubCallbackRedirect)
 

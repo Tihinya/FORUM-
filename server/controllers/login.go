@@ -3,17 +3,18 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"net/url"
+	"strings"
+
 	"forum/config"
 	"forum/database"
 	"forum/login"
 	"forum/security"
 	"forum/session"
 	"forum/validation"
-	"io"
-	"log"
-	"net/http"
-	"net/url"
-	"strings"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -72,11 +73,12 @@ func LogOut(w http.ResponseWriter, r *http.Request) {
 }
 
 func GoogleLogin(w http.ResponseWriter, r *http.Request) {
-	var scope = config.Config.GoogleOAuth
+	scope := config.Config.GoogleOAuth
 	url := fmt.Sprintf("https://accounts.google.com/o/oauth2/auth?client_id=%s&redirect_uri=%s&scope=%s&response_type=code",
 		config.Config.GoogleID, config.Config.GoogleRedirectURI, scope)
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
+
 func GoogleCallback(w http.ResponseWriter, r *http.Request) {
 	code := r.URL.Query().Get("code")
 	if code == "" {
@@ -204,4 +206,12 @@ func GithubCallback(w http.ResponseWriter, r *http.Request) {
 
 func GithubCallbackRedirect(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "You are logged into the server")
+}
+
+func CheckAuthorization(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	username := getUsername(r)
+
+	ReturnMessageJSON(w, "User is authenticated as "+username, http.StatusOK, "success")
 }
