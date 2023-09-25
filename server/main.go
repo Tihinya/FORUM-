@@ -148,7 +148,7 @@ func main() {
 
 	// Login
 	r.NewRoute("POST", `/login`, ct.Login)
-	r.NewRoute("GET", `/logout`, ct.LogOut)
+	r.NewRoute("POST", `/logout`, ct.LogOut)
 	r.NewRoute("GET", `/login/google`, ct.GoogleLogin)
 	r.NewRoute("GET", `/login/google/callback`, ct.GoogleCallback)
 	r.NewRoute("GET", `/login/github`, ct.GithubLogin)

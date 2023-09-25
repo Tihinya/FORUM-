@@ -1,6 +1,8 @@
-import Gachi, { useNavigate } from "../../../core/framework"
+import Gachi, { useNavigate, useContext } from "../../../core/framework"
+import { logoutRequest } from "../../additional-funcitons/authorization"
 
 const DropdownMenu = () => {
+	const { isAuthenticated, setIsAuthenticated } = useContext("isAuthenticated")
 	const navigate = useNavigate()
 
 	return (
@@ -9,11 +11,9 @@ const DropdownMenu = () => {
 			<div className="dropdown-content">
 				<button
 					onClick={() => {
-						localStorage.removeItem("id")
+						logoutRequest()
+						setIsAuthenticated(false)
 						navigate("/login")
-						fetch("https://localhost:8080/logout", {
-							credentials: "include",
-						})
 					}}
 				>
 					LogOut

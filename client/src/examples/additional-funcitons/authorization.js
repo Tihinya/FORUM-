@@ -25,3 +25,10 @@ export async function loginRequest(formData) {
 	const data = await response.json()
 	return data
 }
+
+export async function logoutRequest() {
+	fetch("https://localhost:8080/logout", {
+		method: "POST",
+		credentials: "include",
+	})
+}

@@ -1,9 +1,10 @@
-import Gachi, { useState, useNavigate } from "../../../core/framework"
+import Gachi, { useState, useNavigate, useContext } from "../../../core/framework"
 
 import { loginRequest } from "../../additional-funcitons/authorization.js"
 
 export default function Login() {
 	const navigate = useNavigate()
+	const {isAuthenticated, setIsAuthenticated} = useContext("isAuthenticated")
 
 	const [formData, setFormData] = useState({
 		email: "",
@@ -25,7 +26,7 @@ export default function Login() {
 		loginRequest(formData)
 			.then((resultInJson) => {
 				if (resultInJson.status === "success") {
-					localStorage.setItem("id", resultInJson.id)
+					setIsAuthenticated(true)
 					navigate("/")
 				} else if (resultInJson.status === "error") {
 					setErrorMessage(resultInJson.message)

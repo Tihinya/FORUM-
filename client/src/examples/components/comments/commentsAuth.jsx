@@ -1,9 +1,9 @@
-import Gachi, { useEffect, useState } from "../../../core/framework.ts"
+import Gachi, { useEffect, useState, useContext } from "../../../core/framework.ts"
 import isLogin from "../../additional-funcitons/isLogin.js"
 import { convertTime } from "../../additional-funcitons/post.js"
 
 export function CommentAuth({ postId: navigatePostId }) {
-	const isLoggin = isLogin()
+	const isLoggin = useContext("isAuthenticated").isAuthenticated
 	const [posts, setPosts] = useState([])
 	const [likedPosts, setLikedPosts] = useState([])
 	const [dislikedPosts, setDislikedPosts] = useState([])

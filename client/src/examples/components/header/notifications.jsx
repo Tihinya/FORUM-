@@ -21,6 +21,7 @@ export function Notifications() {
 	const [notificationsUnread, setNotificationsUnread] = useState(false)
 	const [clickedNotificationButton, setClickedNotificationButton] = useState(false)
 	const navigate = useNavigate()
+	const isLoggin = useContext("isAuthenticated").isAuthenticated
 
 	useEffect(() => {
 		fetchNotifications()
@@ -30,7 +31,7 @@ export function Notifications() {
 			fetchNotifications()
 		}, 5000)
 	
-		return () => clearInterval(interval)	
+		return () => clearInterval(interval)
 	}, [])
 
 	useEffect(() => {

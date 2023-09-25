@@ -1,4 +1,4 @@
-import Gachi from "../core/framework.ts"
+import Gachi, { useState, useEffect } from "../core/framework.ts"
 import { Router } from "/src/components/router.ts"
 import { importCss } from "../modules/cssLoader.js"
 import Header from "./components/header/header.jsx"
@@ -46,6 +46,25 @@ const ErrorInternalError = {
 }
 
 export function App() {
+	const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+	Gachi.createContext("isAuthenticated", { isAuthenticated, setIsAuthenticated })
+
+	// Check if the user is authenticated on page load
+	useEffect(() => {
+		fetch('https://localhost:8080/authorized', {
+			credentials: "include",
+		})
+			.then((response) => {
+				if (response.ok) {
+			  		setIsAuthenticated(true);
+				} else if (response.status === 401) {
+			  		setIsAuthenticated(false);
+				}
+		  	})
+			.catch(() => setIsAuthenticated(false));
+	}, []);
+
 	return (
 		<Router
 			routes={[

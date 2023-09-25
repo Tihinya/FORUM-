@@ -1,11 +1,12 @@
-import Gachi, { useNavigate } from "../../../core/framework"
+import Gachi, { useNavigate, useContext } from "../../../core/framework"
 import DropdownMenu from "./dropdown"
 import isLogin from "../../additional-funcitons/isLogin.js"
 import { Notifications } from "./notifications"
 
 export default function Header() {
 	const navigate = useNavigate()
-	const isLoggin = isLogin()
+	const isLoggin = useContext("isAuthenticated").isAuthenticated
+	console.log(isLoggin)
 
 	return (
 		<div className="header">
@@ -30,13 +31,6 @@ export default function Header() {
 				</>
 			) : (
 				<>
-					{/* <div
-					className="sign__button" 
-					id="notification-button"
-					onClick={() => console.log(Notifications)}
-					> 
-						Notification
-					</div>*/}
 					<Notifications />
 					<div className="profile-menu">
 						<div className="profile-nav">

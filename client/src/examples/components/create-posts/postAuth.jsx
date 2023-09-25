@@ -21,7 +21,7 @@ export function PostsAuth() {
 	const [filter, setFilter] = useState("all")
 	const navigate = useNavigate()
 
-	const isLoggin = isLogin()
+	const isLoggin = useContext("isAuthenticated").isAuthenticated
 
 	const fetchMyPosts = () => {
 		fetch("https://localhost:8080/user/posts", {
