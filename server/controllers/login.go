@@ -21,6 +21,7 @@ import (
 func Login(w http.ResponseWriter, r *http.Request) {
 	var login database.UserInfo
 
+	w.Header().Set("Content-Type", "application/json")
 	err := json.NewDecoder(r.Body).Decode(&login)
 	if err != nil {
 		ReturnMessageJSON(w, "Invalid request body", http.StatusBadRequest, "error")

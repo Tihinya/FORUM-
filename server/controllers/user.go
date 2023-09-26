@@ -249,3 +249,17 @@ func ReadUserCreatedPosts(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(posts)
 }
+
+func ReadUserCommentdPosts(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	UserId := getUserId(r)
+	posts, err := database.ReadUserCommentsPosts(UserId)
+	if err != nil {
+		log.Println(err)
+		ReturnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		return
+	}
+
+	json.NewEncoder(w).Encode(posts)
+
+}

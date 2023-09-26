@@ -9,6 +9,7 @@ import (
 )
 
 func DislikePost(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	var existsLiked bool
 
 	postId, err := router.GetFieldInt(r, "id")
@@ -41,6 +42,7 @@ func DislikePost(w http.ResponseWriter, r *http.Request) {
 }
 
 func UndislikePost(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	var existsLiked bool
 
 	postId, err := router.GetFieldInt(r, "id")

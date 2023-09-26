@@ -15,13 +15,13 @@ func Auth() router.Middleware {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			sessionToken, sessionTokenFound := ct.CheckForSessionToken(r)
 			if !sessionTokenFound {
-				ct.ReturnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
+				ct.ReturnMessageJSON(w, "Only authorized users can give likes", http.StatusUnauthorized, "error")
 				log.Println("Auth middleware fail")
 				return
 			}
 
 			if !ct.CheckIfUserLoggedin(sessionToken) {
-				ct.ReturnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
+				ct.ReturnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "error")
 				log.Println("Auth middleware fail")
 				return
 			}
@@ -54,6 +54,7 @@ func main() {
 	r.NewRoute("GET", `/user/likedComments`, ct.ReadUserLikedComments, Auth())
 	r.NewRoute("GET", `/user/dislikedComments`, ct.ReadUserDislikedComments, Auth())
 	r.NewRoute("GET", `/user/posts`, ct.ReadUserCreatedPosts, Auth())
+	r.NewRoute("GET", `/user/comments`, ct.ReadUserCommentdPosts)
 
 	// Post
 	r.NewRoute("POST", `/post`, ct.CreatePost, Auth())

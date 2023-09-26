@@ -1,16 +1,38 @@
-import Gachi, { useState, useNavigate } from "../../../core/framework"
-
-import { loginRequest } from "../../additional-funcitons/authorization.js"
+import Gachi, {
+	useContext,
+	useState,
+	useNavigate,
+} from "../../../core/framework"
+import ErrorWindow from "../errors/error-window"
+import { fetchData } from "../../additional-funcitons/api.js"
 
 export default function Login() {
 	const navigate = useNavigate()
+	const loginUrl = "login"
 
+	const [errorMessage, setErrorMessage] = useState("")
 	const [formData, setFormData] = useState({
 		email: "",
 		password: "",
 	})
-	const [errorMessage, setErrorMessage] = useState("")
 
+	const handleSubmitClick = (e) => {
+		e.preventDefault()
+
+		fetchData(formData, loginUrl, "POST")
+			.then((resultInJson) => {
+				if (resultInJson.status === "success") {
+					localStorage.setItem("id", resultInJson.id)
+					navigate("/")
+				} else if (resultInJson.status === "error") {
+					setErrorMessage(resultInJson.message)
+				}
+			})
+			.catch((error) => {
+				navigate("serverded")
+				console.error("Error :", error)
+			})
+	}
 	const handleInputChange = (e) => {
 		const { name, value } = e.target
 		setFormData((prevData) => ({
@@ -19,38 +41,13 @@ export default function Login() {
 		}))
 	}
 
-	const handleSubmit = (e) => {
-		e.preventDefault()
-
-		loginRequest(formData)
-			.then((resultInJson) => {
-				if (resultInJson.status === "success") {
-					localStorage.setItem("id", resultInJson.id)
-					navigate("/")
-				} else if (resultInJson.status === "error") {
-					setErrorMessage(resultInJson.message)
-					console.error("Login error:", resultInJson.message)
-				}
-			})
-			.catch((error) => {
-				navigate("serverded")
-				console.error("Error during login:", error)
-			})
-	}
-
 	return (
 		<div>
 			{errorMessage != "" ? (
-				<div className="error-window">
-					<button
-						onClick={() => {
-							setErrorMessage("")
-						}}
-					>
-						[X]
-					</button>
-					{errorMessage}
-				</div>
+				<ErrorWindow
+					errorMessage={errorMessage}
+					onClose={() => setErrorMessage("")}
+				/>
 			) : (
 				""
 			)}
@@ -64,7 +61,7 @@ export default function Login() {
 								<img src="../img/goggle.svg" />
 							</div>
 							<h3>Or you can login with your email</h3>
-							<form className="form" onSubmit={handleSubmit}>
+							<form className="form" onSubmit={handleSubmitClick}>
 								<div className="input-fields">
 									<input
 										className="input-design"
