@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"forum/database"
 	"forum/session"
+	"log"
 	"net/http"
 )
 
@@ -24,8 +25,11 @@ func CheckForSessionToken(r *http.Request) (*http.Cookie, bool) {
 	return sessionToken, true
 }
 
-func CheckIfUserLoggedin(sessionToken *http.Cookie) bool {
-	sessionData := session.SessionStorage.GetSession(sessionToken.Value)
+func CheckIfUserLoggedin(r *http.Request) bool {
+	sessionData, err := session.SessionStorage.GetSession(r)
+	if err != nil {
+		log.Fatal(err)
+	}
 	return sessionData.UserId != 0
 }
 
@@ -41,14 +45,20 @@ func containsStr(arr []string, str rune) bool {
 }
 
 func getUsername(r *http.Request) string {
-	sessionToken, _ := CheckForSessionToken(r)
-	userID := session.SessionStorage.GetSession(sessionToken.Value).UserId
+	SessionData, err := session.SessionStorage.GetSession(r)
+	if err != nil {
+		log.Fatal(err)
+	}
+	userID := SessionData.UserId
 	username, _ := database.GetUsername(userID)
 	return username
 }
 
 func getUserId(r *http.Request) int {
-	sessionToken, _ := CheckForSessionToken(r)
-	userID := session.SessionStorage.GetSession(sessionToken.Value).UserId
+	SessionData, err := session.SessionStorage.GetSession(r)
+	if err != nil {
+		log.Fatal(err)
+	}
+	userID := SessionData.UserId
 	return userID
 }

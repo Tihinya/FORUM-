@@ -1,19 +1,24 @@
 package database
 
-import "fmt"
+import (
+	"database/sql"
+	"fmt"
+)
 
 func CreateUser(user UserInfo) (int, error) {
-	sqlStmt, err := DB.Prepare(`INSERT INTO users(
+	sqlStmt, err := DB.Prepare(`
+	INSERT INTO users(
 		email,
 		username,
 		password,
-		profile_picture)
-	VALUES(?, ?, ?, ?)`)
+		profile_picture,
+		role_id)
+	VALUES(?, ?, ?, ?, ?)`)
 	if err != nil {
 		return 0, err
 	}
 
-	result, err := sqlStmt.Exec(user.Email, user.Username, user.Password, user.ProfilePicture)
+	result, err := sqlStmt.Exec(user.Email, user.Username, user.Password, user.ProfilePicture, user.RoleID)
 	if err != nil {
 		return 0, err
 	}
@@ -27,14 +32,14 @@ func CreateUser(user UserInfo) (int, error) {
 }
 
 func SelectAllUsers() ([]UserInfo, error) {
-	rows, err := DB.Query("SELECT user_id, email, username, profile_picture FROM users")
+	rows, err := DB.Query("SELECT user_id, email, username, profile_picture, role_id FROM users")
 	if err != nil {
 		return nil, err
 	}
 	var users []UserInfo
 	for rows.Next() {
 		var user UserInfo
-		err := rows.Scan(&user.ID, &user.Email, &user.Username, &user.ProfilePicture)
+		err := rows.Scan(&user.ID, &user.Email, &user.Username, &user.ProfilePicture, &user.RoleID)
 		if err != nil {
 			return nil, err
 		}
@@ -48,10 +53,10 @@ func SelectAllUsers() ([]UserInfo, error) {
 }
 
 func SelectUser(userID int) (*UserInfo, error) {
-	row := DB.QueryRow("SELECT user_id, email, username, profile_picture FROM users WHERE user_id=?", userID)
+	row := DB.QueryRow("SELECT user_id, email, username, profile_picture, role_id FROM users WHERE user_id=?", userID)
 
 	var user UserInfo
-	err := row.Scan(&user.ID, &user.Email, &user.Username, &user.ProfilePicture)
+	err := row.Scan(&user.ID, &user.Email, &user.Username, &user.ProfilePicture, &user.RoleID)
 	if err != nil {
 		return nil, err
 	}
@@ -393,4 +398,50 @@ func GetAvatar(username string) (string, error) {
 	}
 
 	return avatar, nil
+}
+
+func GenerateDefaultRoles() error {
+	// Check if the roles already exist in the database
+	row := DB.QueryRow("SELECT COUNT(*) FROM roles")
+	var count int
+	err := row.Scan(&count)
+	if err != nil {
+		return err
+	}
+
+	// If roles already exist, return without creating them again
+	if count > 0 {
+		return nil
+	}
+
+	// Insert the default roles into the roles table
+	roles := []string{"user", "moderator", "admin"}
+	stmt, err := DB.Prepare("INSERT INTO roles (name) VALUES (?)")
+	if err != nil {
+		return err
+	}
+
+	for _, role := range roles {
+		_, err = stmt.Exec(role)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+func GetRoleId(roleName string) (int, error) {
+	row := DB.QueryRow("SELECT role_id FROM roles WHERE name = ?", roleName)
+
+	var roleId int
+	err := row.Scan(&roleId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// Role with the specified name not found
+			return 0, nil
+		}
+		return 0, err
+	}
+
+	return roleId, nil
 }
