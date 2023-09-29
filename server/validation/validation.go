@@ -64,3 +64,11 @@ func GetUserIdFromUserName(db *sql.DB, userName string) (int, error) {
 	// User with the given email exists, return their user ID
 	return userID, nil
 }
+func ValidateRole(db *sql.DB, roleName string) (bool, error) {
+	var count int
+	err := db.QueryRow("SELECT COUNT(*) FROM roles WHERE name = ?", roleName).Scan(&count)
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
