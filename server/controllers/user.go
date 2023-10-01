@@ -52,7 +52,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check if email is already taken
-	exist, err := validation.GetUserIdFromEmail(database.DB, register.Email)
+	exist, err := validation.GetUserID(database.DB, register.Email, "")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -71,8 +71,11 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		ReturnMessageJSON(w, "Username already taken", http.StatusConflict, "error")
 		return
 	}
-
-	id, err := login.AddUser(register.Username, register.Email, register.Password)
+	roleId, err := database.GetRoleId("user")
+	if err != nil {
+		log.Println(err)
+	}
+	id, err := login.AddUser(register.Username, register.Email, register.Password, roleId)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -136,7 +139,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check if email is already taken
-	exist, err := validation.GetUserIdFromEmail(database.DB, req.Email)
+	exist, err := validation.GetUserID(database.DB, req.Email, "")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -248,4 +251,18 @@ func ReadUserCreatedPosts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(posts)
+}
+
+func ReadUserCommentdPosts(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	UserId := getUserId(r)
+	posts, err := database.ReadUserCommentsPosts(UserId)
+	if err != nil {
+		log.Println(err)
+		ReturnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		return
+	}
+
+	json.NewEncoder(w).Encode(posts)
+
 }
