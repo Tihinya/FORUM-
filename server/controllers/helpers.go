@@ -31,6 +31,11 @@ func CheckIfUserLoggedin(r *http.Request) bool {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	if sessionData == nil {
+		return false
+	}
+
 	return sessionData.UserId != 0
 }
 

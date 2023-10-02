@@ -104,6 +104,7 @@ func (s *Storage) GetSession(r *http.Request) (*Session, error) {
 		delete(s.storage, sessionID)
 		return nil, nil
 	}
+
 	return session, nil
 
 }

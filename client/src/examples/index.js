@@ -41,7 +41,7 @@ const ErrorInternalError = {
 	status: "500",
 }
 
-function App() {
+export function App() {
 	const [top, setTop] = useState("user/posts")
 	Gachi.createContext("currentTop", { top, setTop })
 

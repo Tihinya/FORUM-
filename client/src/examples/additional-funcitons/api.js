@@ -11,7 +11,7 @@ export function fetchData(formData = null, endPointUrl, method) {
 		requestOptions.body = JSON.stringify(formData)
 	}
 
-	return fetch(`http://localhost:8080/${endPointUrl}`, requestOptions).then(
+	return fetch(`https://localhost:8080/${endPointUrl}`, requestOptions).then(
 		(response) => {
 			return response.json()
 		}

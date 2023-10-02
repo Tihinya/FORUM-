@@ -61,7 +61,6 @@ export default function Posts({ endPointUrl, userId }) {
 	}
 
 	const method = endPointUrl === "posts" ? "post" : "comment"
-	console.log(method)
 
 	return (
 		<div>

@@ -29,8 +29,9 @@ func Auth() router.Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			_, sessionTokenFound := ct.CheckForSessionToken(r)
+
 			if !sessionTokenFound {
-				ct.ReturnMessageJSON(w, "Only authorized users can give likes", http.StatusUnauthorized, "error")
+				ct.ReturnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "error")
 				log.Println("Auth middleware fail")
 				return
 			}

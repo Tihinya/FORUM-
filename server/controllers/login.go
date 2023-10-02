@@ -67,6 +67,9 @@ func LogOut(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Panicln(err)
 	}
+	if s == nil {
+		return
+	}
 	s.RemoveSession()
 	session.SessionStorage.DeleteCookie(w)
 }
