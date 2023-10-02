@@ -23,7 +23,7 @@ export default function Login() {
 		fetchData(formData, loginUrl, "POST")
 			.then((resultInJson) => {
 				if (resultInJson.status === "success") {
-					localStorage.setItem("id", resultInJson.id)
+					setIsAuthenticated(true)
 					navigate("/")
 				} else if (resultInJson.status === "error") {
 					setErrorMessage(resultInJson.message)

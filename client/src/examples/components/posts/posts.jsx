@@ -5,7 +5,6 @@ import Gachi, {
 	useEffect,
 } from "../../../core/framework"
 
-import isLogin from "../../additional-funcitons/isLogin"
 import { convertTime } from "../../additional-funcitons/post.js"
 import { fetchData } from "../../additional-funcitons/api.js"
 import LikesAndDislikes from "../post-likes/post-likes"
@@ -16,7 +15,7 @@ export default function Posts({ endPointUrl, userId }) {
 	if (endPointUrl === "") {
 		return <h1 style={"text-align: center"}>Posts not found</h1>
 	}
-	const isLoggin = isLogin()
+	const isLoggin = useContext("isAuthenticated").isAuthenticated
 	const { posts, setPosts } = useContext("currentPosts")
 	const { activeSubj } = useContext("currentCategory")
 	const { comments, setComments } = useContext("currentComment")

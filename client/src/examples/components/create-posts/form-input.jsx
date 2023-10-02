@@ -4,14 +4,13 @@ import Gachi, {
 	useNavigate,
 	useEffect,
 } from "../../../core/framework"
-import isLogin from "../../additional-funcitons/isLogin"
 import { fetchData } from "../../additional-funcitons/api.js"
 import ErrorWindow from "../errors/error-window"
 
 export default function CreatePost() {
 	const navigate = useNavigate()
 
-	const isLoggin = isLogin()
+	const isLoggin = useContext("isAuthenticated").isAuthenticated
 	const categorieUrl = "categories"
 	const createPostUrl = "post"
 

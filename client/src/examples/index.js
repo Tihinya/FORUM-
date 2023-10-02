@@ -59,8 +59,8 @@ export function App() {
 		errorMessage,
 		setErrorMessage,
 	})
+	
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
-
 	Gachi.createContext("isAuthenticated", { isAuthenticated, setIsAuthenticated })
 
 	// Check if the user is authenticated on page load

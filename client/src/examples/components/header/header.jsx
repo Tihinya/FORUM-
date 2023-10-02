@@ -1,12 +1,10 @@
 import Gachi, { useNavigate, useContext } from "../../../core/framework"
 import DropdownMenu from "./dropdown"
-import isLogin from "../../additional-funcitons/isLogin.js"
 import { Notifications } from "./notifications"
 
 export default function Header() {
 	const navigate = useNavigate()
 	const isLoggin = useContext("isAuthenticated").isAuthenticated
-	console.log(isLoggin)
 
 	return (
 		<div className="header">
@@ -14,7 +12,7 @@ export default function Header() {
 				<a
 					onClick={() => {
 						navigate("/")
-						window.location.reload() // Reload the page
+						// window.location.reload() // Reload the page
 					}}
 				>
 					Cartel Forum
