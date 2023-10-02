@@ -121,14 +121,19 @@ func main() {
 
 	database.CreateTables()
 
-	err := database.GenerateDefaultRoles()
-	if err != nil {
-		log.Println(err)
+	roles := []string{"user", "moderator", "admin"}
+	for _, role := range roles {
+		exist, err := validation.ValidateRole(database.DB, role)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		if !exist {
+			database.AddRole(role)
+		}
 	}
+
 	login.CreateAdminUser()
-	if err != nil {
-		log.Println(err)
-	}
 
 	http.HandleFunc("/", r.ServeWithCORS(router.CORS{
 		Origin:      "https://localhost:3000",
@@ -146,7 +151,7 @@ func main() {
 	r.NewRoute("POST", `/user/create`, ct.CreateUser)
 	r.NewRoute("GET", `/user/(?P<id>\d+)/get`, ct.ReadUser, AdminOnly())
 	r.NewRoute("GET", `/users/get`, ct.ReadUsers)
-	r.NewRoute("PATCH", `/user/(?P<id>\d+)/update`, ct.UpdateUser, Auth())
+	r.NewRoute("PATCH", `/user/(?P<id>\d+)/update`, ct.UpdateUser, AdminOnly())
 	r.NewRoute("DELETE", `/user/(?P<id>\d+)/delete`, ct.DeleteUser, Auth())
 	r.NewRoute("GET", `/user/liked`, ct.ReadUserLikedPosts, Auth())
 	r.NewRoute("GET", `/user/disliked`, ct.ReadUserDislikedPosts, Auth())
