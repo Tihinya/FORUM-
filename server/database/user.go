@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 )
 
 func CreateUser(user UserInfo) (int, error) {
@@ -76,17 +77,38 @@ func GetUserPassword(userID int) (*UserInfo, error) {
 	return &user, nil
 }
 
-func UpdateUser(userName string, email string, userID int) error {
-	stmt, err := DB.Prepare(`
-		UPDATE users SET
-		email=?,
-		username=?
-		WHERE user_id=?
-	`)
+func UpdateUser(username string, email string, role int, userID int) error {
+	// Generate SQL query based on provided fields
+	query := "UPDATE users SET"
+	var params []interface{}
+
+	if username != "" {
+		query += " username=?,"
+		params = append(params, username)
+	}
+	if email != "" {
+		query += " email=?,"
+		params = append(params, email)
+	}
+	if role >= 0 {
+		query += " role_id=?,"
+		params = append(params, role)
+	}
+
+	// Remove the trailing comma
+	query = strings.TrimSuffix(query, ",")
+
+	query += " WHERE user_id=?"
+
+	// Add the user ID to the params slice
+	params = append(params, userID)
+
+	// Execute the SQL query
+	stmt, err := DB.Prepare(query)
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(email, userName, userID)
+	_, err = stmt.Exec(params...)
 	if err != nil {
 		return err
 	}
@@ -400,36 +422,22 @@ func GetAvatar(username string) (string, error) {
 	return avatar, nil
 }
 
-func GenerateDefaultRoles() error {
-	// Check if the roles already exist in the database
-	row := DB.QueryRow("SELECT COUNT(*) FROM roles")
-	var count int
-	err := row.Scan(&count)
-	if err != nil {
-		return err
-	}
-
-	// If roles already exist, return without creating them again
-	if count > 0 {
-		return nil
-	}
-
-	// Insert the default roles into the roles table
-	roles := []string{"user", "moderator", "admin"}
+func AddRole(roleName string) error {
+	// Prepare the SQL statement
 	stmt, err := DB.Prepare("INSERT INTO roles (name) VALUES (?)")
 	if err != nil {
 		return err
 	}
 
-	for _, role := range roles {
-		_, err = stmt.Exec(role)
-		if err != nil {
-			return err
-		}
+	// Execute the SQL statement to insert the role
+	_, err = stmt.Exec(roleName)
+	if err != nil {
+		return err
 	}
 
 	return nil
 }
+
 func GetRoleId(roleName string) (int, error) {
 	row := DB.QueryRow("SELECT role_id FROM roles WHERE name = ?", roleName)
 

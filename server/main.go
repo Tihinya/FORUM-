@@ -72,14 +72,19 @@ func main() {
 
 	database.CreateTables()
 
-	err := database.GenerateDefaultRoles()
-	if err != nil {
-		log.Println(err)
+	roles := []string{"user", "moderator", "admin"}
+	for _, role := range roles {
+		exist, err := validation.ValidateRole(database.DB, role)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		if !exist {
+			database.AddRole(role)
+		}
 	}
+
 	login.CreateAdminUser()
-	if err != nil {
-		log.Println(err)
-	}
 
 	http.HandleFunc("/", r.ServeWithCORS(router.CORS{
 		Origin:      "http://localhost:3000",
@@ -92,7 +97,7 @@ func main() {
 	r.NewRoute("POST", `/user/create`, ct.CreateUser)
 	r.NewRoute("GET", `/user/(?P<id>\d+)/get`, ct.ReadUser, AdminOnly())
 	r.NewRoute("GET", `/users/get`, ct.ReadUsers)
-	r.NewRoute("PATCH", `/user/(?P<id>\d+)/update`, ct.UpdateUser)
+	r.NewRoute("PATCH", `/user/(?P<id>\d+)/update`, ct.UpdateUser, AdminOnly())
 	r.NewRoute("DELETE", `/user/(?P<id>\d+)/delete`, ct.DeleteUser)
 	r.NewRoute("GET", `/user/liked`, ct.ReadUserLikedPosts)
 	r.NewRoute("GET", `/user/disliked`, ct.ReadUserDislikedPosts)
@@ -140,7 +145,6 @@ func main() {
 	r.NewRoute("GET", `/login/google/callback`, ct.GoogleCallback)
 	r.NewRoute("GET", `/login/github`, ct.GithubLogin)
 	r.NewRoute("GET", `/login/github/callback`, ct.GithubCallback)
-
 	r.NewRoute("GET", `/login/github/redirect`, ct.GithubCallbackRedirect)
 
 	log.Println("Ctrl + Click on the link: https://localhost:" + config.Config.Port)

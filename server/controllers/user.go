@@ -17,11 +17,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&register)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(database.Response{
-			Status:  "error",
-			Message: "Invalid request body",
-		})
+		ReturnMessageJSON(w, "Invalid request body", http.StatusBadRequest, "error")
 		return
 	}
 
@@ -111,52 +107,91 @@ func ReadUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	users, err := database.SelectAllUsers()
 	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
+		ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(users)
 }
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	userID, err := router.GetFieldInt(r, "id")
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+
 	var req database.UpdateUserRequest
-	err = json.NewDecoder(r.Body).Decode(&req)
+	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		ReturnMessageJSON(w, "Invalid request body", http.StatusBadRequest, "error")
 		return
 	}
-	if !validation.ValidateEmail(req.Email) {
-		ReturnMessageJSON(w, "Invalid email format", http.StatusBadRequest, "error")
-		return
-	}
-
-	// Check if email is already taken
-	exist, err := validation.GetUserID(database.DB, req.Email, "")
+	//Get User ID
+	userID, err := router.GetFieldInt(r, "id")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	if exist != 0 {
-		ReturnMessageJSON(w, "Email already taken", http.StatusConflict, "error")
+		ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
 		return
 	}
 
-	err = database.UpdateUser(req.Username, req.Email, userID)
+	// Get user data
+	user, err := database.SelectUser(userID)
 	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
+		ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
+		return
+	}
+	// Get role ID
+	roleId := user.RoleID
+	if req.Role != "" {
+		roleId, err = database.GetRoleId(req.Role)
+		if err != nil {
+			ReturnMessageJSON(w, "Invalid request body", http.StatusBadRequest, "error")
+		}
+	}
+	// Check email
+	if req.Email != "" {
+		if !validation.ValidateEmail(req.Email) {
+			ReturnMessageJSON(w, "Invalid email format", http.StatusBadRequest, "error")
+			return
+		}
+		exist, err := validation.GetUserID(database.DB, req.Email, "")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		if exist != 0 {
+			ReturnMessageJSON(w, "Email already taken", http.StatusConflict, "error")
+			return
+		}
+	}
+	// Check username
+	if req.Username != "" {
+		if !validation.ValidateUsername(req.Username) {
+			ReturnMessageJSON(w, "This name cannot be used", http.StatusBadRequest, "error")
+			return
+		}
+	}
+	// Check role
+	if req.Role != "" {
+		if roleId == user.RoleID {
+			ReturnMessageJSON(w, "Role cannot be changed", http.StatusBadRequest, "error")
+			return
+		}
+		// Check if role exist
+		exist, err := validation.ValidateRole(database.DB, req.Role)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		if !exist {
+			ReturnMessageJSON(w, "Role doesn't exist ", http.StatusBadRequest, "error")
+			return
+		}
+
+	}
+
+	err = database.UpdateUser(req.Username, req.Email, roleId, userID)
+	if err != nil {
+		ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
 		return
 	}
 
-	ReturnMessageJSON(w, "User updated successfully", http.StatusOK, "success")
+	ReturnMessageJSON(w, "User updated", http.StatusOK, "success")
 }
 
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
