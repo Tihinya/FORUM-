@@ -22,6 +22,7 @@ import (
 func Login(w http.ResponseWriter, r *http.Request) {
 	var login database.UserInfo
 
+	w.Header().Set("Content-Type", "application/json")
 	err := json.NewDecoder(r.Body).Decode(&login)
 	if err != nil {
 		ReturnMessageJSON(w, "Invalid request body", http.StatusBadRequest, "error")
@@ -30,7 +31,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	login.Email = strings.TrimSpace(login.Email)
 	login.Password = strings.TrimSpace(login.Password)
 
-	userId, err := validation.GetUserIdFromEmail(database.DB, login.Email)
+	userId, err := validation.GetUserID(database.DB, login.Email, "")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -62,12 +63,14 @@ func Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func LogOut(w http.ResponseWriter, r *http.Request) {
-	token, err := session.ValidateToken(r)
+
+	s, err := session.SessionStorage.GetSession(r)
 	if err != nil {
-		// Handle the error appropriately (e.g., log or return an error response)
+		log.Panicln(err)
+	}
+	if s == nil {
 		return
 	}
-	s := session.SessionStorage.GetSession(token)
 	s.RemoveSession()
 	session.SessionStorage.DeleteCookie(w)
 }
@@ -122,8 +125,11 @@ func GoogleCallback(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to get user data from Google API", http.StatusInternalServerError)
 		return
 	}
-
-	id, err := validation.GetUserIdFromEmail(database.DB, googleUser.Email)
+	roleId, err := database.GetRoleId("user")
+	if err != nil {
+		log.Println(err)
+	}
+	id, err := validation.GetUserID(database.DB, googleUser.Email, "")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -131,7 +137,7 @@ func GoogleCallback(w http.ResponseWriter, r *http.Request) {
 
 	if id == 0 {
 		// User does not exist, create a new user
-		id, err = login.AddUser(googleUser.Name, googleUser.Email, security.CreateRandomPassword(10))
+		id, err = login.AddUser(googleUser.Name, googleUser.Email, security.CreateRandomPassword(10), roleId)
 		if err != nil {
 			log.Println(err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -178,9 +184,13 @@ func GithubCallback(w http.ResponseWriter, r *http.Request) {
 		ReturnMessageJSON(w, "Please make your GitHub email public to proceed with authenticationa", http.StatusBadRequest, "error")
 		return
 	}
+	roleId, err := database.GetRoleId("user")
+	if err != nil {
+		log.Println(err)
+	}
 
 	// Check if the user with the GitHub email already exists in the database
-	id, err := validation.GetUserIdFromEmail(database.DB, githubData.Email)
+	id, err := validation.GetUserID(database.DB, githubData.Email, "")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -188,7 +198,7 @@ func GithubCallback(w http.ResponseWriter, r *http.Request) {
 
 	if id == 0 {
 		// User does not exist, create a new user
-		id, err = login.AddUser(githubData.Login, githubData.Email, security.CreateRandomPassword(10))
+		id, err = login.AddUser(githubData.Login, githubData.Email, security.CreateRandomPassword(10), roleId)
 		if err != nil {
 			log.Println(err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)

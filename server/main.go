@@ -9,7 +9,10 @@ import (
 	"forum/config"
 	ct "forum/controllers"
 	"forum/database"
+	"forum/login"
 	"forum/router"
+	"forum/session"
+	"forum/validation"
 )
 
 var (
@@ -25,21 +28,53 @@ type requestInfo struct {
 func Auth() router.Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Content-Type", "application/json")
+			_, sessionTokenFound := ct.CheckForSessionToken(r)
 
-			sessionToken, sessionTokenFound := ct.CheckForSessionToken(r)
 			if !sessionTokenFound {
-				ct.ReturnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "unauthorized")
+				ct.ReturnMessageJSON(w, "Session token not found", http.StatusUnauthorized, "error")
 				log.Println("Auth middleware fail")
 				return
 			}
-
-			if !ct.CheckIfUserLoggedin(sessionToken) {
-				ct.ReturnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "unauthorized")
+			if !ct.CheckIfUserLoggedin(r) {
+				ct.ReturnMessageJSON(w, "You are not logged in", http.StatusUnauthorized, "error")
 				log.Println("Auth middleware fail")
 				return
 			}
+			next.ServeHTTP(w, r)
+		})
+	}
+}
 
+func AdminOnly() router.Middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Get the user's session
+			session, err := session.SessionStorage.GetSession(r)
+			if err != nil {
+				ct.ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
+				return
+			}
+			// Check if a valid session exists
+			if session == nil {
+				ct.ReturnMessageJSON(w, "Unauthorized", http.StatusUnauthorized, "error")
+				return
+			}
+			// Retrieve the user from the database based on the ID
+			user, err := database.SelectUser(session.UserId)
+			if err != nil {
+				ct.ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
+				return
+			}
+			// Check if the user has the admin role
+			adminID, err := validation.GetUserID(database.DB, "", "admin")
+			if err != nil {
+				ct.ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
+				return
+			}
+			if user.ID != adminID {
+				ct.ReturnMessageJSON(w, "Insufficient privileges", http.StatusForbidden, "error")
+				return
+			}
 			next.ServeHTTP(w, r)
 		})
 	}
@@ -86,6 +121,15 @@ func main() {
 
 	database.CreateTables()
 
+	err := database.GenerateDefaultRoles()
+	if err != nil {
+		log.Println(err)
+	}
+	login.CreateAdminUser()
+	if err != nil {
+		log.Println(err)
+	}
+
 	http.HandleFunc("/", r.ServeWithCORS(router.CORS{
 		Origin:      "https://localhost:3000",
 		Methods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -100,15 +144,16 @@ func main() {
 
 	// User
 	r.NewRoute("POST", `/user/create`, ct.CreateUser)
-	r.NewRoute("GET", `/user/(?P<id>\d+)/get`, ct.ReadUser)
+	r.NewRoute("GET", `/user/(?P<id>\d+)/get`, ct.ReadUser, AdminOnly())
 	r.NewRoute("GET", `/users/get`, ct.ReadUsers)
-	r.NewRoute("PATCH", `/user/(?P<id>\d+)/update`, ct.UpdateUser)
-	r.NewRoute("DELETE", `/user/(?P<id>\d+)/delete`, ct.DeleteUser)
+	r.NewRoute("PATCH", `/user/(?P<id>\d+)/update`, ct.UpdateUser, Auth())
+	r.NewRoute("DELETE", `/user/(?P<id>\d+)/delete`, ct.DeleteUser, Auth())
 	r.NewRoute("GET", `/user/liked`, ct.ReadUserLikedPosts, Auth())
 	r.NewRoute("GET", `/user/disliked`, ct.ReadUserDislikedPosts, Auth())
 	r.NewRoute("GET", `/user/likedComments`, ct.ReadUserLikedComments, Auth())
 	r.NewRoute("GET", `/user/dislikedComments`, ct.ReadUserDislikedComments, Auth())
 	r.NewRoute("GET", `/user/posts`, ct.ReadUserCreatedPosts, Auth())
+	r.NewRoute("GET", `/user/comments`, ct.ReadUserCommentdPosts, Auth())
 
 	// Notifications
 	r.NewRoute("GET", `/notifications`, ct.GetNotifications, Auth())

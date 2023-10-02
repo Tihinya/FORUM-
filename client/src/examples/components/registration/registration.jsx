@@ -1,9 +1,10 @@
 import Gachi, { useState, useNavigate } from "../../../core/framework"
-import { registrationRequest } from "../../additional-funcitons/authorization.js"
+import { fetchData } from "../../additional-funcitons/api.js"
 
 export default function Registation() {
 	const navigate = useNavigate()
 	const [errorMessage, setErrorMessage] = useState("")
+	const registration = "user/create"
 
 	const [formData, setFormData] = useState({
 		email: "",
@@ -22,20 +23,15 @@ export default function Registation() {
 
 	const handleSubmit = (e) => {
 		e.preventDefault()
-		registrationRequest(formData)
-			.then((resultInJson) => {
-				if (resultInJson.status === "success") {
-					localStorage.setItem("id", resultInJson.id)
-					navigate("/")
-				} else if (resultInJson.status === "error") {
-					setErrorMessage(resultInJson.message)
-					console.error("Registration error:", resultInJson.message)
-				}
-			})
-			.catch((error) => {
-				navigate("serverded")
-				console.error("Error during registration:", error)
-			})
+		fetchData(formData, registration, "Post").then((resultInJson) => {
+			if (resultInJson.status === "success") {
+				localStorage.setItem("id", resultInJson.id)
+				navigate("/")
+			} else if (resultInJson.status === "error") {
+				setErrorMessage(resultInJson.message)
+				console.error("Registration error:", resultInJson.message)
+			}
+		})
 	}
 
 	return (

@@ -1,15 +1,16 @@
 import Gachi, { useContext, useState, useEffect } from "../../../core/framework"
 
+import { fetchData } from "../../additional-funcitons/api.js"
+
 export function NavBar() {
 	const { activeSubj, setActiveSubj } = useContext("currentCategory")
 	const detailsVisible = useState(false)
 	const [categories, setCategories] = useState([])
 
 	useEffect(() => {
-		fetch("https://localhost:8080/categories")
-			.then((response) => response.json())
-			.then((data) => setCategories(data))
-			.catch((error) => console.error("Error fetching posts:", error))
+		fetchData(null, "categories", "GET").then((resultInJson) => {
+			setCategories(resultInJson)
+		})
 	}, [])
 
 	const handleSubjectClick = (index) => {

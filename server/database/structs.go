@@ -44,12 +44,13 @@ type PostUserInfo struct {
 }
 
 type UserInfo struct {
-	ID                   int    `json:"id"`
-	ProfilePicture       string `json:"avatar"`
-	Username             string `json:"username"`
-	Email                string `json:"email"`
+	ID                   int    `json:"id,omitempty"`
+	ProfilePicture       string `json:"avatar,omitempty"`
+	Username             string `json:"username,omitempty"`
+	Email                string `json:"email,omitempty"`
 	Password             string `json:"password,omitempty"`
 	PasswordConfirmation string `json:"password_confirmation,omitempty"`
+	RoleID               int    `json:"role_id,omitempty"`
 }
 type Response struct {
 	Status  string `json:"status"`
@@ -65,6 +66,7 @@ type LoginResponse struct {
 type UpdateUserRequest struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
+	Role     string `json:"roleName"`
 }
 
 type Like struct {

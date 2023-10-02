@@ -14,6 +14,10 @@ const DropdownMenu = () => {
 						logoutRequest()
 						setIsAuthenticated(false)
 						navigate("/login")
+						fetch("https://localhost:8080/logout", {
+							credentials: "include",
+						})
+						window.location.reload()
 					}}
 				>
 					LogOut

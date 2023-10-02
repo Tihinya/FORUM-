@@ -1,11 +1,16 @@
-import Gachi, { useState, useEffect } from "../core/framework.ts"
+import Gachi, {
+	useContext,
+	useState,
+	useNavigate,
+	useEffect,
+} from "../core/framework.ts"
 import { Router } from "/src/components/router.ts"
 import { importCss } from "../modules/cssLoader.js"
 import Header from "./components/header/header.jsx"
 import Login from "./components/login/login.jsx"
 import Registration from "./components/registration/registration.jsx"
 import ProfilePage from "./components/profile-page/profilePage.jsx"
-import { CommentAuth } from "./components/comments/commentsAuth.jsx"
+import { Comments } from "./components/comments/comments.jsx"
 import MainPage from "./components/mainpage/mainpage.jsx"
 import ErrorPage from "./components/errors/error-page.jsx"
 import { RateLimiter } from "./additional-funcitons/ratelimiter.js"
@@ -13,19 +18,10 @@ importCss("/styles/index.css")
 
 const container = document.getElementById("root")
 
-function Home() {
-	return (
-		<div>
-			<MainPage />
-		</div>
-	)
-}
-
 function HomeComment({ params }) {
 	return (
 		<div>
-			<Header />
-			<CommentAuth postId={params.postId} />
+			<Comments postId={params.postId} />
 		</div>
 	)
 }
@@ -46,6 +42,23 @@ const ErrorInternalError = {
 }
 
 export function App() {
+	const [top, setTop] = useState("user/posts")
+	Gachi.createContext("currentTop", { top, setTop })
+
+	const [activeSubj, setActiveSubj] = useState("")
+	Gachi.createContext("currentCategory", { activeSubj, setActiveSubj })
+
+	const [posts, setPosts] = useState([])
+	Gachi.createContext("currentPosts", { posts, setPosts })
+
+	const [comments, setComments] = useState([])
+	Gachi.createContext("currentComment", { comments, setComments })
+
+	const [errorMessage, setErrorMessage] = useState("")
+	Gachi.createContext("currentErrorMessage", {
+		errorMessage,
+		setErrorMessage,
+	})
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
 
 	Gachi.createContext("isAuthenticated", { isAuthenticated, setIsAuthenticated })
@@ -68,7 +81,7 @@ export function App() {
 	return (
 		<Router
 			routes={[
-				{ path: "/", element: <Home /> },
+				{ path: "/", element: <MainPage /> },
 				{ path: "/login", element: <Login /> },
 				{ path: "/registration", element: <Registration /> },
 				{ path: "/profile-page", element: <ProfilePage /> },
