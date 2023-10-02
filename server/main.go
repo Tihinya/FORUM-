@@ -97,7 +97,7 @@ func main() {
 	r.NewRoute("POST", `/user/create`, ct.CreateUser)
 	r.NewRoute("GET", `/user/(?P<id>\d+)/get`, ct.ReadUser, AdminOnly())
 	r.NewRoute("GET", `/users/get`, ct.ReadUsers)
-	r.NewRoute("PATCH", `/user/(?P<id>\d+)/update`, ct.UpdateUser)
+	r.NewRoute("PATCH", `/user/(?P<id>\d+)/update`, ct.UpdateUser, AdminOnly())
 	r.NewRoute("DELETE", `/user/(?P<id>\d+)/delete`, ct.DeleteUser)
 	r.NewRoute("GET", `/user/liked`, ct.ReadUserLikedPosts)
 	r.NewRoute("GET", `/user/disliked`, ct.ReadUserDislikedPosts)

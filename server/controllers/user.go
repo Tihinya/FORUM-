@@ -136,9 +136,12 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Get role ID
-	roleId, err := database.GetRoleId(req.Role)
-	if err != nil {
-		ReturnMessageJSON(w, "Invalid request body", http.StatusBadRequest, "error")
+	roleId := user.RoleID
+	if req.Role != "" {
+		roleId, err = database.GetRoleId(req.Role)
+		if err != nil {
+			ReturnMessageJSON(w, "Invalid request body", http.StatusBadRequest, "error")
+		}
 	}
 	// Check email
 	if req.Email != "" {
