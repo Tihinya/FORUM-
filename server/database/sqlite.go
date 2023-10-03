@@ -7,8 +7,10 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var DB *sql.DB
-var err error
+var (
+	DB  *sql.DB
+	err error
+)
 
 // Run `go get github.com/mattn/go-sqlite3` in terminal to download db driver
 func CreateTables() {
@@ -133,6 +135,22 @@ func CreateTables() {
 	_, err = users.Exec()
 	checkErr(err)
 
+	stmt, err = DB.Prepare(`
+		CREATE TABLE IF NOT EXISTS notifications (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			username TEXT NOT NULL,
+			parent_object_id INTEGER NOT NULL,
+			related_object_type TEXT NOT NULL,
+			related_object_id INTEGER NOT NULL,
+			type TEXT NOT NULL,
+			status TEXT DEFAULT "unread" NOT NULL,
+			creation_date DATETIME
+		);
+	`)
+	checkErr(err)
+
+	_, err = stmt.Exec()
+	checkErr(err)
 }
 
 func checkErr(err error) {

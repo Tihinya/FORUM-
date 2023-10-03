@@ -38,6 +38,13 @@ func DislikePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = database.CreateNotification(postId, "post", postId, "dislike")
+	if err != nil {
+		log.Println(err)
+		ReturnMessageJSON(w, "Internal error", http.StatusInternalServerError, "error")
+		return
+	}
+
 	ReturnMessageJSON(w, "Post successfully disliked", http.StatusOK, "success")
 }
 
@@ -93,6 +100,20 @@ func DislikeComment(w http.ResponseWriter, r *http.Request) {
 
 	if !existsLiked {
 		ReturnMessageJSON(w, "Disliking comment failed, comment is already disliked or does not exist", http.StatusBadRequest, "error")
+		return
+	}
+
+	postId, err := database.GetPostIdFromCommentId(commentId)
+	if err != nil {
+		log.Println(err)
+		ReturnMessageJSON(w, "Internal error", http.StatusInternalServerError, "error")
+		return
+	}
+
+	err = database.CreateNotification(postId, "comment", commentId, "dislike")
+	if err != nil {
+		log.Println(err)
+		ReturnMessageJSON(w, "Internal error", http.StatusInternalServerError, "error")
 		return
 	}
 

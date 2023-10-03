@@ -96,12 +96,35 @@ body {
 
 	padding: 12px;
 
-	width: 10%;
 	border-radius: 15px;
 	box-shadow: inset -2px -2px 2px rgba(165, 187, 255, 0.5),
 		inset 2px 2px 2px rgba(0, 0, 0, 0.25);
 
 	background-color: var(--button-color);
+	transition: 0.3s;
+
+	color: var(--text-color-white);
+	text-decoration: none;
+
+	cursor: pointer;
+}
+
+.sign__button_unread {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+
+	font-family: "Roboto", sans-serif;
+	font-size: 18px;
+
+	padding: 12px;
+
+	border-radius: 15px;
+	box-shadow: inset -2px -2px 2px rgba(165, 187, 255, 0.5),
+		inset 2px 2px 2px rgba(0, 0, 0, 0.25);
+
+	background-color: #ffa500;
 	transition: 0.3s;
 
 	color: var(--text-color-white);
@@ -1222,3 +1245,41 @@ input[type="file"] {
 .error-window-hidden {
 	display: none;
 }
+
+.notifications-window {
+	display: flex;
+	flex-direction: column;
+	position: absolute;
+	left: 75%;
+	top: 100%;
+	align-items: start;
+	align-self: stretch;
+	padding: 10px;
+	border-style: solid;
+	border-color: #7796f4;
+	border-radius: 15px;
+	margin: 20px;
+}
+
+.notifications-window-list {
+	list-style-type: none;
+	margin-left: -35px
+}
+
+.notification {
+	border-style: solid;
+	border-color: #224fd4;
+	border-radius: 5px;
+	margin: 1%;
+	cursor: pointer;
+}
+
+.notification-read {
+	border-style: solid;
+	border-color: #b4c4f4;
+	border-radius: 5px;
+	margin: 1%;
+	cursor: pointer;
+}
+
+

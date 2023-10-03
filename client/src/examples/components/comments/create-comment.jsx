@@ -5,7 +5,6 @@ import Gachi, {
 	useEffect,
 } from "../../../core/framework"
 
-import isLogin from "../../additional-funcitons/isLogin.js"
 import ErrorWindow from "../errors/error-window"
 import { fetchData } from "../../additional-funcitons/api.js"
 
@@ -13,7 +12,7 @@ export default function CreateComment({ endPointUrl, userId }) {
 	const navigate = useNavigate()
 	const { setComments } = useContext("currentComment")
 	const [errorMessage, setErrorMessage] = useState("")
-	const isLoggin = isLogin()
+	const isLoggin = useContext("isAuthenticated").isAuthenticated
 
 	const [formData, setFormData] = useState({
 		content: "",

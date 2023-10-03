@@ -9,6 +9,7 @@ import (
 )
 
 func ReturnMessageJSON(w http.ResponseWriter, message string, httpCode int, status string) {
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(httpCode)
 	json.NewEncoder(w).Encode(database.Response{
 		Status:  status,
@@ -30,6 +31,11 @@ func CheckIfUserLoggedin(r *http.Request) bool {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	if sessionData == nil {
+		return false
+	}
+
 	return sessionData.UserId != 0
 }
 
@@ -61,4 +67,10 @@ func getUserId(r *http.Request) int {
 	}
 	userID := SessionData.UserId
 	return userID
+}
+
+func RateLimited(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	ReturnMessageJSON(w, "Rate OK", http.StatusOK, "success")
 }

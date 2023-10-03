@@ -30,7 +30,7 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 	comment.CreationDate = time.Now()
 	comment.UserInfo.Username = getUsername(r)
 
-	exists, err = database.CreateCommentRow(comment, postId)
+	exists, err = database.CreateCommentRow(comment, postId, comment.UserInfo.Username)
 
 	if err != nil {
 		log.Println(err)
@@ -39,6 +39,13 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 	}
 	if !exists {
 		ReturnMessageJSON(w, "Comment creation failed, post with given ID does not exist", http.StatusBadRequest, "error")
+		return
+	}
+
+	err = database.CreateNotification(postId, "post", postId, "comment")
+	if err != nil {
+		log.Println(err)
+		ReturnMessageJSON(w, "Internal error", http.StatusInternalServerError, "error")
 		return
 	}
 

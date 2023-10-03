@@ -13,6 +13,7 @@ import ProfilePage from "./components/profile-page/profilePage.jsx"
 import { Comments } from "./components/comments/comments.jsx"
 import MainPage from "./components/mainpage/mainpage.jsx"
 import ErrorPage from "./components/errors/error-page.jsx"
+import { RateLimiter } from "./additional-funcitons/ratelimiter.js"
 importCss("/styles/index.css")
 
 const container = document.getElementById("root")
@@ -40,7 +41,7 @@ const ErrorInternalError = {
 	status: "500",
 }
 
-function App() {
+export function App() {
 	const [top, setTop] = useState("user/posts")
 	Gachi.createContext("currentTop", { top, setTop })
 
@@ -58,6 +59,25 @@ function App() {
 		errorMessage,
 		setErrorMessage,
 	})
+	
+	const [isAuthenticated, setIsAuthenticated] = useState(false);
+	Gachi.createContext("isAuthenticated", { isAuthenticated, setIsAuthenticated })
+
+	// Check if the user is authenticated on page load
+	useEffect(() => {
+		fetch('https://localhost:8080/authorized', {
+			credentials: "include",
+		})
+			.then((response) => {
+				if (response.ok) {
+			  		setIsAuthenticated(true);
+				} else if (response.status === 401) {
+			  		setIsAuthenticated(false);
+				}
+		  	})
+			.catch(() => setIsAuthenticated(false));
+	}, []);
+
 	return (
 		<Router
 			routes={[
@@ -86,4 +106,4 @@ function App() {
 	)
 }
 
-Gachi.render(<App />, container)
+Gachi.render(<RateLimiter />, container)
