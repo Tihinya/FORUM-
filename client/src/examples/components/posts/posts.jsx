@@ -10,6 +10,7 @@ import { fetchData } from "../../additional-funcitons/api.js"
 import LikesAndDislikes from "../post-likes/post-likes"
 import CommentsIcon from "../comments/comment-icon.jsx"
 import Categories from "./categories.jsx"
+import PostContextMenu from "./postcontextmenu"
 
 export default function Posts({ endPointUrl, userId }) {
 	if (endPointUrl === "") {
@@ -88,6 +89,7 @@ export default function Posts({ endPointUrl, userId }) {
 									</div>
 								</div>
 							</div>
+							<PostContextMenu post={post}/>
 						</div>
 						<div className="post__content">
 							<h3>{post.title}</h3>

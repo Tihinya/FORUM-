@@ -281,6 +281,7 @@ body {
 .post__header {
 	display: flex;
 	width: 100%;
+	position: relative;
 }
 
 
@@ -1282,4 +1283,48 @@ input[type="file"] {
 	cursor: pointer;
 }
 
+.edit-button {
+    position: absolute;
+    top: 20%;
+    right: 0%;
+    width: 30px;
+    height: 30px;
+    background-image: radial-gradient(circle,rgb(96,96,96) 2px, transparent 3px);
+    background-size: 100% 33.33%;
+	cursor: pointer;
+}
 
+.edit-button-content-edit {
+	position: absolute;
+	display: block;
+	top: -20%;
+	right: 150%;
+}
+
+.edit-button-content-delete {
+	position: absolute;
+	display: block;
+	top: -20%;
+	right: 325%;
+}
+
+.edit-button-content-hidden {
+	display: none;
+}
+
+.confirmation-window {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	position: absolute;
+	top: 1.5em;
+	left: 40%;
+
+	width: 20%;
+	background-color: var(--button-color-orange);
+	color: white;
+	padding: 16px;
+	border-radius: 8px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
