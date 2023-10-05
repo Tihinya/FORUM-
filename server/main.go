@@ -137,7 +137,7 @@ func main() {
 
 	http.HandleFunc("/", r.ServeWithCORS(router.CORS{
 		Origin:      "https://localhost:3000",
-		Methods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		Methods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
 		Headers:     []string{"Content-Type", "Authorization"},
 		Credentials: true,
 	}))

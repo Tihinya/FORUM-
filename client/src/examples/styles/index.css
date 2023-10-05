@@ -1283,7 +1283,7 @@ input[type="file"] {
 	cursor: pointer;
 }
 
-.edit-button {
+.context-button {
     position: absolute;
     top: 20%;
     right: 0%;
@@ -1294,21 +1294,21 @@ input[type="file"] {
 	cursor: pointer;
 }
 
-.edit-button-content-edit {
+.context-button-content-edit {
 	position: absolute;
 	display: block;
 	top: -20%;
 	right: 150%;
 }
 
-.edit-button-content-delete {
+.context-button-content-delete {
 	position: absolute;
 	display: block;
 	top: -20%;
 	right: 325%;
 }
 
-.edit-button-content-hidden {
+.context-button-content-hidden {
 	display: none;
 }
 
@@ -1327,4 +1327,39 @@ input[type="file"] {
 	padding: 16px;
 	border-radius: 8px;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.edit-button-title-window {
+	position: absolute;
+	top: 127%;
+	right: 35%;
+	width: 64%;
+	height: 24%;
+}
+
+.edit-button-content-window {
+	position: absolute;
+	top: 170%;
+	right: -1%;
+	width: 100%;
+	height: 115%;
+	resize: none;
+}
+
+.edit-button-publish {
+	position: absolute;
+	display: block;
+	top: 140%;
+	left: 94%;
+}
+
+.edit-button-cancel {
+	position: absolute;
+	display: block;
+	top: 140%;
+	left: 86%;
+}
+
+.hidden {
+	display: none;
 }
