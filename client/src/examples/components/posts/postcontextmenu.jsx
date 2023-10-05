@@ -41,7 +41,6 @@ export default function PostContextMenu( {post} ) {
     }
 
     function dismissDeletion() {
-        setErrorMessage("Are you sure you want to delete your post?")
         setShowButtonContent(false)
         setShowConfirmationWindow(false)
     }
