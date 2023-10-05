@@ -133,6 +133,21 @@ func CreateTables() {
 	_, err = users.Exec()
 	checkErr(err)
 
+	// Create the role_requests table
+	roleRequestsStmt, err := DB.Prepare(`
+		CREATE TABLE IF NOT EXISTS role_requests (
+			request_id INTEGER PRIMARY KEY AUTOINCREMENT,
+			user_id INTEGER,
+			new_role_id INTEGER,
+			FOREIGN KEY (user_id) REFERENCES users(user_id),
+			FOREIGN KEY (new_role_id) REFERENCES roles(role_id)
+		);
+	`)
+	checkErr(err)
+
+	_, err = roleRequestsStmt.Exec()
+	checkErr(err)
+
 }
 
 func checkErr(err error) {
