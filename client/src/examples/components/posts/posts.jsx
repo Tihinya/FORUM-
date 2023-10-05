@@ -10,18 +10,12 @@ import { fetchData } from "../../additional-funcitons/api.js"
 import LikesAndDislikes from "../post-likes/post-likes"
 import CommentsIcon from "../comments/comment-icon.jsx"
 import Categories from "./categories.jsx"
-import PostContextMenu from "./postcontextmenu"
+import PostContextMenu from "../context-menu/post-context-menu"
 
 export default function Posts({ endPointUrl, userId }) {
 	if (endPointUrl === "") {
 		return <h1 style={"text-align: center"}>Posts not found</h1>
 	}
-
-	const [ownedPostsIds, setOwnedPostsIds] = useState("")
-	Gachi.createContext("currentOwnedPostsIds", {
-		ownedPostsIds,
-		setOwnedPostsIds,
-	})
 
 	const isLoggin = useContext("isAuthenticated").isAuthenticated
 	const { posts, setPosts } = useContext("currentPosts")
@@ -49,19 +43,6 @@ export default function Posts({ endPointUrl, userId }) {
 			}
 		})
 	}, [activeSubj])
-
-	useEffect(() => {
-		if (isLoggin) {
-			fetchOwnedPosts()
-		}
-	}, [posts])
-	
-	function fetchOwnedPosts() {
-		fetchData(null, `user/posts`, "GET").then((resultInJson) => {
-			const postIds = resultInJson.map((ownedPost) => ownedPost.id)
-			setOwnedPostsIds(postIds)
-		})
-	}
 
 	const data =
 		endPointUrl === "posts" ||

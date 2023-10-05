@@ -14,6 +14,7 @@ import { Comments } from "./components/comments/comments.jsx"
 import MainPage from "./components/mainpage/mainpage.jsx"
 import ErrorPage from "./components/errors/error-page.jsx"
 import { RateLimiter } from "./additional-funcitons/ratelimiter.js"
+import { ContextFetchOwnedPostIds } from "./components/context-menu/helpers.jsx"
 importCss("/styles/index.css")
 
 const container = document.getElementById("root")
@@ -59,6 +60,12 @@ export function App() {
 		errorMessage,
 		setErrorMessage,
 	})
+
+	const [ownedPostsIds, setOwnedPostsIds] = useState("")
+	Gachi.createContext("currentOwnedPostsIds", {
+		ownedPostsIds,
+		setOwnedPostsIds,
+	})
 	
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
 	Gachi.createContext("isAuthenticated", { isAuthenticated, setIsAuthenticated })
@@ -77,6 +84,8 @@ export function App() {
 		  	})
 			.catch(() => setIsAuthenticated(false));
 	}, []);
+
+	ContextFetchOwnedPostIds()
 
 	return (
 		<Router

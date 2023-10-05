@@ -6,7 +6,7 @@ import Gachi, {
 } from "../../../core/framework"
 
 import { fetchData } from "../../additional-funcitons/api"
-import ConfirmationWindow from "./confirmationwindow"
+import ConfirmationWindow from "./confirmation-window"
 import ErrorWindow from "../errors/error-window"
 
 export default function PostContextMenu( {post} ) {
