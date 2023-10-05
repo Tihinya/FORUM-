@@ -16,6 +16,13 @@ export default function Posts({ endPointUrl, userId }) {
 	if (endPointUrl === "") {
 		return <h1 style={"text-align: center"}>Posts not found</h1>
 	}
+
+	const [ownedPostsIds, setOwnedPostsIds] = useState("")
+	Gachi.createContext("currentOwnedPostsIds", {
+		ownedPostsIds,
+		setOwnedPostsIds,
+	})
+
 	const isLoggin = useContext("isAuthenticated").isAuthenticated
 	const { posts, setPosts } = useContext("currentPosts")
 	const { activeSubj } = useContext("currentCategory")
@@ -42,6 +49,19 @@ export default function Posts({ endPointUrl, userId }) {
 			}
 		})
 	}, [activeSubj])
+
+	useEffect(() => {
+		if (isLoggin) {
+			fetchOwnedPosts()
+		}
+	}, [posts])
+	
+	function fetchOwnedPosts() {
+		fetchData(null, `user/posts`, "GET").then((resultInJson) => {
+			const postIds = resultInJson.map((ownedPost) => ownedPost.id)
+			setOwnedPostsIds(postIds)
+		})
+	}
 
 	const data =
 		endPointUrl === "posts" ||

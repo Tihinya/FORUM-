@@ -10,19 +10,28 @@ import ConfirmationWindow from "./confirmationwindow"
 import ErrorWindow from "../errors/error-window"
 
 export default function PostContextMenu( {post} ) {
+    const deletePostUrl = `post/${post.id}`
+    const editPostUrl = `post/${post.id}`
+    const postsUrl = `posts`
     const [ showButtonContent, setShowButtonContent ] = useState(false)
     const [ showConfirmationWindow, setShowConfirmationWindow ] = useState(false)
     const [ showEditInput, setShowEditInput ] = useState(false)
-    const [ errorMessage, setErrorMessage ] = useState("")
+    const [ errorMessage, setErrorMessage ] = useState(false)
+    const { ownedPostsIds, setOwnedPostsIds } = useContext("currentOwnedPostsIds")
     const { posts, setPosts } = useContext("currentPosts")
 
+    if (!ownedPostsIds.includes(post.id)) {
+        return
+    }
+
     function deletePost() {
-        fetchData(null, `post/${post.id}`, "DELETE").then((responseInJson) => {
-            if (!responseInJson.status === "success") {
+        fetchData(null, deletePostUrl, "DELETE").then((responseInJson) => {
+            if (responseInJson.status !== "success") {
+                setErrorMessage("Post deletion failed")
                 return
             }
 
-            fetchData(null, "posts", "GET").then((resultInJson) => {
+            fetchData(null, postsUrl, "GET").then((resultInJson) => {
                 setPosts(resultInJson)
             })
         })
@@ -32,6 +41,7 @@ export default function PostContextMenu( {post} ) {
     }
 
     function dismissDeletion() {
+        setErrorMessage("Are you sure you want to delete your post?")
         setShowButtonContent(false)
         setShowConfirmationWindow(false)
     }
@@ -42,26 +52,29 @@ export default function PostContextMenu( {post} ) {
 		const formData = new FormData(form)
 		const formJson = Object.fromEntries(formData.entries())
 
-        fetchData(formJson, `post/${post.id}`, "PATCH").then((responseInJson) => {
-            console.log(responseInJson)
+        fetchData(formJson, editPostUrl, "PATCH").then((responseInJson) => {
             if (responseInJson.status !== "success") {
                 setErrorMessage("Post editing failed")
                 return
             }
-            fetchData(null, "posts", "GET").then((resultInJson) => {
+
+            fetchData(null, postsUrl, "GET").then((resultInJson) => {
                 setPosts(resultInJson)
             })
 
         })
 
-        setShowButtonContent(!showButtonContent)
+        setShowButtonContent(false)
         setShowEditInput(false)
     }
 
     function dismissEdit() {
-        setErrorMessage("test")
         setShowButtonContent(false)
         setShowEditInput(false)
+    }
+
+    function handleErrorMessageClose() {
+        setErrorMessage("")
     }
 
     return (
@@ -73,15 +86,36 @@ export default function PostContextMenu( {post} ) {
                     onNo={() => dismissDeletion()}
                 />
             : null }
-
             {errorMessage != "" ? (
-				<ErrorWindow
-					errorMessage={errorMessage}
-					onClose={setErrorMessage("")}
-				/>
-			) : (
+                <ErrorWindow
+                    errorMessage={errorMessage}
+                    onClose={handleErrorMessageClose}
+                />
+            ) : (
                 ""
             )}
+
+            <div 
+                className="context-button"
+                onClick={() => setShowButtonContent(!showButtonContent)}
+            >
+                <button
+                    className={
+                        `context-button-content-edit ${!showButtonContent ? "hidden" : ""}`
+                    }
+                    onClick={() => setShowEditInput(!showEditInput)}
+                >
+                    Edit post
+                </button>
+                <button
+                    className={
+                        `context-button-content-delete ${!showButtonContent ? "hidden" : ""}`
+                    }
+                    onClick={() => setShowConfirmationWindow(!showConfirmationWindow)}
+                >
+                    Delete post
+                </button>
+            </div>
 
             <form onSubmit={editPost}>
                 <input
@@ -105,35 +139,12 @@ export default function PostContextMenu( {post} ) {
                 </button>
                 <button
                     className={`edit-button-cancel ${!showEditInput ? "hidden" : ""}`}
+                    type="button"
                     onClick={() => dismissEdit()}
                 >
                     Cancel
                 </button>
             </form>
-            
-            <div 
-                className="context-button"
-                onClick={() => setShowButtonContent(!showButtonContent)}
-            >
-                <button
-                    className={showButtonContent ? 
-                        "context-button-content-edit" 
-                    : 
-                        "context-button-content-hidden"}
-                    onClick={() => setShowEditInput(!showEditInput)}
-                >
-                    Edit post
-                </button>
-                <button
-                    className={showButtonContent ? 
-                        "context-button-content-delete" 
-                    : 
-                        "context-button-content-hidden"}
-                    onClick={() => setShowConfirmationWindow(!showConfirmationWindow)}
-                >
-                    Delete post
-                </button>
-            </div>
         </div>
     )
 }
