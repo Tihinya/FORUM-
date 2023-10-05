@@ -41,11 +41,8 @@ export default function PostContextMenu( {post} ) {
         const form = e.target
 		const formData = new FormData(form)
 		const formJson = Object.fromEntries(formData.entries())
-        formJson.categories = post.categories
-        formJson.image = post.image
-        console.log(formJson)
 
-        fetchData(null, `post/${post.id}`, "PATCH").then((responseInJson) => {
+        fetchData(formJson, `post/${post.id}`, "PATCH").then((responseInJson) => {
             console.log(responseInJson)
             if (responseInJson.status !== "success") {
                 setErrorMessage("Post editing failed")
