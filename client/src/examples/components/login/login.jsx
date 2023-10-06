@@ -8,6 +8,7 @@ import { fetchData } from "../../additional-funcitons/api.js"
 
 export default function Login() {
 	const navigate = useNavigate()
+	const {isAuthenticated, setIsAuthenticated} = useContext("isAuthenticated")
 	const loginUrl = "login"
 
 	const [errorMessage, setErrorMessage] = useState("")
@@ -22,7 +23,7 @@ export default function Login() {
 		fetchData(formData, loginUrl, "POST")
 			.then((resultInJson) => {
 				if (resultInJson.status === "success") {
-					localStorage.setItem("id", resultInJson.id)
+					setIsAuthenticated(true)
 					navigate("/")
 				} else if (resultInJson.status === "error") {
 					setErrorMessage(resultInJson.message)

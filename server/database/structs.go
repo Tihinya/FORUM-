@@ -97,3 +97,14 @@ type SendRoleRequest struct {
 type ResponseToRequest struct {
 	Status string `json:"status"`
 }
+
+type Notification struct {
+	Id                int        `json:"id"`
+	Username          string     `json:"username"`
+	ParentObjectId    string     `json:"parent_object_id"`
+	RelatedObjectType string     `json:"related_object_type"`
+	RelatedObjectId   int        `json:"related_object_id"`
+	Type              string     `json:"type"`
+	Status            string     `json:"status"`
+	CreationDate      *time.Time `json:"creation_date"`
+}

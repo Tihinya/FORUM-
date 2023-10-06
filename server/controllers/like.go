@@ -38,6 +38,13 @@ func LikePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = database.CreateNotification(postId, "post", postId, "like")
+	if err != nil {
+		log.Println(err)
+		ReturnMessageJSON(w, "Internal error", http.StatusInternalServerError, "error")
+		return
+	}
+
 	ReturnMessageJSON(w, "Post successfully liked", http.StatusOK, "success")
 }
 
@@ -93,6 +100,20 @@ func LikeComment(w http.ResponseWriter, r *http.Request) {
 
 	if !existsLiked {
 		ReturnMessageJSON(w, "Liking comment failed, comment is already liked or does not exist", http.StatusBadRequest, "error")
+		return
+	}
+
+	postId, err := database.GetPostIdFromCommentId(commentId)
+	if err != nil {
+		log.Println(err)
+		ReturnMessageJSON(w, "Internal error", http.StatusInternalServerError, "error")
+		return
+	}
+
+	err = database.CreateNotification(postId, "comment", commentId, "like")
+	if err != nil {
+		log.Println(err)
+		ReturnMessageJSON(w, "Internal error", http.StatusInternalServerError, "error")
 		return
 	}
 

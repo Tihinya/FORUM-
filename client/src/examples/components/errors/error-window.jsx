@@ -1,8 +1,4 @@
-import Gachi, {
-	useContext,
-	useState,
-	useNavigate,
-} from "../../../core/framework"
+import Gachi from "../../../core/framework"
 
 export default function ErrorWindow({ errorMessage, onClose }) {
 	return (

@@ -35,6 +35,14 @@ module.exports = {
 		extensions: [".js", ".jsx", ".ts", ".tsx"], // Add support for resolving .js and .mjs extensions
 	},
 	devServer: {
+		https: {
+			ca: './ssl/server.pem',
+			key: './ssl/server.key',
+			cert: './ssl/server.crt',
+			passphrase: 'webpack-dev-server',
+			requestCert: false,
+		},
+		server: "https",
 		static: path.join(__dirname, "./src/examples"),
 		historyApiFallback: true,
 		port: 3000,

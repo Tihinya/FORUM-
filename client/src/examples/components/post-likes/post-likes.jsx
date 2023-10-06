@@ -15,17 +15,27 @@ export default function LikesAndDislikes({ post, method, endPointUrl }) {
 	const { setComments } = useContext("currentComment")
 	const [likedPosts, setLikedPosts] = useState([])
 	const [dislikedPosts, setDislikedPosts] = useState([])
+	const isLoggin = useContext("isAuthenticated").isAuthenticated
 
 	const fetchLikes = () => {
 		fetchData(null, likeUrl, "GET").then((resultInJson) => {
 			setLikedPosts(resultInJson)
 		})
 	}
+
 	const fetchDislikes = () => {
 		fetchData(null, disLikeUrl, "GET").then((resultInJson) => {
 			setDislikedPosts(resultInJson)
 		})
 	}
+
+	if (isLoggin) {
+		useEffect(() => {
+			fetchLikes()
+			fetchDislikes()
+		}, [])
+	}
+
 	const handleLike = (type, postId) => {
 		fetchLikes()
 		fetchDislikes()
@@ -34,7 +44,7 @@ export default function LikesAndDislikes({ post, method, endPointUrl }) {
 			!dislikedPosts.includes(postId)
 
 		const endpoint = isLiking ? `${postId}/${type}` : `${postId}/un${type}`
-		console.log(`${method}/${endpoint}`)
+
 		fetchData(null, `${method}/${endpoint}`, "POST").then(
 			(resultInJson) => {
 				if (resultInJson.status === "success") {
@@ -59,19 +69,31 @@ export default function LikesAndDislikes({ post, method, endPointUrl }) {
 	}
 
 	return (
-		<div className="post__likes">
-			<img
-				onClick={() => handleLike("like", post.id)}
-				src="../img/thumbs-up.svg"
-			/>
-			<p onClick={() => handleLike("like", post.id)}>{post.likes}</p>
-			<img
-				onClick={() => handleLike("dislike", post.id)}
-				src="../img/thumbs-down.svg"
-			/>
-			<p onClick={() => handleLike("dislike", post.id)}>
-				{post.dislikes}
-			</p>
+
+		<div>
+			{ isLoggin ?
+			<div className="post__likes">
+				<img
+					onClick={() => handleLike("like", post.id)}
+					src="../img/thumbs-up.svg"
+				/>
+				<p onClick={() => handleLike("like", post.id)}>{post.likes}</p>
+				<img
+					onClick={() => handleLike("dislike", post.id)}
+					src="../img/thumbs-down.svg"
+				/>
+				<p onClick={() => handleLike("dislike", post.id)}>
+					{post.dislikes}
+				</p>
+			</div>
+			: 
+			<div className="post__likes">
+				<img src="../img/thumbs-up.svg"/>
+					<p>{post.likes}</p>
+				<img src="../img/thumbs-down.svg"/>
+					<p>{post.dislikes}</p>
+			</div>
+			}
 		</div>
 	)
 }
