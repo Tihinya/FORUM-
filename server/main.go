@@ -207,6 +207,12 @@ func main() {
 
 	r.NewRoute("GET", `/login/github/redirect`, ct.GithubCallbackRedirect)
 
+	//Role
+	r.NewRoute("POST", `/promotion/(?P<id>\d+)`, ct.Promotion)
+	r.NewRoute("GET", `/promotions/get`, ct.ReadPromotions, AdminOnly())
+	r.NewRoute("PATCH", `/promotion/(?P<id>\d+)/update`, ct.UpdatePromotion, AdminOnly())
+	r.NewRoute("DELETE", `/promotion/(?P<id>\d+)/delete`, ct.DeletePromotion, AdminOnly())
+
 	log.Println("Ctrl + Click on the link: https://localhost:" + config.Config.Port)
 	log.Println("To stop the server press `Ctrl + C`")
 

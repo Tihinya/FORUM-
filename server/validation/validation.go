@@ -72,3 +72,51 @@ func ValidateRole(db *sql.DB, roleName string) (bool, error) {
 	}
 	return count > 0, nil
 }
+
+func HasPendingRoleRequest(db *sql.DB, userId int) (bool, error) {
+	// Query to check if the user has a pending role request
+	query := `
+		SELECT COUNT(*) FROM role_requests
+		WHERE user_id = ?;
+	`
+
+	var count int
+	err := db.QueryRow(query, userId).Scan(&count)
+	if err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
+}
+
+func GetUserName(db *sql.DB, userId int) (string, error) {
+	// Query to retrieve the username for the given userId
+	query := `
+		SELECT username FROM users
+		WHERE user_id = ?;
+	`
+
+	var username string
+	err := db.QueryRow(query, userId).Scan(&username)
+	if err != nil {
+		return "", err
+	}
+
+	return username, nil
+}
+
+func GetRoleName(db *sql.DB, RoleID int) (string, error) {
+	// Query to retrieve the role name for the given RoleID
+	query := `
+		SELECT name FROM roles
+		WHERE role_id = ?;
+	`
+
+	var roleName string
+	err := db.QueryRow(query, RoleID).Scan(&roleName)
+	if err != nil {
+		return "", err
+	}
+
+	return roleName, nil
+}

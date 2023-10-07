@@ -122,7 +122,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		ReturnMessageJSON(w, "Invalid request body", http.StatusBadRequest, "error")
 		return
 	}
-	//Get User ID
+	//Get user ID
 	userID, err := router.GetFieldInt(r, "id")
 	if err != nil {
 		ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")

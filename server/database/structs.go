@@ -80,6 +80,23 @@ type Dislike struct {
 	CommentId int    `json:"comment_id"`
 	Username  string `json:"username"`
 }
+type GetRoleRequest struct {
+	NewRole string `json:"new_role"`
+}
+
+type RoleRequest struct {
+	UserID    int
+	NewRoleID int
+}
+type SendRoleRequest struct {
+	UserID   int
+	UserName string
+	RoleName string
+}
+
+type ResponseToRequest struct {
+	Status string `json:"status"`
+}
 
 type Notification struct {
 	Id                int        `json:"id"`
