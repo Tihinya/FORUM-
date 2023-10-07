@@ -158,6 +158,7 @@ func main() {
 	r.NewRoute("GET", `/user/likedComments`, ct.ReadUserLikedComments, Auth())
 	r.NewRoute("GET", `/user/dislikedComments`, ct.ReadUserDislikedComments, Auth())
 	r.NewRoute("GET", `/user/posts`, ct.ReadUserCreatedPosts, Auth())
+	r.NewRoute("GET", `/user/createdcomments`, ct.ReadUserCreatedComments, Auth())
 	r.NewRoute("GET", `/user/comments`, ct.ReadUserCommentdPosts, Auth())
 
 	// Notifications

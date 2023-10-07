@@ -9,29 +9,71 @@ import { fetchData } from "../../additional-funcitons/api"
 import ConfirmationWindow from "./confirmation-window"
 import ErrorWindow from "../errors/error-window"
 
-export default function PostContextMenu( {post} ) {
-    const deletePostUrl = `post/${post.id}`
-    const editPostUrl = `post/${post.id}`
-    const postsUrl = `posts`
+export default function ContextMenu( {obj} ) {
+    const [contextType, setContextType] = useState(undefined)
+
+    const [deleteUrl, setDeleteUrl] = useState("")
+    const [editUrl, setEditUrl] = useState("")
+    const [fetchUrl, setFetchUrl] = useState("")
+
     const [ showButtonContent, setShowButtonContent ] = useState(false)
     const [ showConfirmationWindow, setShowConfirmationWindow ] = useState(false)
     const [ showEditInput, setShowEditInput ] = useState(false)
     const [ errorMessage, setErrorMessage ] = useState(false)
     const { ownedPostsIds, setOwnedPostsIds } = useContext("currentOwnedPostsIds")
+    const { ownedCommentsIds, setOwnedCommentsIds } = useContext("currentOwnedCommentsIds")
     const { posts, setPosts } = useContext("currentPosts")
+    const { comments, setComments } = useContext("currentComments")
 
-    if (!ownedPostsIds.includes(post.id)) {
+    if (obj.hasOwnProperty("comment_count")) {
+        setContextType("post")
+    } else if (obj.hasOwnProperty("post_id")) {
+        setContextType("comment")
+    }
+
+    // Duplicate useEffects cuz multi-dependancy useEffect brokie
+    useEffect(() => {
+        if (contextType == "post") {
+            setDeleteUrl(`post/${obj.id}`)
+            setEditUrl(`post/${obj.id}`)
+            setFetchUrl(`posts`)
+
+        } else if (contextType == "comment") {
+            setDeleteUrl(`comment/${obj.id}`)
+            setEditUrl(`comment/${obj.id}`)
+            setFetchUrl(`comments/${obj.post_id}`)
+        }
+    }, [contextType])
+
+    useEffect(() => {
+        if (contextType == "post") {
+            setDeleteUrl(`post/${obj.id}`)
+            setEditUrl(`post/${obj.id}`)
+            setFetchUrl(`posts`)
+
+        } else if (contextType == "comment") {
+            setDeleteUrl(`comment/${obj.id}`)
+            setEditUrl(`comment/${obj.id}`)
+            setFetchUrl(`comments/${obj.post_id}`)
+        }
+    }, [posts])
+
+    if (!ownedPostsIds.includes(obj.id) && contextType == "post") {
         return
     }
 
-    function deletePost() {
-        fetchData(null, deletePostUrl, "DELETE").then((responseInJson) => {
+    if (!ownedCommentsIds.includes(obj.id) && contextType == "comment") {
+        return
+    }
+
+    function deleteObj() {
+        fetchData(null, deleteUrl, "DELETE").then((responseInJson) => {
             if (responseInJson.status !== "success") {
-                setErrorMessage("Post deletion failed")
+                setErrorMessage(`${contextType} deletion failed`)
                 return
             }
 
-            fetchData(null, postsUrl, "GET").then((resultInJson) => {
+            fetchData(null, fetchUrl, "GET").then((resultInJson) => {
                 setPosts(resultInJson)
             })
         })
@@ -45,21 +87,21 @@ export default function PostContextMenu( {post} ) {
         setShowConfirmationWindow(false)
     }
 
-    function editPost(e) {
+    function editObj(e) {
         e.preventDefault()
         const form = e.target
 		const formData = new FormData(form)
 		const formJson = Object.fromEntries(formData.entries())
 
-        formJson.categories = post.categories
+        formJson.categories = obj.categories
 
-        fetchData(formJson, editPostUrl, "PATCH").then((responseInJson) => {
+        fetchData(formJson, editUrl, "PATCH").then((responseInJson) => {
             if (responseInJson.status !== "success") {
-                setErrorMessage("Post editing failed")
+                setErrorMessage(`${contextType} editing failed`)
                 return
             }
 
-            fetchData(null, postsUrl, "GET").then((resultInJson) => {
+            fetchData(null, fetchUrl, "GET").then((resultInJson) => {
                 setPosts(resultInJson)
             })
 
@@ -83,7 +125,7 @@ export default function PostContextMenu( {post} ) {
             {showConfirmationWindow ? 
                 <ConfirmationWindow 
                     message={"Are you sure you want to delete your post?"}
-                    onYes={() => deletePost()}
+                    onYes={() => deleteObj()}
                     onNo={() => dismissDeletion()}
                 />
             : null }
@@ -118,18 +160,18 @@ export default function PostContextMenu( {post} ) {
                 </button>
             </div>
 
-            <form onSubmit={editPost}>
+            <form onSubmit={editObj}>
                 <input
                     className={`edit-button-title-window ${!showEditInput ? "hidden" : ""}`}
                     name="title"
                     id="titleValue"
-                    defaultValue={post.title}
+                    defaultValue={obj.title}
                 />
                 <textarea
                     className={`edit-button-content-window ${!showEditInput ? "hidden" : ""}`}
                     name="content"
                     id="contentValue"
-                    defaultValue={post.content}
+                    defaultValue={obj.content}
                 />
                 
                 <button

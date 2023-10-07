@@ -10,7 +10,7 @@ import { fetchData } from "../../additional-funcitons/api.js"
 
 export default function CreateComment({ endPointUrl, userId }) {
 	const navigate = useNavigate()
-	const { setComments } = useContext("currentComment")
+	const { setComments } = useContext("currentComments")
 	const [errorMessage, setErrorMessage] = useState("")
 	const isLoggin = useContext("isAuthenticated").isAuthenticated
 

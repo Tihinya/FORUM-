@@ -10,7 +10,7 @@ import { fetchData } from "../../additional-funcitons/api.js"
 import LikesAndDislikes from "../post-likes/post-likes"
 import CommentsIcon from "../comments/comment-icon.jsx"
 import Categories from "./categories.jsx"
-import PostContextMenu from "../context-menu/post-context-menu"
+import ContextMenu from "../context-menu/context-menu"
 
 export default function Posts({ endPointUrl, userId }) {
 	if (endPointUrl === "") {
@@ -20,7 +20,7 @@ export default function Posts({ endPointUrl, userId }) {
 	const isLoggin = useContext("isAuthenticated").isAuthenticated
 	const { posts, setPosts } = useContext("currentPosts")
 	const { activeSubj } = useContext("currentCategory")
-	const { comments, setComments } = useContext("currentComment")
+	const { comments, setComments } = useContext("currentComments")
 	const navigate = useNavigate()
 	const postOrComment = endPointUrl !== "comments" ? true : false
 	const endpoint =
@@ -90,7 +90,7 @@ export default function Posts({ endPointUrl, userId }) {
 									</div>
 								</div>
 							</div>
-							<PostContextMenu post={post}/>
+							<ContextMenu obj={post}/>
 						</div>
 						<div className="post__content">
 							<h3>{post.title}</h3>

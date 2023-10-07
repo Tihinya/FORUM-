@@ -1,7 +1,7 @@
 import Gachi, {useContext, useEffect} from "../../../core/framework"
 import { fetchData } from "../../additional-funcitons/api"
 
-export function ContextFetchOwnedPostIds() {
+export function ContextFetchOwnedPostsIds() {
     const { ownedPostsIds, setOwnedPostsIds } = useContext("currentOwnedPostsIds")
     const { posts, setPosts } = useContext("currentPosts")
     const isLoggin = useContext("isAuthenticated").isAuthenticated
@@ -20,3 +20,21 @@ export function ContextFetchOwnedPostIds() {
     }
 }
 
+export function ContextFetchOwnedCommentsIds() {
+    const { ownedCommentsIds, setOwnedCommentsIds } = useContext("currentOwnedCommentsIds")
+    const { comments, setComments } = useContext("currentComments")
+    const isLoggin = useContext("isAuthenticated").isAuthenticated
+
+    useEffect(() => {
+        if (isLoggin) {
+            fetchOwnedComments()
+        }
+    }, [comments])
+    
+    function fetchOwnedComments() {
+        fetchData(null, `user/createdcomments`, "GET").then((resultInJson) => {
+            const commentsIds = resultInJson.map((ownedComment) => ownedComment.id)
+            setOwnedCommentsIds(commentsIds)
+        })
+    }
+}

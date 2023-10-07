@@ -14,7 +14,8 @@ import { Comments } from "./components/comments/comments.jsx"
 import MainPage from "./components/mainpage/mainpage.jsx"
 import ErrorPage from "./components/errors/error-page.jsx"
 import { RateLimiter } from "./additional-funcitons/ratelimiter.js"
-import { ContextFetchOwnedPostIds } from "./components/context-menu/helpers.jsx"
+import { ContextFetchOwnedPostsIds } from "./components/context-menu/helpers.jsx"
+import { ContextFetchOwnedCommentsIds } from "./components/context-menu/helpers.jsx"
 importCss("/styles/index.css")
 
 const container = document.getElementById("root")
@@ -53,7 +54,7 @@ export function App() {
 	Gachi.createContext("currentPosts", { posts, setPosts })
 
 	const [comments, setComments] = useState([])
-	Gachi.createContext("currentComment", { comments, setComments })
+	Gachi.createContext("currentComments", { comments, setComments })
 
 	const [errorMessage, setErrorMessage] = useState("")
 	Gachi.createContext("currentErrorMessage", {
@@ -65,6 +66,12 @@ export function App() {
 	Gachi.createContext("currentOwnedPostsIds", {
 		ownedPostsIds,
 		setOwnedPostsIds,
+	})
+
+	const [ownedCommentsIds, setOwnedCommentsIds] = useState("")
+	Gachi.createContext("currentOwnedCommentsIds", {
+		ownedCommentsIds,
+		setOwnedCommentsIds,
 	})
 	
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -85,7 +92,8 @@ export function App() {
 			.catch(() => setIsAuthenticated(false));
 	}, []);
 
-	ContextFetchOwnedPostIds()
+	ContextFetchOwnedPostsIds()
+	ContextFetchOwnedCommentsIds()
 
 	return (
 		<Router
