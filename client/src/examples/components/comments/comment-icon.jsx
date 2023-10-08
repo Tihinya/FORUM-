@@ -7,6 +7,7 @@ import Gachi, {
 
 export default function CommentsIcon({ post }) {
 	const navigate = useNavigate()
+
 	return (
 		<div className="post__info">
 			<a
