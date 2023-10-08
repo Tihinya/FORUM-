@@ -1,7 +1,6 @@
 package session
 
 import (
-	"fmt"
 	"net/http"
 	"sync"
 	"time"
@@ -42,7 +41,7 @@ func (s *Storage) CreateSession(userId int) string {
 }
 
 func (s *Storage) DeleteCookie(w http.ResponseWriter) {
-	var cookie http.Cookie = http.Cookie{
+	deletedCookie := &http.Cookie{
 		Name:     "session_token",
 		MaxAge:   -1,
 		Path:     "/",
@@ -51,16 +50,7 @@ func (s *Storage) DeleteCookie(w http.ResponseWriter) {
 		SameSite: http.SameSiteNoneMode,
 	}
 
-	fmt.Println(cookie.Valid())
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     "session_token",
-		MaxAge:   -1,
-		Path:     "/",
-		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteNoneMode,
-	})
+	http.SetCookie(w, deletedCookie)
 }
 
 func (s *Session) GetUID() int {
@@ -71,7 +61,6 @@ func (s *Storage) SetCookie(sessionToken string, w http.ResponseWriter) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session_token",
 		Value:    sessionToken,
-		Expires:  time.Now().Add(cookieLifeTime),
 		MaxAge:   int(cookieLifeTime.Seconds()),
 		Path:     "/",
 		HttpOnly: true,
@@ -105,8 +94,9 @@ func (s *Storage) GetSession(r *http.Request) (*Session, error) {
 		return nil, nil
 	}
 
-	return session, nil
+	session.ExpireTime = time.Now().Add(sessionLifeTime)
 
+	return session, nil
 }
 
 func (s *Session) RemoveSession() {

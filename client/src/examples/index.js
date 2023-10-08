@@ -59,24 +59,27 @@ export function App() {
 		errorMessage,
 		setErrorMessage,
 	})
-	
-	const [isAuthenticated, setIsAuthenticated] = useState(false);
-	Gachi.createContext("isAuthenticated", { isAuthenticated, setIsAuthenticated })
+
+	const [isAuthenticated, setIsAuthenticated] = useState(false)
+	Gachi.createContext("isAuthenticated", {
+		isAuthenticated,
+		setIsAuthenticated,
+	})
 
 	// Check if the user is authenticated on page load
 	useEffect(() => {
-		fetch('https://localhost:8080/authorized', {
+		fetch("https://localhost:8080/authorized", {
 			credentials: "include",
 		})
 			.then((response) => {
 				if (response.ok) {
-			  		setIsAuthenticated(true);
+					setIsAuthenticated(true)
 				} else if (response.status === 401) {
-			  		setIsAuthenticated(false);
+					setIsAuthenticated(false)
 				}
-		  	})
-			.catch(() => setIsAuthenticated(false));
-	}, []);
+			})
+			.catch(() => setIsAuthenticated(false))
+	}, [])
 
 	return (
 		<Router

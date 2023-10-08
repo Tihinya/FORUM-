@@ -23,6 +23,7 @@ go.work
 
 .vscode
 
-dist 
+dist
 client/node_modules
 package-lock.json
+server/database/database.db
