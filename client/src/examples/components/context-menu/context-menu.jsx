@@ -9,7 +9,7 @@ import { fetchData } from "../../additional-funcitons/api"
 import ConfirmationWindow from "./confirmation-window"
 import ErrorWindow from "../errors/error-window"
 
-export default function ContextMenu( {obj} ) {
+export default function ContextMenu( {obj, endpoint} ) {
     const [contextType, setContextType] = useState(undefined)
 
     const [deleteUrl, setDeleteUrl] = useState("")
@@ -36,7 +36,12 @@ export default function ContextMenu( {obj} ) {
         if (contextType == "post") {
             setDeleteUrl(`post/${obj.id}`)
             setEditUrl(`post/${obj.id}`)
-            setFetchUrl(`posts`)
+
+            if (endpoint == "post") {
+                setFetchUrl(`post/${obj.id}`)
+            } else if (endpoint == "posts") {
+                setFetchUrl(`posts`)
+            }
 
         } else if (contextType == "comment") {
             setDeleteUrl(`comment/${obj.id}`)
@@ -49,7 +54,12 @@ export default function ContextMenu( {obj} ) {
         if (contextType == "post") {
             setDeleteUrl(`post/${obj.id}`)
             setEditUrl(`post/${obj.id}`)
-            setFetchUrl(`posts`)
+
+            if (endpoint == "post") {
+                setFetchUrl(`post/${obj.id}`)
+            } else if (endpoint == "posts") {
+                setFetchUrl(`posts`)
+            }
 
         } else if (contextType == "comment") {
             setDeleteUrl(`comment/${obj.id}`)
@@ -57,6 +67,24 @@ export default function ContextMenu( {obj} ) {
             setFetchUrl(`comments/${obj.post_id}`)
         }
     }, [posts])
+
+    useEffect(() => {
+        if (contextType == "post") {
+            setDeleteUrl(`post/${obj.id}`)
+            setEditUrl(`post/${obj.id}`)
+
+            if (endpoint == "post") {
+                setFetchUrl(`post/${obj.id}`)
+            } else if (endpoint == "posts") {
+                setFetchUrl(`posts`)
+            }
+
+        } else if (contextType == "comment") {
+            setDeleteUrl(`comment/${obj.id}`)
+            setEditUrl(`comment/${obj.id}`)
+            setFetchUrl(`comments/${obj.post_id}`)
+        }
+    }, [comments])
 
     if (!ownedPostsIds.includes(obj.id) && contextType == "post") {
         return
@@ -74,7 +102,11 @@ export default function ContextMenu( {obj} ) {
             }
 
             fetchData(null, fetchUrl, "GET").then((resultInJson) => {
-                setPosts(resultInJson)
+                if (contextType == "post") {
+                    setPosts(resultInJson)
+                } else {
+                    setComments(resultInJson)
+                }
             })
         })
         
@@ -92,9 +124,11 @@ export default function ContextMenu( {obj} ) {
         const form = e.target
 		const formData = new FormData(form)
 		const formJson = Object.fromEntries(formData.entries())
-
-        formJson.categories = obj.categories
-
+        
+        if (contextType == "post") {
+            formJson.categories = obj.categories
+        }
+        
         fetchData(formJson, editUrl, "PATCH").then((responseInJson) => {
             if (responseInJson.status !== "success") {
                 setErrorMessage(`${contextType} editing failed`)
@@ -102,7 +136,12 @@ export default function ContextMenu( {obj} ) {
             }
 
             fetchData(null, fetchUrl, "GET").then((resultInJson) => {
-                setPosts(resultInJson)
+                if (contextType == "post") {
+                    setPosts(resultInJson)
+                } else {
+                    setComments(resultInJson)
+                }
+                
             })
 
         })
@@ -161,27 +200,39 @@ export default function ContextMenu( {obj} ) {
             </div>
 
             <form onSubmit={editObj}>
+                {contextType === "post" ?
                 <input
                     className={`edit-button-title-window ${!showEditInput ? "hidden" : ""}`}
                     name="title"
                     id="titleValue"
                     defaultValue={obj.title}
                 />
+                : null}
+                
                 <textarea
-                    className={`edit-button-content-window ${!showEditInput ? "hidden" : ""}`}
+                    className={`edit-button-content-window 
+                    ${contextType == "comment" ? "comment" : ""}
+                    ${!showEditInput ? "hidden" : ""}`}
+
                     name="content"
                     id="contentValue"
                     defaultValue={obj.content}
                 />
                 
                 <button
-                    className={`edit-button-publish ${!showEditInput ? "hidden" : ""}`}
+                    className={`edit-button-publish 
+                    ${contextType == "comment" ? "comment" : ""}
+                    ${!showEditInput ? "hidden" : ""}`}
+
                     type="submit"
                 >
                     Publish
                 </button>
                 <button
-                    className={`edit-button-cancel ${!showEditInput ? "hidden" : ""}`}
+                    className={`edit-button-cancel 
+                    ${contextType == "comment" ? "comment" : ""}
+                    ${!showEditInput ? "hidden" : ""}`}
+
                     type="button"
                     onClick={() => dismissEdit()}
                 >

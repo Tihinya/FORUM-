@@ -90,7 +90,10 @@ export default function Posts({ endPointUrl, userId }) {
 									</div>
 								</div>
 							</div>
-							<ContextMenu obj={post}/>
+							<ContextMenu 
+								obj={post}
+								endpoint={endPointUrl}
+							/>
 						</div>
 						<div className="post__content">
 							<h3>{post.title}</h3>

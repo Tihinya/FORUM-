@@ -1360,6 +1360,27 @@ input[type="file"] {
 	left: 86%;
 }
 
+.edit-button-content-window.comment {
+	position: absolute;
+	top: 130%;
+	right: 0%;
+	resize: none;
+}
+
+.edit-button-publish.comment {
+	position: absolute;
+	display: block;
+	top: 100%;
+	left: 94%;
+}
+
+.edit-button-cancel.comment {
+	position: absolute;
+	display: block;
+	top: 100%;
+	left: 86%;
+}
+
 .hidden {
-	display: none;
+	display: none !important;
 }

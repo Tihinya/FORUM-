@@ -14,9 +14,6 @@ export default function CreateComment({ endPointUrl, userId }) {
 	const [errorMessage, setErrorMessage] = useState("")
 	const isLoggin = useContext("isAuthenticated").isAuthenticated
 
-	const [formData, setFormData] = useState({
-		content: "",
-	})
 	const point = `comments/${userId}`
 
 	const endpoint = `${endPointUrl}/${userId}`
@@ -24,17 +21,19 @@ export default function CreateComment({ endPointUrl, userId }) {
 	const handleSubmitClick = (e) => {
 		e.preventDefault()
 
-		fetchData(formData, endpoint, "POST")
+		const form = e.target
+		const formData = new FormData(form)
+		const formJson = Object.fromEntries(formData.entries())
+
+		fetchData(formJson, endpoint, "POST")
 			.then((resultInJson) => {
 				if (resultInJson.status === "success") {
-					setFormData({
-						...formData,
-						content: "",
-					})
 
 					fetchData(null, point, "GET").then((resultInJson) => {
 						setComments(resultInJson)
 					})
+
+					form.reset()
 				} else if (resultInJson.status === "error") {
 					setErrorMessage(resultInJson.message)
 				}
@@ -46,13 +45,6 @@ export default function CreateComment({ endPointUrl, userId }) {
 	}
 	const handleErrorMessageClose = () => {
 		setErrorMessage("")
-	}
-	const handleInputChange = (e) => {
-		const { name, value } = e.target
-		setFormData((prevData) => ({
-			...prevData,
-			[name]: value,
-		}))
 	}
 
 	return (
@@ -72,8 +64,6 @@ export default function CreateComment({ endPointUrl, userId }) {
 				<p className="post__box_comment-message">Leave your comment</p>
 				<div className="input-fields">
 					<textarea
-						value={formData.content}
-						onChange={handleInputChange}
 						className="text-area"
 						name="content"
 						rows="5"
