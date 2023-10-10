@@ -137,7 +137,7 @@ func main() {
 
 	http.HandleFunc("/", r.ServeWithCORS(router.CORS{
 		Origin:      "https://localhost:3000",
-		Methods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		Methods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
 		Headers:     []string{"Content-Type", "Authorization"},
 		Credentials: true,
 	}))
@@ -158,6 +158,7 @@ func main() {
 	r.NewRoute("GET", `/user/likedComments`, ct.ReadUserLikedComments, Auth())
 	r.NewRoute("GET", `/user/dislikedComments`, ct.ReadUserDislikedComments, Auth())
 	r.NewRoute("GET", `/user/posts`, ct.ReadUserCreatedPosts, Auth())
+	r.NewRoute("GET", `/user/createdcomments`, ct.ReadUserCreatedComments, Auth())
 	r.NewRoute("GET", `/user/comments`, ct.ReadUserCommentdPosts, Auth())
 
 	// Notifications

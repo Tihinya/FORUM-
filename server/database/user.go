@@ -149,7 +149,6 @@ func ReadUserLikedPosts(userID int) ([]Post, error) {
 		INNER JOIN post AS p ON l.post_id = p.id
 		WHERE l.Username = ?
 	`, username)
-
 	if err != nil {
 		return nil, err
 	}
@@ -190,6 +189,7 @@ func ReadUserLikedPosts(userID int) ([]Post, error) {
 
 	return likedPosts, nil
 }
+
 func ReadUserDislikedPosts(userID int) ([]int, error) {
 	posts := make([]int, 0)
 
@@ -340,6 +340,48 @@ func ReadUserCreatedPosts(userID int) ([]Post, error) {
 	}
 
 	return posts, nil
+}
+
+func ReadUserCreatedComments(userID int) ([]Comment, error) {
+	comments := make([]Comment, 0)
+
+	username, err := GetUsername(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := DB.Query(`
+		SELECT id, post_id, content, profile_picture, username, creation_date,
+		likes, dislikes, last_edited, post_id
+		FROM comment WHERE username = ?
+	`, username)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var comment Comment
+
+		err = rows.Scan(
+			&comment.Id,
+			&comment.PostId,
+			&comment.Content,
+			&comment.UserInfo.ProfilePicture,
+			&comment.UserInfo.Username,
+			&comment.CreationDate,
+			&comment.Likes,
+			&comment.Dislikes,
+			&comment.LastEdited,
+			&comment.PostId,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		comments = append(comments, comment)
+	}
+
+	return comments, nil
 }
 
 func ReadUserCommentsPosts(userID int) ([]Post, error) {
