@@ -150,6 +150,31 @@ func DeletePost(w http.ResponseWriter, r *http.Request) {
 	ReturnMessageJSON(w, "Post successfully deleted", http.StatusOK, "success")
 }
 
+func DeletePostModerator(w http.ResponseWriter, r *http.Request) {
+	var exists bool
+
+	postID, err := router.GetFieldInt(r, "id")
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	exists, err = database.DeletePostModerator(postID)
+
+	if err != nil {
+		log.Println(err)
+		ReturnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		return
+	}
+	if !exists {
+		ReturnMessageJSON(w, "Post deletion failed, the post with that ID does not exist", http.StatusBadRequest, "error")
+		return
+	}
+
+	ReturnMessageJSON(w, "Post successfully deleted", http.StatusOK, "success")
+}
+
 func ReadCategories(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
