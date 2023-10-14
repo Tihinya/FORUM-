@@ -79,6 +79,40 @@ func AdminOnly() router.Middleware {
 		})
 	}
 }
+func ModeratorOnly() router.Middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Get the user's session
+			session, err := session.SessionStorage.GetSession(r)
+			if err != nil {
+				ct.ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
+				return
+			}
+			// Check if a valid session exists
+			if session == nil {
+				ct.ReturnMessageJSON(w, "Unauthorized", http.StatusUnauthorized, "error")
+				return
+			}
+			// Retrieve the user from the database based on the ID
+			user, err := database.SelectUser(session.UserId)
+			if err != nil {
+				ct.ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
+				return
+			}
+			// Check if the user has the admin role
+			moderatorID, err := database.GetRoleId("moderator")
+			if err != nil {
+				ct.ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
+				return
+			}
+			if user.RoleID != moderatorID {
+				ct.ReturnMessageJSON(w, "Insufficient privileges", http.StatusForbidden, "error")
+				return
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
+}
 
 func RateLimiter() router.Middleware {
 	return func(next http.Handler) http.Handler {
@@ -171,7 +205,7 @@ func main() {
 	r.NewRoute("GET", `/posts`, ct.ReadPosts)
 	r.NewRoute("PATCH", `/post/(?P<id>\d+)`, ct.UpdatePost, Auth())
 	r.NewRoute("DELETE", `/post/(?P<id>\d+)`, ct.DeletePost, Auth())
-	r.NewRoute("DELETE", `/post/(?P<id>\d+)/mod`, ct.DeletePostModerator, AdminOnly())
+	r.NewRoute("DELETE", `/post/(?P<id>\d+)/mod`, ct.DeletePostModerator, ModeratorOnly())
 	r.NewRoute("GET", `/categories`, ct.ReadCategories)
 	r.NewRoute("GET", `/postcategories`, ct.ReadPostCategories)
 
