@@ -171,6 +171,7 @@ func main() {
 	r.NewRoute("GET", `/posts`, ct.ReadPosts)
 	r.NewRoute("PATCH", `/post/(?P<id>\d+)`, ct.UpdatePost, Auth())
 	r.NewRoute("DELETE", `/post/(?P<id>\d+)`, ct.DeletePost, Auth())
+	r.NewRoute("DELETE", `/post/(?P<id>\d+)/mod`, ct.DeletePostModerator, AdminOnly())
 	r.NewRoute("GET", `/categories`, ct.ReadCategories)
 	r.NewRoute("GET", `/postcategories`, ct.ReadPostCategories)
 

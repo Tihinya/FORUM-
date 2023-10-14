@@ -201,8 +201,63 @@ func DeletePost(postId int, username string) (bool, error) {
 	return true, nil
 }
 
+func DeletePostModerator(postId int) (bool, error) {
+	var post Post
+	var exists bool
+
+	if !checkIfPostExist(postId) {
+		return false, nil
+	}
+
+	// For deleting leftover categories
+	post.Categories = nil
+	exists, err = UpdatePost(post, postId, "admin")
+	if !exists {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+
+	stmt, err := DB.Prepare(`
+		DELETE FROM post WHERE id = ?
+	`)
+	if err != nil {
+		return false, err
+	}
+
+	_, err = stmt.Exec(postId)
+	if err != nil {
+		return false, err
+	}
+
+	commentIds, err := getPostCommentIds(postId)
+	if err != nil {
+		return false, err
+	}
+
+	err = deletePostComments(postId)
+	if err != nil {
+		return false, err
+	}
+
+	err = deletePostLikes(postId)
+	if err != nil {
+		return false, err
+	}
+
+	for _, commentId := range commentIds {
+		err = deleteCommentLikes(commentId)
+		if err != nil {
+			return false, err
+		}
+	}
+
+	return true, nil
+}
+
 func UpdatePost(post Post, postID int, username string) (bool, error) {
-	if !checkPostOwnership(postID, username) {
+	if !checkPostOwnership(postID, username) && username != "admin" {
 		return false, nil
 	}
 
