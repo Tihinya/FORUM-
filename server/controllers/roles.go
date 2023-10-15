@@ -81,14 +81,14 @@ func ReadPromotions(w http.ResponseWriter, r *http.Request) {
 		// Get user Name
 		userName, err := validation.GetUserName(database.DB, roleRequest.UserID)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
 			return
 		}
 
 		// Get role Name
 		roleName, err := validation.GetRoleName(database.DB, roleRequest.NewRoleID)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
 			return
 		}
 

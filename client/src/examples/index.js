@@ -16,6 +16,7 @@ import ErrorPage from "./components/errors/error-page.jsx"
 import { RateLimiter } from "./additional-funcitons/ratelimiter.js"
 import { ContextFetchOwnedPostsIds } from "./components/context-menu/helpers.jsx"
 import { ContextFetchOwnedCommentsIds } from "./components/context-menu/helpers.jsx"
+import { UserRole } from "./components/context-menu/helpers.jsx"
 importCss("/styles/index.css")
 
 const container = document.getElementById("root")
@@ -68,32 +69,42 @@ export function App() {
 		setOwnedPostsIds,
 	})
 
+	const [userRole, setUserRole] = useState("")
+	Gachi.createContext("currentUserRole", {
+		userRole,
+		setUserRole,
+	})
+
 	const [ownedCommentsIds, setOwnedCommentsIds] = useState("")
 	Gachi.createContext("currentOwnedCommentsIds", {
 		ownedCommentsIds,
 		setOwnedCommentsIds,
 	})
-	
-	const [isAuthenticated, setIsAuthenticated] = useState(false);
-	Gachi.createContext("isAuthenticated", { isAuthenticated, setIsAuthenticated })
+
+	const [isAuthenticated, setIsAuthenticated] = useState(false)
+	Gachi.createContext("isAuthenticated", {
+		isAuthenticated,
+		setIsAuthenticated,
+	})
 
 	// Check if the user is authenticated on page load
 	useEffect(() => {
-		fetch('https://localhost:8080/authorized', {
+		fetch("https://localhost:8080/authorized", {
 			credentials: "include",
 		})
 			.then((response) => {
 				if (response.ok) {
-			  		setIsAuthenticated(true);
+					setIsAuthenticated(true)
 				} else if (response.status === 401) {
-			  		setIsAuthenticated(false);
+					setIsAuthenticated(false)
 				}
-		  	})
-			.catch(() => setIsAuthenticated(false));
-	}, []);
+			})
+			.catch(() => setIsAuthenticated(false))
+	}, [])
 
 	ContextFetchOwnedPostsIds()
 	ContextFetchOwnedCommentsIds()
+	UserRole()
 
 	return (
 		<Router

@@ -316,3 +316,30 @@ func ReadUserCommentdPosts(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(posts)
 }
+
+func ReadUserRole(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	session, err := session.SessionStorage.GetSession(r)
+	if err != nil {
+		ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
+		return
+	}
+	// Check if a valid session exists
+	if session == nil {
+		ReturnMessageJSON(w, "Unauthorized", http.StatusUnauthorized, "error")
+		return
+	}
+	// Retrieve the user from the database based on the ID
+	user, err := database.SelectUser(session.UserId)
+	if err != nil {
+		ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
+		return
+	}
+	// Get role name from the database on the userRoleID
+	roleName, err := validation.GetRoleName(database.DB, user.RoleID)
+	if err != nil {
+		ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
+		return
+	}
+	json.NewEncoder(w).Encode(roleName)
+}
