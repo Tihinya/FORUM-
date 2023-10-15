@@ -2,14 +2,15 @@ package controllers
 
 import (
 	"encoding/json"
+	"log"
+	"net/http"
+	"strings"
+
 	"forum/database"
 	"forum/login"
 	"forum/router"
 	"forum/session"
 	"forum/validation"
-	"log"
-	"net/http"
-	"strings"
 )
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
@@ -122,7 +123,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		ReturnMessageJSON(w, "Invalid request body", http.StatusBadRequest, "error")
 		return
 	}
-	//Get user ID
+	// Get user ID
 	userID, err := router.GetFieldInt(r, "id")
 	if err != nil {
 		ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
@@ -288,6 +289,21 @@ func ReadUserCreatedPosts(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(posts)
 }
 
+func ReadUserCreatedComments(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	UserId := getUserId(r)
+
+	comments, err := database.ReadUserCreatedComments(UserId)
+	if err != nil {
+		log.Println(err)
+		ReturnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		return
+	}
+
+	json.NewEncoder(w).Encode(comments)
+}
+
 func ReadUserCommentdPosts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	UserId := getUserId(r)
@@ -299,5 +315,4 @@ func ReadUserCommentdPosts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(posts)
-
 }

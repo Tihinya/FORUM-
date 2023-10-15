@@ -12,7 +12,7 @@ export default function LikesAndDislikes({ post, method, endPointUrl }) {
 	const disLikeUrl = "user/disliked"
 	const { setPosts } = useContext("currentPosts")
 	const { setErrorMessage } = useContext("currentErrorMessage")
-	const { setComments } = useContext("currentComment")
+	const { setComments } = useContext("currentComments")
 	const [likedPosts, setLikedPosts] = useState([])
 	const [dislikedPosts, setDislikedPosts] = useState([])
 	const isLoggin = useContext("isAuthenticated").isAuthenticated

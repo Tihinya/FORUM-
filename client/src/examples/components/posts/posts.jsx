@@ -10,15 +10,17 @@ import { fetchData } from "../../additional-funcitons/api.js"
 import LikesAndDislikes from "../post-likes/post-likes"
 import CommentsIcon from "../comments/comment-icon.jsx"
 import Categories from "./categories.jsx"
+import ContextMenu from "../context-menu/context-menu"
 
 export default function Posts({ endPointUrl, userId }) {
 	if (endPointUrl === "") {
 		return <h1 style={"text-align: center"}>Posts not found</h1>
 	}
+
 	const isLoggin = useContext("isAuthenticated").isAuthenticated
 	const { posts, setPosts } = useContext("currentPosts")
 	const { activeSubj } = useContext("currentCategory")
-	const { comments, setComments } = useContext("currentComment")
+	const { comments, setComments } = useContext("currentComments")
 	const navigate = useNavigate()
 	const postOrComment = endPointUrl !== "comments" ? true : false
 	const endpoint =
@@ -88,6 +90,10 @@ export default function Posts({ endPointUrl, userId }) {
 									</div>
 								</div>
 							</div>
+							<ContextMenu 
+								obj={post}
+								endpoint={endPointUrl}
+							/>
 						</div>
 						<div className="post__content">
 							<h3>{post.title}</h3>

@@ -281,6 +281,7 @@ body {
 .post__header {
 	display: flex;
 	width: 100%;
+	position: relative;
 }
 
 
@@ -1282,4 +1283,104 @@ input[type="file"] {
 	cursor: pointer;
 }
 
+.context-button {
+    position: absolute;
+    top: 20%;
+    right: 0%;
+    width: 30px;
+    height: 30px;
+    background-image: radial-gradient(circle,rgb(96,96,96) 2px, transparent 3px);
+    background-size: 100% 33.33%;
+	cursor: pointer;
+}
 
+.context-button-content-edit {
+	position: absolute;
+	display: block;
+	top: -20%;
+	right: 150%;
+}
+
+.context-button-content-delete {
+	position: absolute;
+	display: block;
+	top: -20%;
+	right: 325%;
+}
+
+.context-button-content-hidden {
+	display: none;
+}
+
+.confirmation-window {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	position: absolute;
+	top: 1.5em;
+	left: 40%;
+
+	width: 20%;
+	background-color: var(--button-color-orange);
+	color: white;
+	padding: 16px;
+	border-radius: 8px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.edit-button-title-window {
+	position: absolute;
+	top: 127%;
+	right: 35%;
+	width: 64%;
+	height: 24%;
+}
+
+.edit-button-content-window {
+	position: absolute;
+	top: 170%;
+	right: -1%;
+	width: 100%;
+	height: 115%;
+	resize: none;
+}
+
+.edit-button-publish {
+	position: absolute;
+	display: block;
+	top: 140%;
+	left: 94%;
+}
+
+.edit-button-cancel {
+	position: absolute;
+	display: block;
+	top: 140%;
+	left: 86%;
+}
+
+.edit-button-content-window.comment {
+	position: absolute;
+	top: 130%;
+	right: 0%;
+	resize: none;
+}
+
+.edit-button-publish.comment {
+	position: absolute;
+	display: block;
+	top: 100%;
+	left: 94%;
+}
+
+.edit-button-cancel.comment {
+	position: absolute;
+	display: block;
+	top: 100%;
+	left: 86%;
+}
+
+.hidden {
+	display: none !important;
+}

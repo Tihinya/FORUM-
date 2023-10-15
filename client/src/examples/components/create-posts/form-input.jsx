@@ -41,14 +41,6 @@ export default function CreatePost() {
 		}))
 	}, [selectedCategories])
 
-	const handleThreadButtonClick = () => {
-		if (!threadClicked) {
-			setThreadClicked(true)
-		} else {
-			setThreadClicked(false)
-		}
-	}
-
 	const handleInputChange = (e) => {
 		const { name, value, type } = e.target
 
@@ -89,8 +81,17 @@ export default function CreatePost() {
 
 	const handleSubmitClick = (e) => {
 		e.preventDefault()
-		console.log(formData)
-		fetchData(formData, createPostUrl, "POST")
+
+		// This is for input data disappearing on every notification fetch
+		// Going to switch back to old method when implementing React
+		const form = e.target
+		const formDatafied = new FormData(form)
+		const formJson = Object.fromEntries(formDatafied.entries())
+
+		formJson.image = formData.image
+		formJson.categories = formData.categories
+
+		fetchData(formJson, createPostUrl, "POST")
 			.then((resultInJson) => {
 				if (resultInJson.status === "success") {
 					setThreadClicked("")
@@ -101,6 +102,7 @@ export default function CreatePost() {
 						categories: [],
 					})
 					setSelectedCategories([])
+					form.reset()
 
 					fetchData(null, "posts", "GET").then((resultInJson) => {
 						setPosts(resultInJson)
@@ -155,7 +157,7 @@ export default function CreatePost() {
 				<div
 					className="thread-button"
 					id="add-a-thread"
-					onClick={handleThreadButtonClick}
+					onClick={() => setThreadClicked(!threadClicked)}
 				>
 					+
 				</div>
@@ -163,8 +165,7 @@ export default function CreatePost() {
 					type="text"
 					name="title"
 					maxlength="120"
-					value={formData.title}
-					onChange={handleInputChange}
+					id="titleValue"
 					placeholder="Add a thread"
 				/>
 				<div
@@ -188,8 +189,7 @@ export default function CreatePost() {
 							</label>
 						</div>
 						<textarea
-							value={formData.content}
-							onChange={handleInputChange}
+							id="contentValue"
 							className="thread-text"
 							name="content"
 							placeholder="Description here"
