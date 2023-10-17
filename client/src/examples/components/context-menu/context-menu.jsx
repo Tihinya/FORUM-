@@ -98,6 +98,26 @@ export default function ContextMenu({ obj, endpoint }) {
 		}
 	}, [comments])
 
+	useEffect(() => {
+		if (contextType == "post") {
+			if (userRole == "moderator") {
+				setDeleteUrl(`post/${obj.id}/mod`)
+			} else {
+				setDeleteUrl(`post/${obj.id}`)
+				setEditUrl(`post/${obj.id}`)
+			}
+			if (endpoint == "post") {
+				setFetchUrl(`post/${obj.id}`)
+			} else if (endpoint == "posts") {
+				setFetchUrl(`posts`)
+			}
+		} else if (contextType == "comment") {
+			setDeleteUrl(`comment/${obj.id}`)
+			setEditUrl(`comment/${obj.id}`)
+			setFetchUrl(`comments/${obj.post_id}`)
+		}
+	}, [userRole])
+
 	if (userRole !== "moderator") {
 		if (!ownedPostsIds.includes(obj.id) && contextType == "post") {
 			return
