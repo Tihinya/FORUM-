@@ -105,6 +105,7 @@ func (s *Storage) GetSession(r *http.Request) (*Session, error) {
 		return nil, nil
 	}
 
+	session.ExpireTime = time.Now().Add(sessionLifeTime)
 	return session, nil
 
 }

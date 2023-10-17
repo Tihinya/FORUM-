@@ -128,7 +128,7 @@ func RateLimiter() router.Middleware {
 				if now.Sub(info.timestamp) > time.Minute {
 					info.count = 1
 					info.timestamp = now
-				} else if info.count >= 200 {
+				} else if info.count >= 400 {
 					l.Unlock()
 					ct.ReturnMessageJSON(
 						w,
@@ -189,8 +189,8 @@ func main() {
 	r.NewRoute("DELETE", `/user/(?P<id>\d+)/delete`, ct.DeleteUser, Auth())
 	r.NewRoute("GET", `/user/liked`, ct.ReadUserLikedPosts, Auth())
 	r.NewRoute("GET", `/user/disliked`, ct.ReadUserDislikedPosts, Auth())
-	r.NewRoute("GET", `/user/likedComments`, ct.ReadUserLikedComments, Auth())
-	r.NewRoute("GET", `/user/dislikedComments`, ct.ReadUserDislikedComments, Auth())
+	r.NewRoute("GET", `/user/likedcomments`, ct.ReadUserLikedComments, Auth())
+	r.NewRoute("GET", `/user/dislikedcomments`, ct.ReadUserDislikedComments, Auth())
 	r.NewRoute("GET", `/user/posts`, ct.ReadUserCreatedPosts, Auth())
 	r.NewRoute("GET", `/user/createdcomments`, ct.ReadUserCreatedComments, Auth())
 	r.NewRoute("GET", `/user/comments`, ct.ReadUserCommentdPosts, Auth())

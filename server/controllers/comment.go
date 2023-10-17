@@ -20,6 +20,11 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(comment.Content) == 0 {
+		ReturnMessageJSON(w, "Comment creation failed, the comment content can not be empty", http.StatusBadRequest, "error")
+		return
+	}
+
 	postId, err := router.GetFieldInt(r, "id")
 	if err != nil {
 		log.Println(err)

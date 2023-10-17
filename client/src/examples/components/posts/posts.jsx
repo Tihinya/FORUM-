@@ -51,17 +51,20 @@ export default function Posts({ endPointUrl, userId }) {
 			? posts
 			: comments
 
-	data.sort((a, b) => {
-		const dateA = new Date(a.creation_date)
-		const dateB = new Date(b.creation_date)
-		return dateB - dateA
-	})
+	if (Array.isArray(data)) {
+		data.sort((a, b) => {
+			const dateA = new Date(a.creation_date)
+			const dateB = new Date(b.creation_date)
+			return dateB - dateA
+		})
+	} else {
+		// Handle the case when data is not an array
+		console.log(data)
+	}
 
 	if (!data.length) {
 		return <h1 style={"text-align: center"}>Posts not found</h1>
 	}
-
-	const method = endPointUrl === "posts" ? "post" : "comment"
 
 	return (
 		<div>
@@ -90,10 +93,7 @@ export default function Posts({ endPointUrl, userId }) {
 									</div>
 								</div>
 							</div>
-							<ContextMenu 
-								obj={post}
-								endpoint={endPointUrl}
-							/>
+							<ContextMenu obj={post} endpoint={endPointUrl} />
 						</div>
 						<div className="post__content">
 							<h3>{post.title}</h3>
@@ -125,7 +125,6 @@ export default function Posts({ endPointUrl, userId }) {
 
 								<LikesAndDislikes
 									post={post}
-									method={method}
 									endPointUrl={endpoint}
 								/>
 							</div>
