@@ -194,6 +194,7 @@ func main() {
 	r.NewRoute("GET", `/user/posts`, ct.ReadUserCreatedPosts, Auth())
 	r.NewRoute("GET", `/user/createdcomments`, ct.ReadUserCreatedComments, Auth())
 	r.NewRoute("GET", `/user/comments`, ct.ReadUserCommentdPosts, Auth())
+	r.NewRoute("GET", `/user/role`, ct.ReadUserRole, Auth())
 
 	// Notifications
 	r.NewRoute("GET", `/notifications`, ct.GetNotifications, Auth())
