@@ -66,8 +66,6 @@ export default function Posts({ endPointUrl, userId }) {
 		return <h1 style={"text-align: center"}>Posts not found</h1>
 	}
 
-	const method = endPointUrl === "post" ? "post" : "comment"
-
 	return (
 		<div>
 			<div className="post__container">
@@ -127,7 +125,6 @@ export default function Posts({ endPointUrl, userId }) {
 
 								<LikesAndDislikes
 									post={post}
-									method={method}
 									endPointUrl={endpoint}
 								/>
 							</div>
