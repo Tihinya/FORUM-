@@ -29,16 +29,13 @@ export default function LikesAndDislikes({ post, method, endPointUrl }) {
 		})
 	}
 
-	if (isLoggin) {
-		useEffect(() => {
+	useEffect(() => {
+		if (isLoggin) {
 			fetchLikes()
 			fetchDislikes()
-		}, [])
-	}
-
+		}
+	}, [])
 	const handleLike = (type, postId) => {
-		fetchLikes()
-		fetchDislikes()
 		const isLiking =
 			!likedPosts.some((obj) => obj.id === postId) &&
 			!dislikedPosts.includes(postId)
@@ -48,19 +45,17 @@ export default function LikesAndDislikes({ post, method, endPointUrl }) {
 		fetchData(null, `${method}/${endpoint}`, "POST").then(
 			(resultInJson) => {
 				if (resultInJson.status === "success") {
-					fetchData(null, endPointUrl, "GET").then((resultInJson) => {
-						if (
-							endPointUrl === "posts" ||
-							endPointUrl === "user/posts" ||
-							endPointUrl === "post"
-						) {
-							setPosts(resultInJson)
-						} else {
-							setComments(resultInJson)
-						}
-						fetchLikes()
-						fetchDislikes()
-					})
+					if (
+						endPointUrl === "posts" ||
+						endPointUrl === "user/posts" ||
+						endPointUrl === "post"
+					) {
+						setPosts(resultInJson)
+					} else {
+						setComments(resultInJson)
+					}
+					fetchLikes()
+					fetchDislikes()
 				} else if (resultInJson.status === "error") {
 					setErrorMessage(resultInJson.message)
 				}
@@ -69,31 +64,32 @@ export default function LikesAndDislikes({ post, method, endPointUrl }) {
 	}
 
 	return (
-
 		<div>
-			{ isLoggin ?
-			<div className="post__likes">
-				<img
-					onClick={() => handleLike("like", post.id)}
-					src="../img/thumbs-up.svg"
-				/>
-				<p onClick={() => handleLike("like", post.id)}>{post.likes}</p>
-				<img
-					onClick={() => handleLike("dislike", post.id)}
-					src="../img/thumbs-down.svg"
-				/>
-				<p onClick={() => handleLike("dislike", post.id)}>
-					{post.dislikes}
-				</p>
-			</div>
-			: 
-			<div className="post__likes">
-				<img src="../img/thumbs-up.svg"/>
+			{isLoggin ? (
+				<div className="post__likes">
+					<img
+						onClick={() => handleLike("like", post.id)}
+						src="../img/thumbs-up.svg"
+					/>
+					<p onClick={() => handleLike("like", post.id)}>
+						{post.likes}
+					</p>
+					<img
+						onClick={() => handleLike("dislike", post.id)}
+						src="../img/thumbs-down.svg"
+					/>
+					<p onClick={() => handleLike("dislike", post.id)}>
+						{post.dislikes}
+					</p>
+				</div>
+			) : (
+				<div className="post__likes">
+					<img src="../img/thumbs-up.svg" />
 					<p>{post.likes}</p>
-				<img src="../img/thumbs-down.svg"/>
+					<img src="../img/thumbs-down.svg" />
 					<p>{post.dislikes}</p>
-			</div>
-			}
+				</div>
+			)}
 		</div>
 	)
 }
