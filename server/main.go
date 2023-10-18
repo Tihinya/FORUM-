@@ -210,6 +210,11 @@ func main() {
 	r.NewRoute("GET", `/categories`, ct.ReadCategories)
 	r.NewRoute("GET", `/postcategories`, ct.ReadPostCategories)
 
+	// Post report
+	r.NewRoute("POST", `/postreport/(?P<id>\d+)/create`, ct.CreateReportPost, Auth())
+	r.NewRoute("GET", `/postreport/get`, ct.ReadReportPost, AdminOnly())
+	r.NewRoute("PATCH", `/postreport/update`, ct.UpdatedReportPost, ModeratorOnly())
+
 	// Comment
 	r.NewRoute("POST", `/comment/(?P<id>\d+)`, ct.CreateComment, Auth())
 	r.NewRoute("GET", `/comment/(?P<id>\d+)`, ct.ReadComment)

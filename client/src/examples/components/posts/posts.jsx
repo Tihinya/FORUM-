@@ -17,12 +17,12 @@ export default function Posts({ endPointUrl, userId }) {
 		return <h1 style={"text-align: center"}>Posts not found</h1>
 	}
 
-	const isLoggin = useContext("isAuthenticated").isAuthenticated
+	const { isAuthenticated: isLoggin } = useContext("isAuthenticated")
 	const { posts, setPosts } = useContext("currentPosts")
 	const { activeSubj } = useContext("currentCategory")
 	const { comments, setComments } = useContext("currentComments")
 	const navigate = useNavigate()
-	const postOrComment = endPointUrl !== "comments" ? true : false
+	const postOrComment = endPointUrl !== "comments"
 	const endpoint =
 		userId !== ""
 			? `${endPointUrl}/${userId}`

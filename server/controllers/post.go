@@ -8,6 +8,7 @@ import (
 
 	"forum/database"
 	"forum/router"
+	"forum/validation"
 )
 
 func CreatePost(w http.ResponseWriter, r *http.Request) {
@@ -199,4 +200,97 @@ func ReadPostCategories(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(postCategories)
+}
+
+func CreateReportPost(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var postReport database.PostReport
+	err := json.NewDecoder(r.Body).Decode(&postReport)
+	if err != nil {
+		ReturnMessageJSON(w, "Invalid request body", http.StatusBadRequest, "error")
+		return
+	}
+	// Checking if there's a post
+	exist, err := validation.HasPost(database.DB, postReport.PostID)
+	if err != nil {
+		ReturnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		return
+	}
+	if !exist {
+		ReturnMessageJSON(w, "There's no such post", http.StatusBadRequest, "error")
+		return
+	}
+	// Сhecking  if there's a  Post Report
+	exist, err = validation.HasPendingPostReport(database.DB, postReport.PostID)
+	if err != nil {
+		ReturnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		return
+	}
+	if exist {
+		ReturnMessageJSON(w, "This communication has already been reported and is awaiting a decision ", http.StatusBadRequest, "error")
+		return
+	}
+
+	//Get User ID
+	userID, err := router.GetFieldInt(r, "id")
+	if err != nil {
+		ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
+		return
+	}
+	err = database.CreatePostReport(postReport, userID)
+	if err != nil {
+		log.Println(err)
+		ReturnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		return
+	}
+
+	ReturnMessageJSON(w, "Post successfully created", http.StatusOK, "success")
+}
+
+func ReadReportPost(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	postReports, err := database.SelectAllPostReports()
+	if err != nil {
+		ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
+		return
+	}
+
+	json.NewEncoder(w).Encode(postReports)
+
+}
+
+func UpdatedReportPost(w http.ResponseWriter, r *http.Request) {
+	var postReport database.PostReport
+	err := json.NewDecoder(r.Body).Decode(&postReport)
+	if err != nil {
+		ReturnMessageJSON(w, "Invalid request body", http.StatusBadRequest, "error")
+		return
+	}
+	if postReport.Status == "" {
+		ReturnMessageJSON(w, "Invalid request body", http.StatusBadRequest, "error")
+		return
+	}
+	if postReport.Status != "approved" && postReport.Status != "rejected" {
+		ReturnMessageJSON(w, "Invalid request body", http.StatusBadRequest, "error")
+		return
+	}
+	// Give Report Post Status
+	status, err := validation.GetReportPostStatus(database.DB, postReport.ReportID)
+	if err != nil {
+		ReturnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
+		return
+	}
+	if status != "pending" {
+		ReturnMessageJSON(w, "The resolution has already been approved", http.StatusBadRequest, "error")
+		return
+	}
+
+	// Update User Role
+	err = database.UpdatePostReport(postReport)
+	if err != nil {
+		ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
+		return
+	}
+	// Delete RoleRequest
+	ReturnMessageJSON(w, "Application approved", http.StatusOK, "success")
 }

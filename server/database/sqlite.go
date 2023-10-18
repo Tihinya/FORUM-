@@ -165,6 +165,24 @@ func CreateTables() {
 
 	_, err = stmt.Exec()
 	checkErr(err)
+
+	// Create the post_report table
+	postReportStmt, err := DB.Prepare(`
+    CREATE TABLE IF NOT EXISTS post_reports (
+        report_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        message TEXT,
+        response TEXT,
+        status TEXT CHECK (status IN ('pending', 'approved', 'rejected')),
+        user_id INTEGER,
+        post_id INTEGER,
+        FOREIGN KEY (user_id) REFERENCES users(user_id),
+        FOREIGN KEY (post_id) REFERENCES post(id)
+    );
+`)
+	checkErr(err)
+	_, err = postReportStmt.Exec()
+	checkErr(err)
+
 }
 
 func checkErr(err error) {

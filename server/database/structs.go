@@ -108,3 +108,11 @@ type Notification struct {
 	Status            string     `json:"status"`
 	CreationDate      *time.Time `json:"creation_date"`
 }
+type PostReport struct {
+	PostID   int    `json:"post_id"`
+	ReportID int    `json:"report_id,omitempty"`
+	Title    string `json:"title,omitempty"`
+	Status   string `json:"status"`
+	Message  string `json:"message,omitempty"`
+	Response string `json:"response,omitempty"`
+}

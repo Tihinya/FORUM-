@@ -373,3 +373,69 @@ func contains(postArr []string, urlParams string) bool {
 
 	return true
 }
+
+func CreatePostReport(post PostReport, userId int) error {
+	stmt, err := DB.Prepare(`
+	INSERT INTO post_reports (message, status, user_id, post_id)
+    VALUES (?, 'pending', ?, ?)
+`)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(post.Message, userId, post.PostID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+func SelectAllPostReports() ([]PostReport, error) {
+	// Initialize an empty slice to store the reports
+	var reports []PostReport
+
+	// Query to select all reports from the "post_reports" table along with the "title" from the "post" table
+	query := `
+	SELECT r.post_id, r.report_id, r.message, r.status, p.title
+	FROM post_reports r
+	INNER JOIN post p ON r.post_id = p.id
+	`
+
+	// Execute the query
+	rows, err := DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Iterate over the rows and scan data into PostReport struct
+	for rows.Next() {
+		var report PostReport
+		if err := rows.Scan(&report.PostID, &report.ReportID, &report.Message, &report.Status, &report.Title); err != nil {
+			return nil, err
+		}
+
+		reports = append(reports, report)
+	}
+
+	// Check for errors in row iteration
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return reports, nil
+}
+
+func UpdatePostReport(report PostReport) error {
+	// Query to update a report's content and status
+	query := "UPDATE post_reports SET response = ?, status = ? WHERE report_id = ?"
+
+	// Execute the update query
+	_, err := DB.Exec(query, report.Response, report.Status, report.ReportID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
