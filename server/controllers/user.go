@@ -26,29 +26,39 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	register.Username = strings.TrimSpace(register.Username)
 	register.Email = strings.TrimSpace(register.Email)
 	register.Password = strings.TrimSpace(register.Password)
+	// register.Age = strings.TrimSpace(register.Age)
+	// register.Gender = strings.TrimSpace(register.Gender)
 	register.PasswordConfirmation = strings.TrimSpace(register.PasswordConfirmation)
 
 	if register.Username == "" {
 		ReturnMessageJSON(w, "User name cannot be empty", http.StatusBadRequest, "error")
 		return
 	}
-	// Validate inputs
 	if register.Email == "" || register.Password == "" {
 		ReturnMessageJSON(w, "Email and password are required", http.StatusBadRequest, "error")
 		return
 	}
-	// Check email format
 	if !validation.ValidateEmail(register.Email) {
 		ReturnMessageJSON(w, "Invalid email format", http.StatusBadRequest, "error")
 		return
 	}
+
+	if register.Age == "" {
+		ReturnMessageJSON(w, "Invalid age, please select age", http.StatusBadRequest, "error")
+		return
+	}
+
+	if register.Gender == "" {
+		ReturnMessageJSON(w, "Invalid gender, please select gender", http.StatusBadRequest, "error")
+		return
+	}
+
 	// Password check
 	if register.Password != register.PasswordConfirmation {
 		ReturnMessageJSON(w, "Password confirmation does not match", http.StatusBadRequest, "error")
 		return
 	}
 
-	// Check if email is already taken
 	exist, err := validation.GetUserID(database.DB, register.Email, "")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -72,14 +82,13 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
-	id, err := login.AddUser(register.Username, register.Email, register.Password, roleId)
+	id, err := login.AddUser(register.Username, register.Email, register.Password, roleId, register.Age, register.Gender)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// set session
 	token := session.SessionStorage.CreateSession(id)
 	session.SessionStorage.SetCookie(token, w)
 
@@ -109,9 +118,30 @@ func ReadUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := database.SelectAllUsers()
 	if err != nil {
 		ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
+		log.Println(err)
 		return
 	}
 	json.NewEncoder(w).Encode(users)
+}
+
+func ReadMe(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	userId, err := session.GetUserId(r)
+	if err != nil {
+		ReturnMessageJSON(w, "Error fetching user id", http.StatusInternalServerError, "error")
+		log.Println(err)
+		return
+	}
+
+	user, err := database.SelectUser(userId)
+	if err != nil {
+		ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
+		log.Println(err)
+		return
+	}
+
+	json.NewEncoder(w).Encode(user)
 }
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
@@ -217,9 +247,13 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 func ReadUserLikedPosts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	UserId := getUserId(r)
+	userId, err := session.GetUserId(r)
+	if err != nil {
+		ReturnMessageJSON(w, "Error fetching user id", http.StatusInternalServerError, "error")
+		return
+	}
 
-	posts, err := database.ReadUserLikedPosts(UserId)
+	posts, err := database.ReadUserLikedPosts(userId)
 	if err != nil {
 		log.Println(err)
 		ReturnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
@@ -232,9 +266,13 @@ func ReadUserLikedPosts(w http.ResponseWriter, r *http.Request) {
 func ReadUserDislikedPosts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	UserId := getUserId(r)
+	userId, err := session.GetUserId(r)
+	if err != nil {
+		ReturnMessageJSON(w, "Error fetching user id", http.StatusInternalServerError, "error")
+		return
+	}
 
-	posts, err := database.ReadUserDislikedPosts(UserId)
+	posts, err := database.ReadUserDislikedPosts(userId)
 	if err != nil {
 		log.Println(err)
 		ReturnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
@@ -247,9 +285,13 @@ func ReadUserDislikedPosts(w http.ResponseWriter, r *http.Request) {
 func ReadUserLikedComments(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	UserId := getUserId(r)
+	userId, err := session.GetUserId(r)
+	if err != nil {
+		ReturnMessageJSON(w, "Error fetching user id", http.StatusInternalServerError, "error")
+		return
+	}
 
-	comments, err := database.ReadUserLikedComments(UserId)
+	comments, err := database.ReadUserLikedComments(userId)
 	if err != nil {
 		log.Println(err)
 		ReturnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
@@ -262,9 +304,13 @@ func ReadUserLikedComments(w http.ResponseWriter, r *http.Request) {
 func ReadUserDislikedComments(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	UserId := getUserId(r)
+	userId, err := session.GetUserId(r)
+	if err != nil {
+		ReturnMessageJSON(w, "Error fetching user id", http.StatusInternalServerError, "error")
+		return
+	}
 
-	comments, err := database.ReadUserDislikedComments(UserId)
+	comments, err := database.ReadUserDislikedComments(userId)
 	if err != nil {
 		log.Println(err)
 		ReturnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
@@ -277,9 +323,13 @@ func ReadUserDislikedComments(w http.ResponseWriter, r *http.Request) {
 func ReadUserCreatedPosts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	UserId := getUserId(r)
+	userId, err := session.GetUserId(r)
+	if err != nil {
+		ReturnMessageJSON(w, "Error fetching user id", http.StatusInternalServerError, "error")
+		return
+	}
 
-	posts, err := database.ReadUserCreatedPosts(UserId)
+	posts, err := database.ReadUserCreatedPosts(userId)
 	if err != nil {
 		log.Println(err)
 		ReturnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
@@ -292,9 +342,13 @@ func ReadUserCreatedPosts(w http.ResponseWriter, r *http.Request) {
 func ReadUserCreatedComments(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	UserId := getUserId(r)
+	userId, err := session.GetUserId(r)
+	if err != nil {
+		ReturnMessageJSON(w, "Error fetching user id", http.StatusInternalServerError, "error")
+		return
+	}
 
-	comments, err := database.ReadUserCreatedComments(UserId)
+	comments, err := database.ReadUserCreatedComments(userId)
 	if err != nil {
 		log.Println(err)
 		ReturnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")
@@ -306,8 +360,13 @@ func ReadUserCreatedComments(w http.ResponseWriter, r *http.Request) {
 
 func ReadUserCommentdPosts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	UserId := getUserId(r)
-	posts, err := database.ReadUserCommentsPosts(UserId)
+	userId, err := session.GetUserId(r)
+	if err != nil {
+		ReturnMessageJSON(w, "Error fetching user id", http.StatusInternalServerError, "error")
+		return
+	}
+
+	posts, err := database.ReadUserCommentsPosts(userId)
 	if err != nil {
 		log.Println(err)
 		ReturnMessageJSON(w, "Internal server error", http.StatusInternalServerError, "error")

@@ -2,7 +2,7 @@
 	"compilerOptions": {
 		"target": "es6",
 		"outDir": "src", // Specifies the output directory for transpiled files
-		"rootDir": "src", // Specifies the input directory where your TS files are located
+		"rootDir": ".", // Specifies the input directory where your TS files are located
 		"allowJs": true,
 		"skipLibCheck": true,
 		"allowSyntheticDefaultImports": true,
@@ -17,11 +17,11 @@
 		"moduleResolution": "node",
 		"esModuleInterop": true, // Enables interoperability between CommonJS and ES6 modules
 		"jsx": "preserve",
+		"jsxFactory": "Gachi.createElement",
+		"jsxFragmentFactory": "Gachi.Fragment",
 		"strict": true
 	},
-	"include": [
-		"src/core/*.ts" // Specifies the files to include in the compilation process
-	],
+	"include": ["src"],
 	"exclude": [
 		"node_modules" // Specifies the folders/files to exclude from compilation
 	]

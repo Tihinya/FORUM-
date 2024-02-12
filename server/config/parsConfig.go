@@ -27,12 +27,12 @@ func parseConfig() config {
 
 	jsonFile, err := os.Open("dev_config.json")
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	defer jsonFile.Close()
 	byteValue, err := io.ReadAll(jsonFile)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	json.Unmarshal(byteValue, &config)
 	return config

@@ -69,6 +69,20 @@ func DeleteRoleRequest(UserId int) error {
 	return nil
 }
 
+func DemoteUser(RoleId int, UserId int) error {
+	query := `
+		UPDATE users SET role_id = ?
+		WHERE user_id = ?;
+	`
+
+	_, err := DB.Exec(query, RoleId, UserId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func GetNewRoleIDByUserID(UserID int) (int, error) {
 	// Query to retrieve the new_role_id from the role_requests table
 	query := `

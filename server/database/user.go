@@ -12,14 +12,16 @@ func CreateUser(user UserInfo) (int, error) {
 		email,
 		username,
 		password,
+		gender,
+		age,
 		profile_picture,
 		role_id)
-	VALUES(?, ?, ?, ?, ?)`)
+	VALUES(?, ?, ?, ?, ?, ?, ?)`)
 	if err != nil {
 		return 0, err
 	}
 
-	result, err := sqlStmt.Exec(user.Email, user.Username, user.Password, user.ProfilePicture, user.RoleID)
+	result, err := sqlStmt.Exec(user.Email, user.Username, user.Password, user.Gender, user.Age, user.ProfilePicture, user.RoleID)
 	if err != nil {
 		return 0, err
 	}
@@ -33,14 +35,14 @@ func CreateUser(user UserInfo) (int, error) {
 }
 
 func SelectAllUsers() ([]UserInfo, error) {
-	rows, err := DB.Query("SELECT user_id, email, username, profile_picture, role_id FROM users")
+	rows, err := DB.Query("SELECT user_id, email, username, gender, age, profile_picture, role_id FROM users")
 	if err != nil {
 		return nil, err
 	}
 	var users []UserInfo
 	for rows.Next() {
 		var user UserInfo
-		err := rows.Scan(&user.ID, &user.Email, &user.Username, &user.ProfilePicture, &user.RoleID)
+		err := rows.Scan(&user.ID, &user.Email, &user.Username, &user.Gender, &user.Age, &user.ProfilePicture, &user.RoleID)
 		if err != nil {
 			return nil, err
 		}
@@ -54,10 +56,10 @@ func SelectAllUsers() ([]UserInfo, error) {
 }
 
 func SelectUser(userID int) (*UserInfo, error) {
-	row := DB.QueryRow("SELECT user_id, email, username, profile_picture, role_id FROM users WHERE user_id=?", userID)
+	row := DB.QueryRow("SELECT user_id, email, username, profile_picture, role_id, gender, age FROM users WHERE user_id=?", userID)
 
 	var user UserInfo
-	err := row.Scan(&user.ID, &user.Email, &user.Username, &user.ProfilePicture, &user.RoleID)
+	err := row.Scan(&user.ID, &user.Email, &user.Username, &user.ProfilePicture, &user.RoleID, &user.Gender, &user.Age)
 	if err != nil {
 		return nil, err
 	}
@@ -190,37 +192,62 @@ func ReadUserLikedPosts(userID int) ([]Post, error) {
 	return likedPosts, nil
 }
 
-func ReadUserDislikedPosts(userID int) ([]int, error) {
-	posts := make([]int, 0)
+func ReadUserDislikedPosts(userID int) ([]Post, error) {
+	dislikedPosts := make([]Post, 0)
 
+	// Get the username for the given userID
 	username, err := GetUsername(userID)
 	if err != nil {
 		return nil, err
 	}
 
+	// Query the database for disliked posts
 	rows, err := DB.Query(`
-		SELECT post_id, comment_id
-		FROM dislike WHERE username = ?
+		SELECT p.id, p.title, p.content, p.profile_picture, p.username, p.creation_date,
+		p.likes, p.dislikes, p.last_edited
+		FROM dislike AS d
+		INNER JOIN post AS p ON d.post_id = p.id
+		WHERE d.username = ?
 	`, username)
 	if err != nil {
 		return nil, err
 	}
 
 	for rows.Next() {
-		var dislike Dislike
+		var post Post
 
-		err = rows.Scan(&dislike.PostId, &dislike.CommentId)
+		// Scan the post data from the query result
+		err = rows.Scan(
+			&post.Id,
+			&post.Title,
+			&post.Content,
+			&post.UserInfo.ProfilePicture,
+			&post.UserInfo.Username,
+			&post.CreationDate,
+			&post.Likes,
+			&post.Dislikes,
+			&post.LastEdited,
+		)
 		if err != nil {
 			return nil, err
 		}
 
-		if dislike.PostId != 0 {
-			post := dislike.PostId
-			posts = append(posts, post)
+		post.Categories, err = getCategories(post)
+		if err != nil {
+			return nil, err
 		}
+
+		post.Likes, _ = getPostLikes(post.Id)
+		post.Dislikes, _ = getPostDislikes(post.Id)
+
+		post.Comments = fmt.Sprintf("https://localhost:8080/comments/%d", post.Id)
+		post.CommentCount = getCommentsCount(post.Id)
+		post.UserInfo.ProfilePicture, _ = GetAvatar(post.UserInfo.Username)
+
+		dislikedPosts = append(dislikedPosts, post)
 	}
 
-	return posts, nil
+	return dislikedPosts, nil
 }
 
 func ReadUserLikedComments(userID int) ([]int, error) {
@@ -296,12 +323,13 @@ func ReadUserCreatedPosts(userID int) ([]Post, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	rows, err := DB.Query(`
-		SELECT id, title, content, profile_picture, username, creation_date,
-		likes, dislikes, last_edited
-		FROM post WHERE username = ?
+	SELECT post.id, post.title, post.content,
+	post.profile_picture, post.username, post.creation_date,
+	post.likes, post.dislikes, post.last_edited, post.image
+	FROM post WHERE username = ?
 	`, username)
+
 	if err != nil {
 		return nil, err
 	}
@@ -319,6 +347,7 @@ func ReadUserCreatedPosts(userID int) ([]Post, error) {
 			&post.Likes,
 			&post.Dislikes,
 			&post.LastEdited,
+			&post.Image,
 		)
 		if err != nil {
 			return nil, err
@@ -451,6 +480,17 @@ func GetUsername(userID int) (string, error) {
 	}
 
 	return username, nil
+}
+
+func GetUserId(username string) (int, error) {
+	var userId int
+
+	err := DB.QueryRow("SELECT user_id FROM users WHERE username = ?", username).Scan(&userId)
+	if err != nil {
+		return 0, err
+	}
+
+	return userId, nil
 }
 
 func GetAvatar(username string) (string, error) {

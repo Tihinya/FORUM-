@@ -27,6 +27,14 @@ const (
 	sessionLifeTime = time.Second * 300    // 5 minutes
 )
 
+// Initialize storage (for testing)
+func NewStorage() *Storage {
+	return &Storage{
+		storage: make(map[string]*Session),
+		lock:    sync.RWMutex{},
+	}
+}
+
 func (s *Storage) CreateSession(userId int) string {
 	s.lock.Lock()
 	defer s.lock.Unlock()
@@ -102,12 +110,11 @@ func (s *Storage) GetSession(r *http.Request) (*Session, error) {
 	session, ok := s.storage[sessionID]
 	if !ok || session.ExpireTime.Before(time.Now()) {
 		delete(s.storage, sessionID)
-		return nil, nil
+		return nil, fmt.Errorf("session does not exist or expired")
 	}
 
 	session.ExpireTime = time.Now().Add(sessionLifeTime)
 	return session, nil
-
 }
 
 func (s *Session) RemoveSession() {
@@ -130,6 +137,17 @@ func (s *Storage) startSessionCleanupRoutine() {
 		}
 		s.lock.Unlock()
 	}
+}
+
+func GetUserId(r *http.Request) (int, error) {
+	SessionData, err := SessionStorage.GetSession(r)
+	if err != nil {
+		return 0, err
+	}
+
+	userID := SessionData.UserId
+
+	return userID, err
 }
 
 func init() {

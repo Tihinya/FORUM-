@@ -2,10 +2,12 @@ const path = require("path")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
 
 module.exports = {
-	entry: "./src/examples/index.js", // Entry point of the application
+	mode: "production",
+	entry: "./src/index.js", // Entry point of the application
 	output: {
 		path: path.resolve(__dirname, "dist"), // Output directory path
-		filename: "bundle.js", // Output bundle file name
+		filename: "[name].[contenthash].js", // Output bundle file name
+		clean: true,
 		publicPath: "/",
 	},
 	module: {
@@ -16,7 +18,15 @@ module.exports = {
 				use: {
 					loader: "babel-loader", // Use Babel to transpile JavaScript
 					options: {
-						presets: ["@babel/preset-typescript"],
+						presets: [
+							[
+								"@babel/preset-typescript",
+								{
+									jsxPragma: "Gachi.createElement",
+									jsxPragmaFrag: "Gachi.Fragment",
+								},
+							],
+						],
 						plugins: [
 							[
 								"@babel/plugin-transform-react-jsx",
@@ -29,6 +39,14 @@ module.exports = {
 					},
 				},
 			},
+			{
+				test: /\.css$/i,
+				use: ["style-loader", "css-loader"],
+			},
+			{
+				test: /\.(png|svg|jpg|jpeg|gif)$/i,
+				type: "asset/resource",
+			},
 		],
 	},
 	resolve: {
@@ -36,20 +54,20 @@ module.exports = {
 	},
 	devServer: {
 		https: {
-			ca: './ssl/server.pem',
-			key: './ssl/server.key',
-			cert: './ssl/server.crt',
-			passphrase: 'webpack-dev-server',
+			ca: "./ssl/server.pem",
+			key: "./ssl/server.key",
+			cert: "./ssl/server.crt",
+			passphrase: "webpack-dev-server",
 			requestCert: false,
 		},
 		server: "https",
-		static: path.join(__dirname, "./src/examples"),
+		static: path.join(__dirname, "./src"),
 		historyApiFallback: true,
 		port: 3000,
 	},
 	plugins: [
 		new HtmlWebpackPlugin({
-			template: path.resolve(__dirname, "src/examples/index.html"), // Path to your HTML template
+			template: path.resolve(__dirname, "src/index.html"), // Path to your HTML template
 			filename: "index.html", // Output HTML file name
 		}),
 	],

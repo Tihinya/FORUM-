@@ -89,6 +89,57 @@ func HasPendingRoleRequest(db *sql.DB, userId int) (bool, error) {
 	return count > 0, nil
 }
 
+func HasPendingPostReport(db *sql.DB, PostID int) (bool, error) {
+	// Query to check if a post has a pending report
+	query := `
+		SELECT COUNT(*) FROM post_reports
+		WHERE post_id = ? AND status = 'pending';
+	`
+
+	var count int
+	err := db.QueryRow(query, PostID).Scan(&count)
+	if err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
+}
+
+func GetReportPostStatus(db *sql.DB, ReportID int) (string, error) {
+	// Query to select the status of a report based on reportID
+	query := "SELECT status FROM post_reports WHERE report_id = ?"
+
+	var status string
+
+	// Execute the query and scan the result into the 'status' variable
+	err := db.QueryRow(query, ReportID).Scan(&status)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// Report with the given reportID not found
+			return "", nil
+		}
+		return "", err
+	}
+
+	return status, nil
+}
+
+func HasPost(db *sql.DB, PostID int) (bool, error) {
+	// Query to check if the user has a pending role request
+	query := `
+		SELECT COUNT(*) FROM post
+		WHERE id = ?;
+	`
+
+	var count int
+	err := db.QueryRow(query, PostID).Scan(&count)
+	if err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
+}
+
 func GetUserName(db *sql.DB, userId int) (string, error) {
 	// Query to retrieve the username for the given userId
 	query := `

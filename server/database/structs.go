@@ -22,9 +22,13 @@ type Category struct {
 	Category string `json:"category"`
 }
 
+type CategoryResponse struct {
+	Category string `json:"category"`
+}
+
 type PostCategory struct {
-	PostId     int
-	CategoryId int
+	PostId     int `json:"post_id"`
+	CategoryId int `json:"category_id"`
 }
 
 type Comment struct {
@@ -50,6 +54,8 @@ type UserInfo struct {
 	Email                string `json:"email,omitempty"`
 	Password             string `json:"password,omitempty"`
 	PasswordConfirmation string `json:"password_confirmation,omitempty"`
+	Gender               string `json:"gender,omitempty"`
+	Age                  string `json:"age,omitempty"`
 	RoleID               int    `json:"role_id,omitempty"`
 }
 type Response struct {
@@ -107,4 +113,14 @@ type Notification struct {
 	Type              string     `json:"type"`
 	Status            string     `json:"status"`
 	CreationDate      *time.Time `json:"creation_date"`
+}
+type PostReport struct {
+	PostID   int    `json:"post_id,omitempty"`
+	Seen     bool   `json:"seen,omitempty"`
+	UserName string `json:"user_name,omitempty"`
+	ReportID int    `json:"report_id,omitempty"`
+	Title    string `json:"title,omitempty"`
+	Status   string `json:"status,omitempty"`
+	Message  string `json:"message,omitempty"`
+	Response string `json:"response,omitempty"`
 }

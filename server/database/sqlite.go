@@ -12,11 +12,20 @@ var (
 	err error
 )
 
-// Run `go get github.com/mattn/go-sqlite3` in terminal to download db driver
-func CreateTables() {
-	DB, err = sql.Open("sqlite3", "./database/database.db")
-	checkErr(err)
+// Open database and assign global DB the local DB value
+func OpenDatabase(dataSourceName string) error {
+	db, err := sql.Open("sqlite3", dataSourceName)
+	if err != nil {
+		return err
+	}
+	DB = db // Assign global DB the local DB value
 
+	CreateTables()
+
+	return nil
+}
+
+func CreateTables() {
 	// Post database table
 	stmt, err := DB.Prepare(`
 		CREATE TABLE IF NOT EXISTS post (
@@ -125,6 +134,8 @@ func CreateTables() {
 			email TEXT,
 			username TEXT,
 			password TEXT,
+			gender TEXT,
+			age TEXT,
 			profile_picture BLOB,
 			role_id INTEGER,
 			FOREIGN KEY (role_id) REFERENCES roles(role_id)
@@ -159,6 +170,40 @@ func CreateTables() {
 			type TEXT NOT NULL,
 			status TEXT DEFAULT "unread" NOT NULL,
 			creation_date DATETIME
+		);
+	`)
+	checkErr(err)
+
+	_, err = stmt.Exec()
+	checkErr(err)
+
+	// Create the post_report table
+	postReportStmt, err := DB.Prepare(`
+		CREATE TABLE IF NOT EXISTS post_reports (
+			report_id INTEGER PRIMARY KEY AUTOINCREMENT,
+			message TEXT,
+			response TEXT,
+			status TEXT CHECK (status IN ('pending', 'approved', 'rejected')),
+			seen BOOL,
+			user_id INTEGER,
+			post_id INTEGER,
+			FOREIGN KEY (user_id) REFERENCES users(user_id),
+			FOREIGN KEY (post_id) REFERENCES post(id)
+		);
+	`)
+	checkErr(err)
+	_, err = postReportStmt.Exec()
+	checkErr(err)
+
+	stmt, err = DB.Prepare(`
+		CREATE TABLE IF NOT EXISTS chat_messages (
+			message_id INTEGER PRIMARY KEY AUTOINCREMENT,
+			message TEXT NOT NULL,
+			created_at DATETIME,
+			receiver_id INTEGER,
+			sender_id INTEGER,
+			FOREIGN KEY (receiver_id) REFERENCES users(user_id),
+			FOREIGN KEY (sender_id) REFERENCES users(user_id)
 		);
 	`)
 	checkErr(err)

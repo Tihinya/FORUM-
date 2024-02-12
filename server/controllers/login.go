@@ -14,6 +14,7 @@ import (
 	"forum/login"
 	"forum/security"
 	"forum/session"
+	"forum/socket"
 	"forum/validation"
 
 	"golang.org/x/crypto/bcrypt"
@@ -33,6 +34,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	userId, err := validation.GetUserID(database.DB, login.Email, "")
 	if err != nil {
+		log.Println("Failed getting user id:", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -63,7 +65,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func LogOut(w http.ResponseWriter, r *http.Request) {
-
 	s, err := session.SessionStorage.GetSession(r)
 	if err != nil {
 		log.Panicln(err)
@@ -71,6 +72,15 @@ func LogOut(w http.ResponseWriter, r *http.Request) {
 	if s == nil {
 		return
 	}
+
+	userId, err := session.GetUserId(r)
+	if err != nil {
+		ReturnMessageJSON(w, "Error fetching user id", http.StatusInternalServerError, "error")
+		return
+	}
+
+	socket.Instance.RemoveClientWithId(userId)
+
 	s.RemoveSession()
 	session.SessionStorage.DeleteCookie(w)
 }
@@ -79,13 +89,13 @@ func GoogleLogin(w http.ResponseWriter, r *http.Request) {
 	scope := config.Config.GoogleOAuth
 	url := fmt.Sprintf("https://accounts.google.com/o/oauth2/auth?client_id=%s&redirect_uri=%s&scope=%s&response_type=code",
 		config.Config.GoogleID, config.Config.GoogleRedirectURI, scope)
-	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+	json.NewEncoder(w).Encode(url)
 }
 
 func GoogleCallback(w http.ResponseWriter, r *http.Request) {
 	code := r.URL.Query().Get("code")
 	if code == "" {
-		http.Error(w, "Code not found from callback request!", http.StatusInternalServerError)
+		ReturnMessageJSON(w, "Code not found from callback request!", http.StatusInternalServerError, "error")
 		return
 	}
 
@@ -122,7 +132,7 @@ func GoogleCallback(w http.ResponseWriter, r *http.Request) {
 
 	googleUser := login.GetUserData(authenticateToken.AccessToken)
 	if googleUser.Name == "" {
-		http.Error(w, "Failed to get user data from Google API", http.StatusInternalServerError)
+		ReturnMessageJSON(w, "Failed to get user data from Google API", http.StatusInternalServerError, "error")
 		return
 	}
 	roleId, err := database.GetRoleId("user")
@@ -131,13 +141,15 @@ func GoogleCallback(w http.ResponseWriter, r *http.Request) {
 	}
 	id, err := validation.GetUserID(database.DB, googleUser.Email, "")
 	if err != nil {
+		ReturnMessageJSON(w, "User ID Problem", http.StatusInternalServerError, "error")
+
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	if id == 0 {
 		// User does not exist, create a new user
-		id, err = login.AddUser(googleUser.Name, googleUser.Email, security.CreateRandomPassword(10), roleId)
+		id, err = login.AddUser(googleUser.Name, googleUser.Email, security.CreateRandomPassword(10), roleId, "", "")
 		if err != nil {
 			log.Println(err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -149,8 +161,7 @@ func GoogleCallback(w http.ResponseWriter, r *http.Request) {
 	token := session.SessionStorage.CreateSession(id)
 	session.SessionStorage.SetCookie(token, w)
 
-	redirectURL := "/login/github/redirect"
-	http.Redirect(w, r, redirectURL, http.StatusFound)
+	http.Redirect(w, r, "https://localhost:3000/", http.StatusTemporaryRedirect)
 }
 
 func GithubLogin(w http.ResponseWriter, r *http.Request) {
@@ -162,7 +173,7 @@ func GithubLogin(w http.ResponseWriter, r *http.Request) {
 	)
 
 	// Redirect the user to the GitHub page for authentication
-	http.Redirect(w, r, redirectURL, http.StatusFound)
+	json.NewEncoder(w).Encode(redirectURL)
 }
 
 func GithubCallback(w http.ResponseWriter, r *http.Request) {
@@ -192,13 +203,13 @@ func GithubCallback(w http.ResponseWriter, r *http.Request) {
 	// Check if the user with the GitHub email already exists in the database
 	id, err := validation.GetUserID(database.DB, githubData.Email, "")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		ReturnMessageJSON(w, "GitHub email already exists", http.StatusInternalServerError, "error")
 		return
 	}
 
 	if id == 0 {
 		// User does not exist, create a new user
-		id, err = login.AddUser(githubData.Login, githubData.Email, security.CreateRandomPassword(10), roleId)
+		id, err = login.AddUser(githubData.Login, githubData.Email, security.CreateRandomPassword(10), roleId, "", "")
 		if err != nil {
 			log.Println(err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -210,12 +221,7 @@ func GithubCallback(w http.ResponseWriter, r *http.Request) {
 	token := session.SessionStorage.CreateSession(id)
 	session.SessionStorage.SetCookie(token, w)
 
-	redirectURL := "/login/github/redirect"
-	http.Redirect(w, r, redirectURL, http.StatusFound)
-}
-
-func GithubCallbackRedirect(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "You are logged into the server")
+	http.Redirect(w, r, "https://localhost:3000/", http.StatusTemporaryRedirect)
 }
 
 func CheckAuthorization(w http.ResponseWriter, r *http.Request) {

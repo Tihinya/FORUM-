@@ -108,13 +108,15 @@ func GetGithubData(accessToken string) (githubUser, error) {
 	// Convert byte slice to string and return
 	return user, nil
 }
-func AddUser(username string, email string, password string, roleId int) (int, error) {
+func AddUser(username string, email string, password string, roleId int, age, gender string) (int, error) {
 	user := database.UserInfo{
 		ProfilePicture: config.Config.ProfilePicture,
 		Username:       username,
 		Email:          email,
 		Password:       password,
 		RoleID:         roleId,
+		Age:            age,
+		Gender:         gender,
 	}
 
 	// Encrypt the password
@@ -166,7 +168,7 @@ func CreateAdminUser() {
 	}
 	if id == 0 {
 		// User does not exist, create a new user
-		_, err = AddUser("admin", "admin@example.com", "admin", roleId)
+		_, err = AddUser("admin", "admin@example.com", "admin", roleId, "17", "male")
 		if err != nil {
 			log.Println(err)
 		}

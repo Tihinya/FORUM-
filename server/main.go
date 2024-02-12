@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"sync"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 	"forum/login"
 	"forum/router"
 	"forum/session"
+	"forum/socket"
 	"forum/validation"
 )
 
@@ -128,7 +130,7 @@ func RateLimiter() router.Middleware {
 				if now.Sub(info.timestamp) > time.Minute {
 					info.count = 1
 					info.timestamp = now
-				} else if info.count >= 400 {
+				} else if info.count >= 1000 {
 					l.Unlock()
 					ct.ReturnMessageJSON(
 						w,
@@ -152,8 +154,12 @@ func RateLimiter() router.Middleware {
 
 func main() {
 	r := router.NewRouter()
+	socket.Instance = socket.NewManager()
 
-	database.CreateTables()
+	err := database.OpenDatabase("./database/database.db")
+	if err != nil {
+		log.Fatalf("Error opening database: %v", err)
+	}
 
 	roles := []string{"user", "moderator", "admin"}
 	for _, role := range roles {
@@ -168,9 +174,13 @@ func main() {
 	}
 
 	login.CreateAdminUser()
+	backendHost := os.Getenv("BACKEND_HOST")
+	if backendHost == "" {
+		backendHost = "https://localhost:3000"
+	}
 
 	http.HandleFunc("/", r.ServeWithCORS(router.CORS{
-		Origin:      "https://localhost:3000",
+		Origin:      backendHost,
 		Methods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
 		Headers:     []string{"Content-Type", "Authorization"},
 		Credentials: true,
@@ -187,6 +197,7 @@ func main() {
 	r.NewRoute("GET", `/users/get`, ct.ReadUsers)
 	r.NewRoute("PATCH", `/user/(?P<id>\d+)/update`, ct.UpdateUser, AdminOnly())
 	r.NewRoute("DELETE", `/user/(?P<id>\d+)/delete`, ct.DeleteUser, Auth())
+	r.NewRoute("GET", `/user/me`, ct.ReadMe, Auth())
 	r.NewRoute("GET", `/user/liked`, ct.ReadUserLikedPosts, Auth())
 	r.NewRoute("GET", `/user/disliked`, ct.ReadUserDislikedPosts, Auth())
 	r.NewRoute("GET", `/user/likedcomments`, ct.ReadUserLikedComments, Auth())
@@ -207,8 +218,19 @@ func main() {
 	r.NewRoute("PATCH", `/post/(?P<id>\d+)`, ct.UpdatePost, Auth())
 	r.NewRoute("DELETE", `/post/(?P<id>\d+)`, ct.DeletePost, Auth())
 	r.NewRoute("DELETE", `/post/(?P<id>\d+)/mod`, ct.DeletePostModerator, ModeratorOnly())
+
+	// Categories
 	r.NewRoute("GET", `/categories`, ct.ReadCategories)
 	r.NewRoute("GET", `/postcategories`, ct.ReadPostCategories)
+	r.NewRoute("POST", `/categories`, ct.AddCategory, AdminOnly())
+	r.NewRoute("DELETE", `/categories/(?P<id>\d+)`, ct.DeleteCategory, AdminOnly())
+
+	// Post report
+	r.NewRoute("POST", `/postreport/create`, ct.CreateReportPost, Auth())
+	r.NewRoute("GET", `/postreport/get`, ct.ReadReportPost, AdminOnly())
+	r.NewRoute("GET", `/postreport/answer/get`, ct.ReadReportPostAnswer, Auth())
+	r.NewRoute("PATCH", `/postreport/update`, ct.UpdatedReportPost, AdminOnly())
+	r.NewRoute("PATCH", `/postreport/answer/update`, ct.UpdatedReportPostAnswer, Auth())
 
 	// Comment
 	r.NewRoute("POST", `/comment/(?P<id>\d+)`, ct.CreateComment, Auth())
@@ -242,16 +264,17 @@ func main() {
 	r.NewRoute("GET", `/login/github/callback`, ct.GithubCallback)
 	r.NewRoute("GET", `/authorized`, ct.CheckAuthorization, Auth())
 
-	r.NewRoute("GET", `/login/github/redirect`, ct.GithubCallbackRedirect)
-
 	//Role
-	r.NewRoute("POST", `/promotion/(?P<id>\d+)`, ct.Promotion)
+	r.NewRoute("POST", `/promotion/(?P<id>\d+)`, ct.RequestPromotion, Auth())
 	r.NewRoute("GET", `/promotions/get`, ct.ReadPromotions, AdminOnly())
-	r.NewRoute("PATCH", `/promotion/(?P<id>\d+)/update`, ct.UpdatePromotion, AdminOnly())
-	r.NewRoute("DELETE", `/promotion/(?P<id>\d+)/delete`, ct.DeletePromotion, AdminOnly())
+	r.NewRoute("PATCH", `/promotion/(?P<id>\d+)/(?P<response>\w+)`, ct.PromoteUser, AdminOnly())
+	r.NewRoute("POST", `/promotion/(?P<id>\d+)/demote`, ct.DemoteUser, AdminOnly())
+
+	//Chat
+	r.NewRoute("GET", `/ws`, socket.Instance.ServeWS, Auth())
 
 	log.Println("Ctrl + Click on the link: https://localhost:" + config.Config.Port)
 	log.Println("To stop the server press `Ctrl + C`")
-
-	log.Fatal(http.ListenAndServeTLS(":"+config.Config.Port, "cert.pem", "key.pem", nil))
+	log.Println("Awaiting request from server", backendHost)
+	log.Fatalln(http.ListenAndServeTLS(":"+config.Config.Port, "cert.pem", "key.pem", nil))
 }

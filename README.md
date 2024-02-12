@@ -1,59 +1,102 @@
-# forum
 
-Features of web forum project:
+<div align=center>
 
-+ communication between users.
-+ associating posts to categories.
-+ like and dislike posts and comments.
-+ filtering posts.
+<h1>Forum</h1>
 
-> [Task objectives and audit](https://github.com/01-edu/public/tree/master/subjects/forum)
+</div>
 
-## to run:
-1. Clone the repo:
->`https://01.kood.tech/git/Denis/forum.git`
+<div align="center">
 
-2. If you having any troubles with for example creating post, check console log. If it saying <Session token expired>, just relogin 
+### [Visit Forum Site](https://ec2-51-20-1-125.eu-north-1.compute.amazonaws.com:3000/) 
 
-### from terminal
+</div>
 
-> `docker build -t forum:latest .`
-    
-    First command will build project
 
-> `docker run -p 8080:8080 -p 3000:3000 forum:latest`
+## 📄 Description
 
-    This command will launch forum
+The proposed project is a web forum with specific objectives aimed at facilitating communication and interaction among users. 
 
-### or use Docker
+⭐ The project utilizes the SQLite database for data storage, ensuring efficient retrieval and management of user-related information.
 
-To use Docker for launching the forum, Docker should be installed from [here](https://docs.docker.com/get-docker/)
+⭐ The project has its own framework for working with the frontend.
 
- Follow the instructions. Wait for image to be built. 
+## 🔥 Features
 
-2. Link to objectives and audit: [here](https://github.com/01-edu/public/tree/master/subjects/forum).
- 
-3. To run SQL tests:
+- **Beautiful Design:** Enjoy visually appealing and optimized communication.
+- **Enhanced Communication:** Foster meaningful communication between users.
+- **Categorize Posts:** Easily associate posts to specific categories for better organization. 
+- **Engagement Options:** Allow users to express their opinions by liking and disliking posts and comments. 
+- **Efficient Filtering:** Streamline content discovery with the ability to filter posts based on preferences. 
+- **Real-time Chats:** Enable users to engage in dynamic conversations through real-time chat functionality.
 
-    > `$ sqlite3 forumData.db 'SELECT * FROM users;'`
+## 🪴 Project View
 
-    > `$ sqlite3 forumData.db 'SELECT * FROM post;' `
+<div >
+  <img src="https://github.com/Tihinya/FORUM-/assets/86482047/b98274fc-3eac-432a-bba4-4a4cb81caa8a" width="1238" style="border-radius:2.5%;margin-bottom: 15px"> 
+  <img src="https://github.com/Tihinya/FORUM-/assets/86482047/583a269e-2023-4c47-a31e-44d863fa1146" width="1238" style="border-radius:2.5%;margin-bottom: 15px">
+  <img src="https://github.com/Tihinya/FORUM-/assets/86482047/e32388e3-9643-4e07-a38c-cea7ec50f343" width="1238" style="border-radius:2.5%;margin-bottom: 15px">
+  <img src="https://github.com/Tihinya/FORUM-/assets/86482047/5b2b0df6-609f-4bd4-ba88-3a7b6124d0bb" width="1238" style="border-radius:2.5%;margin-bottom: 15px">
+</div>
 
-    > `$ sqlite3 forumData.db 'SELECT * FROM comments;'`
 
-### to note
+## 🧑‍💻 Running Locally
 
-Sqlite database may change permissions when moving the file (like downloading it). In that case, adding to the database will not work. After cloning the repo, please check the database permissions and set all to read and write.
+    docker compose up --build
+
+### Another method
+
+for this method you need to terminals
+
+First terminal: **Server**
+
+    cd server go run main.go
+
+Second terminal: **Frontend**
+
+    cd ../client npm install npm start
+
+Go to https://localhost:3000
+
+### 🚨 Note
+
+If you encounter a 'Loading...' message on your page, visit https://localhost:8080 and grant permission. This step is necessary as the project employs a self-generated certificate for secure connections.
+
 
 ## Implementation
-- Backend: `Golang`
+
+
+<div style="display:flex; align-items:center">
+    <h4 style="padding-right:7px">Backend</h4>
+    <img src="https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white" style="height:30px; padding-right:7px">
+</div>
+<div style="display:flex; align-items:center">
+    <h4 style="padding-right:7px">Frontend</h4>
+    <img src="https://img.shields.io/badge/css3-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white" style="height:30px; padding-right:7px">
+    <img src="https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E" style="height:30px; padding-right:7px">
+    <img src="https://img.shields.io/badge/webpack-%238DD6F9.svg?style=for-the-badge&logo=webpack&logoColor=black" style="height:30px; padding-right:7px">
+    <img src="https://img.shields.io/badge/figma-%23F24E1E.svg?style=for-the-badge&logo=figma&logoColor=white" style="height:30px; padding-right:7px">
+</div>
+
+<div style="display:flex; align-items:center">
+    <h4 style="padding-right:7px">Database</h4>
+    <img src="https://img.shields.io/badge/sqlite-%2307405e.svg?style=for-the-badge&logo=sqlite&logoColor=white" style="height:30px; padding-right:7px">
+</div>
+
+<div style="display:flex; align-items:center">
+    <h4 style="padding-right:7px">Container</h4>
+    <img src="https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white" style="height:30px; padding-right:7px">
+
+</div>
+
+
+<!-- - Backend: `Golang`
 - Frontend: `HTML`, `CSS`, `JS` `TS`
 - Database: `Sqlite3`
-- Container: `Docker`
+- Container: `Docker` -->
 
-## Authors
+## 🤝 Authors
 
-[Stepan Tihinya](Discord: StepanTI), 
-[Martin Vahe](Discord: mvahe), 
-[Deniss Orlov](Discord: Denis), 
-[Denis Petrov](Discord: Dolphin), 
+- **Stepan Tihinya** (Discord: StepanTI), 
+- **Martin Vahe** (Discord: mvahe), 
+- **Deniss Orlov** (Discord: Denis), 
+- **Denis Petrov** (Aka: Dolphin), 

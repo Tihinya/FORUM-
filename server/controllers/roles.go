@@ -2,13 +2,14 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"forum/database"
 	"forum/router"
 	"forum/validation"
 	"net/http"
 )
 
-func Promotion(w http.ResponseWriter, r *http.Request) {
+func RequestPromotion(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var req database.GetRoleRequest
@@ -70,7 +71,7 @@ func Promotion(w http.ResponseWriter, r *http.Request) {
 
 func ReadPromotions(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	var reqs []database.SendRoleRequest
+	var reqs = make([]database.SendRoleRequest, 0)
 	roleRequests, err := database.SelectAllPromotion()
 	if err != nil {
 		ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
@@ -107,25 +108,27 @@ func ReadPromotions(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func UpdatePromotion(w http.ResponseWriter, r *http.Request) {
-	var req database.ResponseToRequest
-	err := json.NewDecoder(r.Body).Decode(&req)
-	if err != nil {
-		ReturnMessageJSON(w, "Invalid request body", http.StatusBadRequest, "error")
-		return
-	}
-	//Get user ID
+func PromoteUser(w http.ResponseWriter, r *http.Request) {
+	// Get user ID
 	userID, err := router.GetFieldInt(r, "id")
 	if err != nil {
 		ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
 		return
 	}
 
-	if req.Status == "" || userID == 0 {
-		ReturnMessageJSON(w, "Invalid request body", http.StatusBadRequest, "error")
+	// Get status string
+	status, err := router.GetFieldString(r, "response")
+	if err != nil {
+		fmt.Println(err)
+		ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
+		return
 	}
-	if req.Status != "accept" && req.Status != "decline" {
-		ReturnMessageJSON(w, "Invalid request body", http.StatusBadRequest, "error")
+
+	if status == "" || userID == 0 {
+		ReturnMessageJSON(w, "Invalid request body, body cannot be empty and user id cannot equal 0", http.StatusBadRequest, "error")
+	}
+	if status != "accept" && status != "decline" {
+		ReturnMessageJSON(w, "Invalid request body, body needs parameter 'accept' or 'decline'", http.StatusBadRequest, "error")
 	}
 	// Сhecking RoleRequest
 	exist, err := validation.HasPendingRoleRequest(database.DB, userID)
@@ -138,32 +141,32 @@ func UpdatePromotion(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.Status == "accept" {
-		//Ger RoleID
+	if status == "accept" {
+		// Get RoleID
 		roleId, err := database.GetNewRoleIDByUserID(userID)
 		if err != nil {
-			ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
+			ReturnMessageJSON(w, "Error fetching role", http.StatusInternalServerError, "error")
 			return
 		}
 		// Update User Role
 		err = database.UpdateUser("", "", roleId, userID)
 		if err != nil {
-			ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
+			ReturnMessageJSON(w, "Error updating user", http.StatusInternalServerError, "error")
 			return
 		}
 		// Delete RoleRequest
 		err = database.DeleteRoleRequest(userID)
 		if err != nil {
-			ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
+			ReturnMessageJSON(w, "Error declining role request", http.StatusInternalServerError, "error")
 			return
 		}
 		ReturnMessageJSON(w, "Application approved", http.StatusOK, "success")
 	}
-	if req.Status == "decline" {
+	if status == "decline" {
 		// Delete RoleRequest
 		err := database.DeleteRoleRequest(userID)
 		if err != nil {
-			ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
+			ReturnMessageJSON(w, "Error declining role request", http.StatusInternalServerError, "error")
 			return
 		}
 		ReturnMessageJSON(w, "Application denied", http.StatusOK, "success")
@@ -171,28 +174,33 @@ func UpdatePromotion(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func DeletePromotion(w http.ResponseWriter, r *http.Request) {
+func DemoteUser(w http.ResponseWriter, r *http.Request) {
+	var req database.GetRoleRequest
 	//Get user ID
 	userID, err := router.GetFieldInt(r, "id")
 	if err != nil {
 		ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
 		return
 	}
-	// Сhecking RoleRequest
-	exist, err := validation.HasPendingRoleRequest(database.DB, userID)
+
+	err = json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		ReturnMessageJSON(w, "Invalid request body", http.StatusBadRequest, "error")
 		return
 	}
-	if !exist {
-		ReturnMessageJSON(w, "No pending request", http.StatusBadRequest, "error")
+
+	role, err := database.GetRoleId(req.NewRole)
+	if err != nil {
+		ReturnMessageJSON(w, "Error fetching role id", http.StatusInternalServerError, "error")
 		return
 	}
+
 	// Delete RoleRequest
-	err = database.DeleteRoleRequest(userID)
+	err = database.DemoteUser(role, userID)
 	if err != nil {
-		ReturnMessageJSON(w, "Internal Server Error", http.StatusInternalServerError, "error")
+		ReturnMessageJSON(w, "Error demoting user", http.StatusInternalServerError, "error")
 		return
 	}
-	ReturnMessageJSON(w, "Application denied", http.StatusOK, "success")
+
+	ReturnMessageJSON(w, "User demoted", http.StatusOK, "success")
 }
