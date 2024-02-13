@@ -73,6 +73,7 @@ If you encounter a 'Loading...' message on your page, visit https://localhost:80
     <h4 style="padding-right:7px">Frontend</h4>
     <img src="https://img.shields.io/badge/css3-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white" style="height:30px; padding-right:7px">
     <img src="https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E" style="height:30px; padding-right:7px">
+    <img src="https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white" style="height:30px; padding-right:7px">
     <img src="https://img.shields.io/badge/webpack-%238DD6F9.svg?style=for-the-badge&logo=webpack&logoColor=black" style="height:30px; padding-right:7px">
     <img src="https://img.shields.io/badge/figma-%23F24E1E.svg?style=for-the-badge&logo=figma&logoColor=white" style="height:30px; padding-right:7px">
 </div>
@@ -84,15 +85,11 @@ If you encounter a 'Loading...' message on your page, visit https://localhost:80
 
 <div style="display:flex; align-items:center">
     <h4 style="padding-right:7px">Container</h4>
+    <img src="https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white" style="height:30px; padding-right:7px">
     <img src="https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white" style="height:30px; padding-right:7px">
 
 </div>
 
-
-<!-- - Backend: `Golang`
-- Frontend: `HTML`, `CSS`, `JS` `TS`
-- Database: `Sqlite3`
-- Container: `Docker` -->
 
 ## 🤝 Authors
 
